@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
+
 // import { storeToRefs } from 'pinia'
 // import AppSidebar from '~/components/common/Sidebar/AppSidebar.vue'
 // import AppSubSidebar from '~/components/common/Sidebar/AppSubSidebar.vue'
@@ -55,7 +57,11 @@
         :categories="getSubmenu.items"
         :has-add-action="hasActionButton"
       /> -->
-      <main ref="refMain" class="main">
+      <AppSidebar>
+        <template #navigation></template>
+        <template #footer></template>
+      </AppSidebar>
+      <main class="main">
         <slot />
       </main>
     </div>

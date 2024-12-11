@@ -15,13 +15,22 @@ export default defineNuxtConfig({
     pages: 'app/routes',
     layouts: 'app/layouts',
     middleware: 'app/middleware',
-    assets: 'app/assets'
+    assets: 'app/assets',
+    shared: 'app/shared',
+    public: '../public',
+    plugins: '../plugins'
   },
   css: ['~/app/assets/styles/app.css'],
   $production: {
     vite: {
       esbuild: {
         pure: ['console.log', 'debugger']
+      }
+    },
+    runtimeConfig: {
+      public: {
+        apiBase: process.env.BASE_URL_PROD ?? '',
+        apiGateway: process.env.BASE_URL_GATEWAY_PROD ?? ''
       }
     }
   },
@@ -30,13 +39,21 @@ export default defineNuxtConfig({
     sourcemap: {
       client: true
     },
+
+    runtimeConfig: {
+      public: {
+        baseUrl: process.env.BASE_URL_DEV ?? '',
+        gatewayUrl: process.env.BASE_URL_GATEWAY_DEV ?? ''
+      }
+    },
+
     routeRules: {
       '/apiauth/**': {
         proxy: {
           to:
             process.env.API_MODE === 'debugg'
               ? 'http://10.10.10.77:64439/apiauth/**'
-              : 'https://isantur.ru/apiauth/**'
+              : process.env.BASE_URL_PROXY + 'apiauth/**'
         }
       },
       '/apissz/**': {
@@ -44,7 +61,7 @@ export default defineNuxtConfig({
           to:
             process.env.API_MODE === 'debugg'
               ? 'http://10.10.10.77:64439/apissz/**'
-              : 'https://isantur.ru/apissz/**'
+              : process.env.BASE_URL_PROXY + 'apissz/**'
         }
       },
       '/apiadmin/**': {
@@ -52,12 +69,12 @@ export default defineNuxtConfig({
           to:
             process.env.API_MODE === 'debugg'
               ? 'http://10.10.10.77:64439/apiadmin/**'
-              : 'https://isantur.ru/apiadmin/**'
+              : process.env.BASE_URL_PROXY + 'apiadmin/**'
         }
       },
       '/api-gateway/**': {
         proxy: {
-          to: 'https://gateway.santur.ru/api/**'
+          to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**'
         }
       }
     }
