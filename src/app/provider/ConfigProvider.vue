@@ -34,9 +34,9 @@ const themeOverrides: GlobalThemeOverrides = {
 </script>
 
 <template>
-  <n-config-provider :theme-overrides="themeOverrides">
-    <n-message-provider>
+  <NConfigProvider :theme-overrides="themeOverrides">
+    <NMessageProvider>
       <slot />
-    </n-message-provider>
-  </n-config-provider>
+    </NMessageProvider>
+  </NConfigProvider>
 </template>

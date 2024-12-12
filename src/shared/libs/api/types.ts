@@ -4,19 +4,18 @@ export type FetchOptionsType = NitroFetchOptions<
   'get' | 'head' | 'patch' | 'post' | 'put' | 'delete' | 'connect' | 'options' | 'trace'
 >
 
-export interface ResponseApi<T> {
-  data: T
-  errorcode: number
-  message: string
-  success: boolean
-}
-
-export interface ResponseGatewayApi<T = Record<string, unknown>> {
+export interface ResponseApi<T = unknown> {
   data: T
   message: string
   success: boolean
   errorcode?: number
 }
+
+// export interface ResponseGatewayApi<T = unknown> {
+//   data: T
+//   message: string
+//   success: boolean
+// }
 
 export interface ErrorResponse {
   message: string

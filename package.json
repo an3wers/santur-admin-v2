@@ -38,7 +38,8 @@
     "nuxtjs-naive-ui": "^1.0.2",
     "pinia": "^2.3.0",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/eslint-config-prettier": "^6.11.3",

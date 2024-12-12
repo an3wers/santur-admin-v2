@@ -1,4 +1,5 @@
-import type { FetchOptionsType, RefreshTokenResponse, ResponseGatewayApi } from './types'
+import type { FetchOptionsType, RefreshTokenResponse, ResponseApi } from './types'
+// import { useNuxtApp } from '#imports'
 
 export const useAppRequest = () => {
   const { gatewayUrl } = useRuntimeConfig().public
@@ -16,7 +17,7 @@ export const useAppRequest = () => {
     return res.data
   }
 
-  const checkError = <DataType>(res: ResponseGatewayApi<DataType>, message?: string) => {
+  const checkError = <DataType>(res: ResponseApi<DataType>, message?: string) => {
     if (!res.success) {
       throw new Error(res.message || message || 'Произошла ошибка')
     }
@@ -27,7 +28,7 @@ export const useAppRequest = () => {
   const baseFetch = async <DataType>(url: string, options: FetchOptionsType = {}) => {
     const { $apiBase } = useNuxtApp()
 
-    return await $apiBase<ResponseGatewayApi<DataType>>(url, options)
+    return await $apiBase<ResponseApi<DataType>>(url, options)
   }
 
   const fetchWithToken = async <DataType>(url: string, options: FetchOptionsType = {}) => {
@@ -45,12 +46,12 @@ export const useAppRequest = () => {
       headers: { ...options?.headers, Authorization: `Bearer ${token.value}` }
     }
 
-    let res = await $apiBase.raw<ResponseGatewayApi<DataType>>(url, _options)
+    let res = await $apiBase.raw<ResponseApi<DataType>>(url, _options)
 
     if (res.status === 401) {
       const { accessToken } = await makeRefreshToken()
       _options.headers = { ..._options.headers, Authorization: `Bearer ${accessToken}` }
-      res = await $apiBase.raw<ResponseGatewayApi<DataType>>(url, _options) // Повторная попытка запроса
+      res = await $apiBase.raw<ResponseApi<DataType>>(url, _options) // Повторная попытка запроса
     } else if (res.status >= 400) {
       throw createError({ statusCode: res.status, statusMessage: res.statusText })
     }

@@ -20,6 +20,27 @@ export default defineNuxtConfig({
     public: '../public',
     plugins: '../plugins'
   },
+  serverDir: 'server',
+  components: [
+    {
+      path: '~/shared',
+      extensions: ['.vue'],
+      pathPrefix: false
+    },
+    {
+      path: '~/entities',
+      extensions: ['.vue'],
+      pathPrefix: false
+    },
+    {
+      path: '~/pages',
+      extensions: ['.vue'],
+      pathPrefix: false
+    }
+  ],
+  imports: {
+    // dirs: ['~/shared/**/*.ts', '~/entities/**/*.ts', '~/pages/**/*.ts']
+  },
   css: ['~/app/assets/styles/app.css'],
   $production: {
     vite: {
