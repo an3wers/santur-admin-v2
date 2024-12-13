@@ -1,6 +1,6 @@
 export default defineNuxtPlugin({
   setup() {
-    const { baseUrl } = useRuntimeConfig().public
+    const { apiBase: baseUrl } = useRuntimeConfig().public
 
     const apiBase = $fetch.create({
       baseURL: baseUrl,

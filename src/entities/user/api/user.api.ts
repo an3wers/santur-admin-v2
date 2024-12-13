@@ -4,12 +4,14 @@ import {
   userSchema,
   type LoginDto,
   type LoginRequest,
-  type UserDto
+  type UserDto,
+  loginFogotSchema
 } from './user.schemas'
 import type { ErrorResponse, ResponseApi } from '~/shared/libs/api/types'
 
 export const useUserApi = () => {
   const { checkError, baseFetch, makeRefreshToken } = useAppRequest()
+  const { apiBase } = useRuntimeConfig().public
 
   async function loginAndGetToken(data: LoginRequest): Promise<LoginDto> {
     const res = await baseFetch('/api/users/login', {
@@ -83,5 +85,14 @@ export const useUserApi = () => {
     return await baseFetch<string>('/api/users/remove-token')
   }
 
-  return { loginAndGetToken, getUser, logout, removeToken }
+  async function loginFogot(email: string) {
+    const res = await baseFetch<string>(`apissz/LoginFogot/?u=${email}&tosms=N`, {
+      baseURL: apiBase
+    })
+    const _data = checkError(res).data
+
+    return loginFogotSchema.parse(_data)
+  }
+
+  return { loginAndGetToken, getUser, logout, removeToken, loginFogot }
 }

@@ -8,25 +8,23 @@ import {
   type FormInst,
   type FormRules,
   useMessage,
-  NP,
-  NText,
-  NA
+  NA,
+  NText
 } from 'naive-ui'
-import { useUserStore } from '~/entities/user'
+import { useUserApi } from '~/entities/user'
 import { APP_SUB_NAME } from '~/shared/config/constants'
 
-// TODO: Можно вынести стэйт и логику в model
 const message = useMessage()
-const isLoading = ref(false)
-const formRef = ref<FormInst | null>(null)
-const modelValue = ref<{
+const { loginFogot } = useUserApi()
+interface ModelValue {
   email: string
-  password: string
-}>({
-  email: '',
-  password: ''
+}
+
+const formRef = ref<FormInst | null>(null)
+const isLoading = ref(false)
+const modelValue = ref<ModelValue>({
+  email: ''
 })
-const { login } = useUserStore()
 
 const validateRules: FormRules = {
   email: {
@@ -34,30 +32,39 @@ const validateRules: FormRules = {
     message: 'Введите email',
     trigger: 'blur',
     type: 'email'
-  },
-  password: {
-    required: true,
-    message: 'Введите пароль',
-    trigger: 'blur'
   }
 }
 
 async function submitHandler() {
   try {
     isLoading.value = true
+
     await formRef.value?.validate()
-    const { email, password } = modelValue.value
 
-    await login({ username: email, password })
+    const { email } = modelValue.value
+    const data = await loginFogot(email)
 
-    modelValue.value.email = ''
-    modelValue.value.password = ''
+    message.success(data)
 
-    return await navigateTo('/')
+    const timerId = setTimeout(() => {
+      navigateTo('/profile/sign-in')
+      clearTimeout(timerId)
+    }, 800)
   } catch (error) {
     console.error(error)
+
     let errorMessage = ''
-    errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+
+    if (Array.isArray(error)) {
+      const errors: string[] = []
+      error.forEach((err) => {
+        errors.push(err[0].message)
+      })
+      errorMessage = errors.join(', ')
+    } else {
+      errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+    }
+
     message.error(errorMessage)
   } finally {
     isLoading.value = false
@@ -73,51 +80,30 @@ async function submitHandler() {
       </div>
       <n-text depth="3" class="logo-container__descr">{{ APP_SUB_NAME }}</n-text>
     </div>
-    <n-card title="Вход">
-      <n-p>Для входа используйте email и пароль такой же, как для корпоративного портала.</n-p>
+    <n-card title="Восстановить пароль">
       <n-form
         @submit.prevent="submitHandler"
         ref="formRef"
         :rules="validateRules"
         :model="modelValue"
       >
-        <n-form-item label="Email" path="email" :label-props="{ for: 'email' }">
-          <n-input
-            v-model:value="modelValue.email"
-            type="text"
-            placeholder="Введите email"
-            :input-props="{
-              name: 'email',
-              id: 'email',
-              type: 'email',
-              inputmode: 'email',
-              autocomplete: 'email'
-            }"
-          />
-        </n-form-item>
-        <n-form-item label="Пароль" path="password" :label-props="{ for: 'password' }">
-          <n-input
-            type="password"
-            v-model:value="modelValue.password"
-            placeholder="Введите пароль"
-            show-password-on="mousedown"
-            :input-props="{ name: 'password', id: 'password', autocomplete: 'current-password' }"
-          />
+        <n-form-item label="Email" path="email">
+          <n-input v-model:value="modelValue.email" placeholder="Введите email" />
         </n-form-item>
         <n-button :loading="isLoading" style="width: 100%" type="primary" attr-type="submit"
-          >Войти</n-button
+          >Восстановить пароль</n-button
         >
       </n-form>
     </n-card>
     <div class="form-btn">
-      <nuxt-link to="/profile/fogot-password" custom v-slot="{ href, navigate }">
-        <n-a :href="href" @click="navigate"> Забыли пароль?</n-a>
+      Вспомнили пароль?&nbsp;<nuxt-link to="/profile/sign-in" custom v-slot="{ href, navigate }">
+        <n-a :href="href" @click="navigate">Войти</n-a>
       </nuxt-link>
     </div>
   </div>
 </template>
 
-<style scoped lang="css">
+<style scoped>
 .sub-header {
   margin-bottom: 1rem;
 }

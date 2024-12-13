@@ -63,8 +63,8 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
       public: {
-        baseUrl: process.env.BASE_URL_DEV ?? '',
-        gatewayUrl: process.env.BASE_URL_GATEWAY_DEV ?? ''
+        apiBase: process.env.BASE_URL_DEV ?? '',
+        apiGateway: process.env.BASE_URL_GATEWAY_DEV ?? ''
       }
     },
 

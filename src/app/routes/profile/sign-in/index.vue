@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SignIn from '~/pages/profile/sign-in/ui/SignIn.vue'
+import { SignIn } from '~/pages/profile/sign-in'
 definePageMeta({
   layout: 'without-sidebar'
 })
