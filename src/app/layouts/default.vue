@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNavStore } from '~/shared/navigation'
 import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
 
 // import { storeToRefs } from 'pinia'
@@ -45,6 +46,19 @@ import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
 // const hasActionButton = computed(() => {
 //   return getSubmenu.value.label !== 'Аналитика'
 // })
+const navStore = useNavStore()
+async function initLayout() {
+  try {
+    await navStore.loadResurces()
+    navStore.checkAndSetActiveResource()
+    await navStore.loadMenu(navStore.activeResource)
+    navStore.saveActiveResourceToLS(navStore.activeResource)
+  } catch (error) {
+    throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
+  }
+}
+
+await initLayout()
 </script>
 
 <template>
@@ -58,7 +72,7 @@ import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
         :has-add-action="hasActionButton"
       /> -->
       <AppSidebar>
-        <template #navigation></template>
+        <template #navigation> </template>
         <template #footer></template>
       </AppSidebar>
       <main class="main">

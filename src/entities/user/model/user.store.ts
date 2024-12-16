@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 
 export const useUserStore = defineStore('user', () => {
   const api = useUserApi()
+
   const user = ref<User | null>(null)
   const userId = ref<number | null>(null)
   const isLoaded = ref(false)
