@@ -78,6 +78,7 @@ export const useUserApi = () => {
         statusMessage: res.statusMessage
       })
     }
+
     return checkError<null>(res).data
   }
 

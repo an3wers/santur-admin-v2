@@ -1,52 +1,20 @@
 <script setup lang="ts">
+import UserPreview from '~/entities/user/ui/UserPreview.vue'
 import { useNavStore } from '~/shared/navigation'
 import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
 
-// import { storeToRefs } from 'pinia'
-// import AppSidebar from '~/components/common/Sidebar/AppSidebar.vue'
-// import AppSubSidebar from '~/components/common/Sidebar/AppSubSidebar.vue'
-// import { useNavStore } from '~/stores/Navigation/index'
-// import { useResourcesStore } from '~/stores/Resources/index'
-
-// const navStore = useNavStore()
-// const { loadResurces, checkAndSetActiveResource, saveActiveResourceToLS } = useResourcesStore()
-// const { activeResource } = storeToRefs(useResourcesStore())
-// const route = useRoute()
-// const refMain = ref(null)
-
-// try {
-//   await loadResurces()
-//   checkAndSetActiveResource()
-//   await navStore.loadMenu(activeResource.value)
-//   saveActiveResourceToLS(activeResource.value)
-// } catch (error) {
-//   throw createError({ fatal: false, statusMessage: 'Произошла ошибка' })
-// }
-
-// watch(activeResource, () => {
-//   if (route.params?.slug) {
-//     navigateTo(`/${route.params.slug}`)
-//   }
-// })
-
-// const getSubmenu = computed(() => {
-//   if ('slug' in route.params && !Array.isArray(route.params.slug)) {
-//     return navStore.getSubMenu(route.params.slug)
-//   }
-//   // TODO: Рефакторинг
-//   else if (route.name?.toString().includes('analytics')) {
-//     return navStore.getSubMenu('analytics')
-//   } else if (route.name?.toString().includes('pvzs')) {
-//     return navStore.getSubMenu('pvzs')
-//   }
-//   return { label: '', items: [], needSubmenu: false }
-// })
-
-// // TODO: Добавил костыль, но нужно переделывать компонент
-// const hasActionButton = computed(() => {
-//   return getSubmenu.value.label !== 'Аналитика'
-// })
 const navStore = useNavStore()
+const route = useRoute()
+
+const firstLevelName = computed(() => {
+  return route.name?.toString().split('-')[0]
+})
+
+// Вынести в компонент AppSidebarSub
+const getSubmenu = computed(() => {
+  return navStore.getSubMenuBySlug(firstLevelName.value ?? '')
+})
+
 async function initLayout() {
   try {
     await navStore.loadResurces()
@@ -54,8 +22,7 @@ async function initLayout() {
     await navStore.loadMenu(navStore.activeResource)
     navStore.saveActiveResourceToLS(navStore.activeResource)
   } catch (error) {
-    console.log('@', error)
-    // throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
+    throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
   }
 }
 
@@ -65,15 +32,17 @@ await initLayout()
 <template>
   <div class="default-layout">
     <div class="wrapper">
-      <!-- <AppSidebar />
-      <AppSubSidebar
-        v-if="getSubmenu.needSubmenu"
+      <AppSidebar :first-level-name="firstLevelName">
+        <template #footer>
+          <UserPreview />
+        </template>
+      </AppSidebar>
+      <AppSidebarSub
+        v-if="getSubmenu"
         :title="getSubmenu.label"
+        :firstLevelMenuName="firstLevelName ?? ''"
         :categories="getSubmenu.items"
-        :has-add-action="hasActionButton"
-      /> -->
-      <AppSidebar />
-
+      />
       <main class="main">
         <slot />
       </main>
