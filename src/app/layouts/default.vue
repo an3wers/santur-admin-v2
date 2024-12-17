@@ -54,7 +54,8 @@ async function initLayout() {
     await navStore.loadMenu(navStore.activeResource)
     navStore.saveActiveResourceToLS(navStore.activeResource)
   } catch (error) {
-    throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
+    console.log('@', error)
+    // throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
   }
 }
 
@@ -71,10 +72,8 @@ await initLayout()
         :categories="getSubmenu.items"
         :has-add-action="hasActionButton"
       /> -->
-      <AppSidebar>
-        <template #navigation> </template>
-        <template #footer></template>
-      </AppSidebar>
+      <AppSidebar />
+
       <main class="main">
         <slot />
       </main>

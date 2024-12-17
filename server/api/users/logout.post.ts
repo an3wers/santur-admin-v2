@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { gatewayUrl } = useRuntimeConfig().public
+  const { apiGateway } = useRuntimeConfig().public
 
   const refreshToken = getCookie(event, '_user_refresh_token')
   const accessToken = getCookie(event, '_user_token')
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const res = await $fetch.raw(`${gatewayUrl}Auth/SignOut`, {
+  const res = await $fetch.raw(`${apiGateway}Auth/SignOut`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`

@@ -2,7 +2,7 @@ import type { FetchOptionsType, RefreshTokenResponse, ResponseApi } from './type
 // import { useNuxtApp } from '#imports'
 
 export const useAppRequest = () => {
-  const { gatewayUrl } = useRuntimeConfig().public
+  const { apiGateway } = useRuntimeConfig().public
 
   const makeRefreshToken = async () => {
     const deviceId = localStorage.getItem('deviceId')
@@ -41,7 +41,7 @@ export const useAppRequest = () => {
 
     const _options: any = {
       ...options,
-      baseURL: options.baseURL ? options.baseURL : gatewayUrl,
+      baseURL: options.baseURL ? options.baseURL : apiGateway,
       ignoreResponseError: true,
       headers: { ...options?.headers, Authorization: `Bearer ${token.value}` }
     }

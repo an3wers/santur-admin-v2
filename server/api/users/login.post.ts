@@ -5,10 +5,10 @@ interface LoginResponse {
 }
 
 export default defineEventHandler(async (event) => {
-  const { gatewayUrl } = useRuntimeConfig().public
+  const { apiGateway } = useRuntimeConfig().public
   const body = await readBody(event)
 
-  const res = await $fetch.raw(`${gatewayUrl}Auth/SignIn`, {
+  const res = await $fetch.raw(`${apiGateway}Auth/SignIn`, {
     method: 'POST',
     body,
     ignoreResponseError: true

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 interface MenuItem {
-  app: string
+  app: string | null
   categoryId: number
   id: number
   items: MenuItem[]
@@ -11,7 +11,7 @@ interface MenuItem {
 }
 
 export const menuItemSchema: z.ZodType<MenuItem> = z.object({
-  app: z.string(),
+  app: z.nullable(z.string()),
   categoryId: z.number(),
   id: z.number(),
   items: z.array(z.lazy(() => menuItemSchema)),

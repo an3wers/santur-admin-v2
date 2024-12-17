@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { gatewayUrl } = useRuntimeConfig().public
+  const { apiGateway } = useRuntimeConfig().public
 
   const body = await readBody(event)
   const refreshToken = getCookie(event, '_user_refresh_token')
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const res = await $fetch.raw(`${gatewayUrl}Auth/Refresh`, {
+  const res = await $fetch.raw(`${apiGateway}Auth/Refresh`, {
     method: 'POST',
     body: {
       refreshToken,

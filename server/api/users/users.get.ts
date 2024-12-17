@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { gatewayUrl } = useRuntimeConfig().public
+  const { apiGateway } = useRuntimeConfig().public
 
   const cookieToken = getCookie(event, '_user_token')
   const { id } = getQuery(event)
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const res = await $fetch.raw(`${gatewayUrl}Auth/GetUser?id=${_id}`, {
+  const res = await $fetch.raw(`${apiGateway}Auth/GetUser?id=${_id}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${cookieToken}`

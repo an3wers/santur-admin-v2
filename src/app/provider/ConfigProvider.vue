@@ -8,13 +8,11 @@ const themeOverrides: GlobalThemeOverrides = {
     primaryColorPressed: '#1257A6',
     primaryColorSuppl: '#1976d2',
     borderColor: '#e2e8f0',
-    borderRadius: '0.5rem',
     bodyColor: '#0f172a',
     textColorBase: '#0f172a'
   },
   Menu: {
     itemColorHover: '#EBF3FE',
-    borderRadius: '0.5rem',
     itemColorActive: '#dbeafe',
     itemTextColor: '#0f172a'
   },
