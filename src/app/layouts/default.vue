@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import UserPreview from '~/entities/user/ui/UserPreview.vue'
-import { useNavStore } from '~/shared/navigation'
-import AppSidebarFirst from '~/shared/ui/AppSidebar/AppSidebarFirst.vue'
-import AppSidebarSecond from '~/shared/ui/AppSidebar/AppSidebarSecond.vue'
+import { NavbarFirst, NavbarSecond, useNavStore } from '~/shared/navigation'
 
 const navStore = useNavStore()
 
@@ -23,12 +21,12 @@ await initLayout()
 <template>
   <div class="default-layout">
     <div class="wrapper">
-      <AppSidebarFirst>
+      <NavbarFirst>
         <template #footer>
           <UserPreview />
         </template>
-      </AppSidebarFirst>
-      <AppSidebarSecond v-if="navStore.currentSubmenu.needSubmenu" />
+      </NavbarFirst>
+      <NavbarSecond v-if="navStore.currentSubmenu.needSubmenu" />
       <main class="main">
         <slot />
       </main>
