@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
-interface MenuItem {
+export interface MenuItemDto {
   app: string | null
   categoryId: number
   id: number
-  items: MenuItem[]
+  items: MenuItemDto[]
   label: string
   modelName: string
   needSubmenu: boolean
 }
 
-export const menuItemSchema: z.ZodType<MenuItem> = z.object({
+export const menuItemSchema: z.ZodType<MenuItemDto> = z.object({
   app: z.nullable(z.string()),
   categoryId: z.number(),
   id: z.number(),
@@ -19,8 +19,6 @@ export const menuItemSchema: z.ZodType<MenuItem> = z.object({
   modelName: z.string(),
   needSubmenu: z.boolean()
 })
-
-export type MenuItemDto = z.infer<typeof menuItemSchema>
 
 export const resourceSchema = z.object({
   code: z.string(),
