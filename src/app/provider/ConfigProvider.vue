@@ -7,6 +7,7 @@ const themeOverrides: GlobalThemeOverrides = {
     primaryColorHover: '#1565C0',
     primaryColorPressed: '#1257A6',
     primaryColorSuppl: '#1976d2',
+    borderRadius: '0.5rem',
     borderColor: '#e2e8f0',
     bodyColor: '#0f172a',
     textColorBase: '#0f172a'

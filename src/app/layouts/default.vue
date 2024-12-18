@@ -1,19 +1,10 @@
 <script setup lang="ts">
 import UserPreview from '~/entities/user/ui/UserPreview.vue'
 import { useNavStore } from '~/shared/navigation'
-import AppSidebar from '~/shared/ui/AppSidebar/AppSidebar.vue'
+import AppSidebarFirst from '~/shared/ui/AppSidebar/AppSidebarFirst.vue'
+import AppSidebarSecond from '~/shared/ui/AppSidebar/AppSidebarSecond.vue'
 
 const navStore = useNavStore()
-const route = useRoute()
-
-const firstLevelName = computed(() => {
-  return route.name?.toString().split('-')[0]
-})
-
-// Вынести в компонент AppSidebarSub
-const getSubmenu = computed(() => {
-  return navStore.getSubMenuBySlug(firstLevelName.value ?? '')
-})
 
 async function initLayout() {
   try {
@@ -32,17 +23,12 @@ await initLayout()
 <template>
   <div class="default-layout">
     <div class="wrapper">
-      <AppSidebar :first-level-name="firstLevelName">
+      <AppSidebarFirst>
         <template #footer>
           <UserPreview />
         </template>
-      </AppSidebar>
-      <AppSidebarSub
-        v-if="getSubmenu"
-        :title="getSubmenu.label"
-        :firstLevelMenuName="firstLevelName ?? ''"
-        :categories="getSubmenu.items"
-      />
+      </AppSidebarFirst>
+      <AppSidebarSecond v-if="navStore.currentSubmenu.needSubmenu" />
       <main class="main">
         <slot />
       </main>

@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 
 export const useNavStore = defineStore('navigation', () => {
   const api = useNavApi()
+  const route = useRoute()
 
   const navigation = ref<MenuItem[] | null>(null)
   const mapNavigation = ref<Record<string, MenuItem> | null>(null)
@@ -30,6 +31,24 @@ export const useNavStore = defineStore('navigation', () => {
       items: _mappingNavItemsToMenuOptions(navItem.items),
       needSubmenu: navItem.needSubmenu
     }
+  })
+
+  const navNameList = computed<string[]>(() => {
+    return Object.keys(mapNavigation.value ?? {})
+  })
+
+  const firstLevelName = computed(() => {
+    const slug = route.name?.toString().split('-')[0] ?? ''
+    const currentName = navNameList.value.includes(slug) ? slug : ''
+    return currentName
+  })
+
+  const secondLevelId = computed(() => {
+    return route.params?.catId ? Number(route.params.catId) : -1
+  })
+
+  const currentSubmenu = computed(() => {
+    return getSubMenuBySlug.value(firstLevelName.value)
   })
 
   async function loadMenu(recource: string): Promise<void> {
@@ -118,6 +137,10 @@ export const useNavStore = defineStore('navigation', () => {
     resourcesSelectore,
     getMenuOptions,
     getSubMenuBySlug,
+    firstLevelName,
+    secondLevelId,
+    navNameList,
+    currentSubmenu,
     loadMenu,
     loadResurces,
     $reset,

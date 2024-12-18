@@ -3,25 +3,16 @@ import { APP_SUB_NAME } from '~/shared/config/constants'
 import { NText, NMenu, NSelect } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 
-const { firstLevelName } = defineProps<{
-  firstLevelName: string | undefined
-}>()
-
-// Nav
 const navStore = useNavStore()
 
 const selectedKey = ref(0)
+selectedKey.value = navStore.mapNavigation?.[navStore.firstLevelName]?.id ?? 0
 
-if (firstLevelName) {
-  selectedKey.value = navStore.mapNavigation?.[firstLevelName]?.id ?? 0
-}
-
-// Resources
 async function changeResource(value: string) {
   navStore.setActiveResource(value)
   await navStore.loadMenu(value)
   navStore.saveActiveResourceToLS(value)
-  navigateTo({ name: firstLevelName })
+  navigateTo({ name: navStore.firstLevelName })
 }
 </script>
 <template>

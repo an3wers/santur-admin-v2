@@ -2,26 +2,12 @@
 import { type MenuOption, NModal, NButton, NMenu } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 
-interface Props {
-  title: string
-  firstLevelMenuName: string
-  categories?: MenuOption[]
-}
-
-const { title, firstLevelMenuName, categories = [] } = defineProps<Props>()
-
 const navStore = useNavStore()
 
 const modalTitle = 'Добавить категорию'
-const route = useRoute()
-
-const slug = route.params?.catId as string | undefined
 
 const selectedKey = ref(-1)
-
-if (slug) {
-  selectedKey.value = Number(slug)
-}
+selectedKey.value = navStore.secondLevelId
 
 const showModal = ref(false)
 
@@ -36,9 +22,9 @@ async function updateMenu() {
 // TODO: Рефакторинг
 const hasActionBtn = computed(() => {
   return (
-    firstLevelMenuName === 'posts' ||
-    firstLevelMenuName === 'banners' ||
-    firstLevelMenuName === 'pvzs'
+    navStore.firstLevelName === 'posts' ||
+    navStore.firstLevelName === 'banners' ||
+    navStore.firstLevelName === 'pvzs'
   )
 })
 </script>
@@ -46,19 +32,21 @@ const hasActionBtn = computed(() => {
   <div class="sub-sidebar">
     <div class="sub-sidebar__header">
       <div class="sub-sidebar__title">
-        {{ title }}
+        {{ navStore.currentSubmenu.label }}
       </div>
     </div>
     <div class="sub-sidebar__nav-container">
       <div v-if="hasActionBtn" class="action-btn">
-        <n-button :block="true" @click="toogleModal" type="default">Добавить </n-button>
+        <n-button type="primary" size="small" :block="true" @click="toogleModal"
+          >Добавить категорию</n-button
+        >
       </div>
       <n-menu
         v-model:value="selectedKey"
         :builtin-theme-overrides="{ itemHeight: '32px' }"
         class="sub-menu"
         :indent="20"
-        :options="categories"
+        :options="navStore.currentSubmenu.items"
       />
     </div>
     <!-- TODO: Переделывать функционал, сайдбар может быть не только в постах, учесть расширяемость и различные типы контента -->
