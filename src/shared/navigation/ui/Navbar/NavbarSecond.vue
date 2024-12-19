@@ -58,6 +58,12 @@ const hasActionBtn = computed(() => {
         preset="card"
         v-model:show="showModal"
       >
+        <slot
+          name="modal"
+          :first-level-menu-name="navStore.firstLevelName"
+          :on-update-menu="updateMenu"
+          :on-cancel-modal="toogleModal"
+        />
         <!-- <post-category-edit
           @on-cancel="toogleModal"
           @on-update="updateMenu"

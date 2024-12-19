@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AddEditCategory from '~/entities/category/ui/AddEditCategory.vue'
 import UserPreview from '~/entities/user/ui/UserPreview.vue'
 import { NavbarFirst, NavbarSecond, useNavStore } from '~/shared/navigation'
 
@@ -26,7 +27,15 @@ await initLayout()
           <UserPreview />
         </template>
       </NavbarFirst>
-      <NavbarSecond v-if="navStore.currentSubmenu.needSubmenu" />
+      <NavbarSecond v-if="navStore.currentSubmenu.needSubmenu">
+        <template #modal="{ firstLevelMenuName, onCancelModal, onUpdateMenu }">
+          <AddEditCategory
+            :first-level-name="firstLevelMenuName"
+            @on-update="onUpdateMenu"
+            @on-cancel="onCancelModal"
+          />
+        </template>
+      </NavbarSecond>
       <main class="main">
         <slot />
       </main>

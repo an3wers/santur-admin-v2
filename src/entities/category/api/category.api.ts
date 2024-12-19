@@ -36,17 +36,17 @@ export const useCategoryApi = () => {
   }
 
   // TODO: добавить проверку Zod схемы
-  async function saveExtendField(id: number, categoryId: number, title: string) {
-    const res = await fetchWithToken<unknown>('Admin/SaveExtendField', {
-      method: 'POST',
-      body: {
-        id,
-        categoryId,
-        title
-      }
-    })
-    return checkError(res)
-  }
+  // async function saveExtendField(id: number, categoryId: number, title: string) {
+  //   const res = await fetchWithToken<unknown>('Admin/SaveExtendField', {
+  //     method: 'POST',
+  //     body: {
+  //       id,
+  //       categoryId,
+  //       title
+  //     }
+  //   })
+  //   return checkError(res)
+  // }
 
   // TODO: добавить проверку Zod схемы
   async function removeExtendField(extendFieldId: number) {
@@ -56,7 +56,7 @@ export const useCategoryApi = () => {
 
     const res = await fetchWithToken<unknown>(`Admin/DeleteExtendField?${query.toString()}`)
 
-    return checkError(res)
+    return checkError(res).data
   }
 
   // TODO: добавить проверку Zod схемы
@@ -69,18 +69,18 @@ export const useCategoryApi = () => {
       categoryId: categoryId.toString()
     })
 
-    const res = await fetchWithToken<unknown>(
+    const res = await fetchWithToken<number>(
       `Admin/CheckForExistsExtFieldValue?${query.toString()}`
     )
 
-    return checkError(res)
+    return checkError(res).data
   }
 
   return {
     saveCategory,
     removeCategory,
     getCategory,
-    saveExtendField,
+    // saveExtendField,
     removeExtendField,
     checkForExistsExtFieldValue
   }

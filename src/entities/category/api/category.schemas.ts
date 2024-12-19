@@ -2,8 +2,7 @@ import { z } from 'zod'
 
 export const extFieldsSchema = z.object({
   id: z.number(),
-  title: z.string(),
-  categoryId: z.number()
+  title: z.string()
 })
 
 export type ExtFieldsDto = z.infer<typeof extFieldsSchema>
@@ -17,7 +16,7 @@ export const categorySchema = z.object({
   id: z.number(),
   menuOrder: z.number(),
   name: z.string(),
-  type: z.string()
+  type: z.number()
 })
 
 export type CategoryDto = z.infer<typeof categorySchema>
@@ -25,9 +24,9 @@ export type CategoryDto = z.infer<typeof categorySchema>
 export interface SaveCategoryRequest {
   app: string
   id: number
-  name: string
-  type: string
-  alias: string
-  extFields: ExtFieldsDto[]
+  name?: string
+  alias?: string
+  extFields?: ExtFieldsDto[]
+  type?: number
   menuOrder?: number
 }
