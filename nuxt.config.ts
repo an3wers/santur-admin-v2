@@ -26,17 +26,17 @@ export default defineNuxtConfig({
       path: '~/shared',
       extensions: ['.vue'],
       pathPrefix: false
-    },
-    {
-      path: '~/entities',
-      extensions: ['.vue'],
-      pathPrefix: false
-    },
-    {
-      path: '~/pages',
-      extensions: ['.vue'],
-      pathPrefix: false
     }
+    // {
+    //   path: '~/entities',
+    //   extensions: ['.vue'],
+    //   pathPrefix: false
+    // },
+    // {
+    //   path: '~/pages',
+    //   extensions: ['.vue'],
+    //   pathPrefix: false
+    // }
   ],
   imports: {
     // dirs: ['~/shared/**/*.ts', '~/entities/**/*.ts', '~/pages/**/*.ts']

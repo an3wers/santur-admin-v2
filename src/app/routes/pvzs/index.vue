@@ -1,7 +1,8 @@
+<script setup lang="ts">
+import { PvzsMain } from '~/pages/pvzs/index'
+</script>
 <template>
-  <div></div>
+  <PvzsMain />
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped></style>

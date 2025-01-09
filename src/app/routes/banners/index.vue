@@ -1,7 +1,9 @@
-<template>
-  <div></div>
-</template>
+<script setup lang="ts">
+import { BannersMain } from '~/pages/banners/index'
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <BannersMain />
+</template>
 
 <style scoped></style>

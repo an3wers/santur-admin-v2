@@ -1,12 +1,14 @@
 import type { Category } from './category.types'
 import { useCategoryApi } from '../api/category.api'
+import { useNavStore } from '~/shared/navigation'
+import { generateAlias } from '~/shared/libs/generateAlias'
 
 export const useCategoryStore = defineStore('category', () => {
   const api = useCategoryApi()
-
+  const navStore = useNavStore()
   const category = reactive<Category>({
     alias: '',
-    app: '',
+    app: navStore.activeResource,
     extFields: [],
     id: 0,
     name: '',
@@ -82,15 +84,16 @@ export const useCategoryStore = defineStore('category', () => {
 
   async function loadCategory(catId: number): Promise<void> {
     if (catId === 0) {
-      Object.assign(category, {
-        alias: '',
-        app: '',
-        extFields: [],
-        id: 0,
-        name: '',
-        type: 0,
-        menuOrder: 0
-      })
+      // Лишняя операция
+      // Object.assign(category, {
+      //   alias: '',
+      //   app: navStore.activeResource,
+      //   extFields: [],
+      //   id: 0,
+      //   name: '',
+      //   type: 0,
+      //   menuOrder: 0
+      // })
       return
     }
 
@@ -99,30 +102,36 @@ export const useCategoryStore = defineStore('category', () => {
       categoryError.value = ''
       const data = api.getCategory(catId)
       Object.assign(category, data)
+
+      categoryStatus.value = 'success'
     } catch (e) {
       const errorText = e instanceof Error ? e.message : JSON.stringify(e)
       categoryError.value = errorText
       categoryStatus.value = 'error'
-    } finally {
-      categoryStatus.value = 'success'
     }
   }
 
-  async function saveCategory() {
+  async function saveCategory(type: string) {
     try {
       saveStatus.value = 'pending'
       saveError.value = ''
-      const { menuOrder, type, extFields, ...categoryValues } = category
 
-      const filteredExtFields = extFields.filter((f) => f.title !== '')
+      const filteredExtFields = category.extFields.filter((f) => f.title !== '')
 
-      await api.saveCategory({ ...categoryValues, extFields: filteredExtFields })
+      await api.saveCategory({
+        type,
+        id: category.id,
+        alias: category.alias ? category.alias : generateAlias(category.name),
+        app: category.app,
+        extFields: filteredExtFields,
+        title: category.name,
+        menuOrder: category.menuOrder
+      })
+      saveStatus.value = 'success'
     } catch (e) {
       const errorText = e instanceof Error ? e.message : JSON.stringify(e)
       saveError.value = errorText
       saveStatus.value = 'error'
-    } finally {
-      saveStatus.value = 'success'
     }
   }
 
@@ -132,13 +141,15 @@ export const useCategoryStore = defineStore('category', () => {
     try {
       removeStatus.value = 'pending'
       removeError.value = ''
+
       await api.removeCategory(category.id)
+
+      removeStatus.value = 'success'
     } catch (e) {
       const errorText = e instanceof Error ? e.message : JSON.stringify(e)
       removeError.value = errorText
       removeStatus.value = 'error'
     } finally {
-      removeStatus.value = 'success'
     }
   }
 
@@ -161,12 +172,12 @@ export const useCategoryStore = defineStore('category', () => {
       extFieldsStatus.value = 'pending'
       extFieldsError.value = ''
       await api.removeExtendField(extendFieldId)
+
+      extFieldsStatus.value = 'success'
     } catch (e) {
       const errorText = e instanceof Error ? e.message : JSON.stringify(e)
       extFieldsError.value = errorText
       extFieldsStatus.value = 'error'
-    } finally {
-      extFieldsStatus.value = 'success'
     }
   }
 
@@ -197,7 +208,7 @@ export const useCategoryStore = defineStore('category', () => {
     extFieldsError.value = ''
 
     category.alias = ''
-    category.app = ''
+    category.app = navStore.activeResource
     category.extFields = []
     category.id = 0
     category.name = ''

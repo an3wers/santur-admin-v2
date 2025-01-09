@@ -51,6 +51,10 @@ export const useNavStore = defineStore('navigation', () => {
     return getSubMenuBySlug.value(firstLevelName.value)
   })
 
+  const currentNavigationMenu = computed(() => {
+    return mapNavigation.value?.[firstLevelName.value]
+  })
+
   async function loadMenu(recource: string): Promise<void> {
     try {
       const data = await api.getNavigation(recource)
@@ -141,6 +145,7 @@ export const useNavStore = defineStore('navigation', () => {
     secondLevelId,
     navNameList,
     currentSubmenu,
+    currentNavigationMenu,
     loadMenu,
     loadResurces,
     $reset,

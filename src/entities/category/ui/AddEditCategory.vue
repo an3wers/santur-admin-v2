@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useMessage } from 'naive-ui'
 import { useCategoryStore } from '../model/category.store'
+import { NCard, NDynamicInput, NForm, NFormItem, NInput, NSpace, NModal, NButton } from 'naive-ui'
 
 interface Props {
   id?: number
@@ -32,12 +33,28 @@ const {
   showConfirmForRemoveField
 } = storeToRefs(categoryStore)
 
+const getType = computed(() => {
+  switch (firstLevelName) {
+    case 'posts':
+      return 'post'
+    case 'banners':
+      return 'banner'
+    default:
+      return ''
+  }
+})
+
 async function saveCategory() {
-  await categoryStore.saveCategory()
+  await categoryStore.saveCategory(getType.value)
 
   if (saveStatus.value === 'success') {
     emits('onUpdate')
     emits('onCancel')
+    message.success('Категория сохранена')
+  }
+
+  if (saveStatus.value === 'error') {
+    message.error(saveError.value)
   }
 }
 
@@ -47,11 +64,13 @@ async function removeCategory() {
   if (removeStatus.value === 'success') {
     emits('onUpdate')
     emits('onCancel')
+    message.success('Категория удалена')
+    navigateTo({ name: firstLevelName, replace: true })
   }
 
-  message.success('Категория удалена')
-
-  navigateTo({ name: firstLevelName, replace: true })
+  if (removeStatus.value === 'error') {
+    message.error(removeError.value)
+  }
 }
 
 onUnmounted(() => {
@@ -132,4 +151,16 @@ onUnmounted(() => {
   </n-card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.btns-rigth {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+</style>

@@ -22,11 +22,11 @@ export const categorySchema = z.object({
 export type CategoryDto = z.infer<typeof categorySchema>
 
 export interface SaveCategoryRequest {
-  app: string
   id: number
-  name?: string
+  app?: string
+  title?: string
   alias?: string
   extFields?: ExtFieldsDto[]
-  type?: number
+  type?: string
   menuOrder?: number
 }
