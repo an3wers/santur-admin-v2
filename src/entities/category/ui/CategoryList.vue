@@ -49,6 +49,10 @@ const props = defineProps<Props>()
   margin-left: auto;
 }
 
+.item-name {
+  flex-grow: 1;
+}
+
 .item-name h4 {
   margin-top: 0;
   margin-bottom: 0;

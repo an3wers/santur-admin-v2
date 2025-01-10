@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BannersMain } from '~/pages/banners/index'
+import { BannersMain } from '~/pages/banners/bannersMain'
 </script>
 
 <template>

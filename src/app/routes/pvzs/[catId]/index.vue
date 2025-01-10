@@ -1,7 +1,9 @@
-<template>
-  <div></div>
-</template>
+<script setup lang="ts">
+import { PvzsCategory } from '~/pages/pvzs/pvzsCategory'
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <PvzsCategory />
+</template>
 
 <style scoped></style>
