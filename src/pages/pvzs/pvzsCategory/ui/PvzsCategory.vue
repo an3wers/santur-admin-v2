@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage } from 'naive-ui'
+import { NSpace, NH1, useMessage, NP } from 'naive-ui'
 import { PvzsList, usePvzs } from '~/entities/pvzs'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
@@ -30,7 +30,11 @@ if (status.value === 'error') {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PvzsList v-if="data" :pvzs="data" />
+      <PvzsList v-if="data && data.length" :pvzs="data" :ownert-id="parseInt(catId as string)" />
+      <!-- TODO: Доработь вывод пустого списка -->
+      <div v-if="data && !data.length">
+        <n-p>Ничего не найдено</n-p>
+      </div>
     </n-space>
   </div>
 </template>

@@ -19,16 +19,16 @@ export const useCategoryStore = defineStore('category', () => {
   const showConfirmForRemoveField = ref(false)
   const _fieldIdToRemove = ref(-1)
 
-  const categoryStatus = ref<TProcessStatus>('idle')
+  const categoryStatus = ref<ProcessStatus>('idle')
   const categoryError = ref('')
 
-  const saveStatus = ref<TProcessStatus>('idle')
+  const saveStatus = ref<ProcessStatus>('idle')
   const saveError = ref('')
 
-  const removeStatus = ref<TProcessStatus>('idle')
+  const removeStatus = ref<ProcessStatus>('idle')
   const removeError = ref('')
 
-  const extFieldsStatus = ref<TProcessStatus>('idle')
+  const extFieldsStatus = ref<ProcessStatus>('idle')
   const extFieldsError = ref('')
 
   function addExtendFiledInput() {

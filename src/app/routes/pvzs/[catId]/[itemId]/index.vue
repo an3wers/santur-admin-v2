@@ -1,7 +1,9 @@
-<template>
-  <div></div>
-</template>
+<script setup lang="ts">
+import { PvzsItem } from '~/pages/pvzs/pvzsItem'
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <PvzsItem />
+</template>
 
 <style scoped></style>

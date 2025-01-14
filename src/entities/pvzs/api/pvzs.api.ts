@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/useAppRequests'
-import { pvzSchema } from './pvzs.schemas'
+import { pvzSchema, type SavePvzsItemRequest } from './pvzs.schemas'
 
 export const usePvzsApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
@@ -18,5 +18,20 @@ export const usePvzsApi = () => {
     return pvzSchema.array().parse(mapped)
   }
 
-  return { getPvzs }
+  async function getPvzsItem(id: string) {
+    const query = new URLSearchParams({
+      id
+    })
+
+    const res = await fetchWithToken(`Org/GetPickupPoint?${query.toString()}`)
+    const _data = checkError(res).data
+    const { thisObject, ...otherFields } = _data as Record<string, any>
+    return pvzSchema.parse(otherFields)
+  }
+
+  async function savePvzsItem(data: SavePvzsItemRequest) {}
+
+  async function deletePvzsItem(id: string) {}
+
+  return { getPvzs, getPvzsItem, savePvzsItem, deletePvzsItem }
 }

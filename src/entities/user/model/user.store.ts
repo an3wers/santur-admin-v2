@@ -8,6 +8,8 @@ export const useUserStore = defineStore('user', () => {
 
   const user = ref<User | null>(null)
   const userId = ref<number | null>(null)
+
+  // TODO: Заменить на статус
   const isLoaded = ref(false)
 
   const isAuthenticated = computed(() => !!user.value?.id)

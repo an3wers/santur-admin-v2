@@ -5,6 +5,8 @@ import ConfigProvider from './app/provider/ConfigProvider.vue'
 <template>
   <ConfigProvider>
     <div class="app">
+      <NuxtLoadingIndicator color="#1976d2" />
+      <!-- TODO: Error Boundary -->
       <NuxtLayout>
         <NuxtPage :page-key="(route: any) => route.fullPath" />
       </NuxtLayout>

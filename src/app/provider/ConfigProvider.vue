@@ -22,7 +22,7 @@ const themeOverrides: GlobalThemeOverrides = {
     textColor: '#0f172a'
   },
   Form: {
-    labelFontWeight: '600',
+    labelFontWeight: '500',
     feedbackPadding: '6px 0 12px 0px',
     feedbackFontSizeMedium: '12px'
   },

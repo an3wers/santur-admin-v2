@@ -1,6 +1,6 @@
 .default-layout,
 .witout-sidebar-layout {
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100%;
   min-width: 1024px;
   background-color: var(--gray-100);

@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { NCard, NList, NIcon, NListItem, NText, NP } from 'naive-ui'
-import type { TPvzsListItem } from '../model/pvzs.types'
+import { NCard, NList, NIcon, NListItem, NText, NTag, NDropdown, NButton } from 'naive-ui'
+import type { PvzsListItem } from '../model/pvzs.types'
+import { Dots } from '@vicons/tabler'
+import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
-const props = defineProps<{
-  pvzs: TPvzsListItem[]
+const { pvzs, ownertId } = defineProps<{
+  pvzs: PvzsListItem[]
+  ownertId: number
 }>()
+
+const moreMenu: DropdownMixedOption[] = [{ label: 'Изменить', key: 'edit' }]
+
+function handleDropdown(key: string, itemId: number) {
+  switch (key) {
+    case 'edit':
+      navigateTo(`${ownertId}/${itemId}`)
+      break
+
+    default:
+      console.log('Dropdown', key)
+  }
+}
 </script>
 
 <template>
@@ -17,18 +33,34 @@ const props = defineProps<{
           </div>
           <div class="item-base">
             <div class="item-title">
-              <nuxt-link :to="`${$route.params.catId}/${item.id}`">
+              <nuxt-link :to="`${ownertId}/${item.id}`">
                 <h4>{{ item.name }}</h4>
               </nuxt-link>
             </div>
             <div class="item-descr">
-              <n-text>{{ item.address }}</n-text>
-              <n-text>{{ item.phones }}</n-text>
-              <n-text>{{ item.gpscoords }}</n-text>
+              <n-text depth="3">{{ item.city }}, {{ item.address }}</n-text>
+              <n-text depth="3">{{ item.times }}</n-text>
+              <n-text depth="3">{{ item.phones }}</n-text>
+              <n-text depth="3">{{ item.gpscoords }}</n-text>
             </div>
           </div>
-          <div class="item-switch"></div>
-          <div class="item-btn"></div>
+          <div class="item-status">
+            <n-tag size="small" v-if="item.isActive" type="success">Опубликовано</n-tag>
+            <n-tag size="small" v-else type="error">Не опубликовано</n-tag>
+          </div>
+          <div class="item-btn">
+            <n-dropdown
+              trigger="click"
+              :options="moreMenu"
+              @select="(key) => handleDropdown(key, item.id)"
+            >
+              <n-button quaternary circle size="small">
+                <n-icon size="24px">
+                  <Dots />
+                </n-icon>
+              </n-button>
+            </n-dropdown>
+          </div>
         </div>
       </n-list-item>
     </n-list>
@@ -39,6 +71,7 @@ const props = defineProps<{
 .item-row {
   display: flex;
   gap: 1.5rem;
+  justify-content: space-between;
 }
 .item-id {
   flex-basis: 60px;
@@ -66,24 +99,18 @@ const props = defineProps<{
   color: var(--primary-color-hover);
 }
 
-.item-switch {
-  flex-basis: 40px;
+.item-status {
+  flex-basis: 120px;
   flex-shrink: 0;
 }
 .item-btn {
   flex-basis: 40px;
   flex-shrink: 0;
+  text-align: right;
 }
 
 .item-descr {
   display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-}
-
-.item-descr > *:not(:first-child)::before {
-  content: '•';
-  margin-right: 0.5rem;
-  color: var(--gray-400);
+  flex-direction: column;
 }
 </style>

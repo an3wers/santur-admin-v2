@@ -1,1 +1,1 @@
-type TProcessStatus = 'idle' | 'pending' | 'success' | 'error'
+type ProcessStatus = 'idle' | 'pending' | 'success' | 'error'

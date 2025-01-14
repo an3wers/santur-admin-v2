@@ -23,3 +23,24 @@ export const pvzSchema = z.object({
 })
 
 export type PvzDto = z.infer<typeof pvzSchema>
+
+export interface SavePvzsItemRequest {
+  id?: number
+  name: string
+  city: string
+  address: string
+  phones: string
+  times: string
+  payvariants: string
+  ownerid: number
+  descr: string
+  cfo: string
+  code: string
+  currentTaReg: string
+  currentTaEmail: string
+  forU: boolean
+  forP: boolean
+  gpsLat: string
+  gpsLng: string
+  isActive: boolean
+}
