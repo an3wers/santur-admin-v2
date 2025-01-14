@@ -29,9 +29,33 @@ export const usePvzsApi = () => {
     return pvzSchema.parse(otherFields)
   }
 
-  async function savePvzsItem(data: SavePvzsItemRequest) {}
+  async function savePvzsItem(data: SavePvzsItemRequest) {
+    console.log(data)
+    const res = await fetchWithToken('Org/SavePickupPoint', {
+      method: 'POST',
+      body: data
+    })
 
-  async function deletePvzsItem(id: string) {}
+    const _data = checkError(res).data
+
+    // добавить zod схему
+    console.log('@@', _data)
+    return _data
+  }
+
+  async function deletePvzsItem(id: string) {
+    const query = new URLSearchParams({
+      id
+    })
+
+    const res = await fetchWithToken(`Org/DeletePickupPoint?${query.toString()}`)
+
+    const _data = checkError(res).data
+    console.log('@@', _data)
+
+    // добавить zod схему
+    return _data
+  }
 
   return { getPvzs, getPvzsItem, savePvzsItem, deletePvzsItem }
 }

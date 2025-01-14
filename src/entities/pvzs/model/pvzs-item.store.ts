@@ -100,9 +100,11 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
         request.id = id
       }
 
-      await api.savePvzsItem(request)
+      const savedPvz = await api.savePvzsItem(request)
 
       saveStatus.value = 'success'
+
+      return savedPvz
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
       saveStatus.value = 'error'
@@ -110,7 +112,20 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     }
   }
 
-  async function deletePvzsItem(id: number) {}
+  async function deletePvzsItem(id: number) {
+    try {
+      removeStatus.value = 'pending'
+      removeError.value = ''
+
+      await api.deletePvzsItem(id.toString())
+
+      removeStatus.value = 'success'
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+      removeStatus.value = 'error'
+      removeError.value = errorMessage
+    }
+  }
 
   function $reset() {
     Object.assign(pvzsItem, {

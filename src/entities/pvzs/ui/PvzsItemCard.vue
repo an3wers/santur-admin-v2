@@ -3,7 +3,6 @@ import {
   NCard,
   NForm,
   type FormInst,
-  type FormRules,
   NFormItem,
   NInput,
   NGrid,
@@ -16,28 +15,32 @@ import {
   NSwitch
 } from 'naive-ui'
 import { usePvzsItemStore } from '../model/pvzs-item.store'
+import { validationRules } from '../config/validation-rules'
+
 const pvzsItemStore = usePvzsItemStore()
-const { pvzsItem } = storeToRefs(pvzsItemStore)
+const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError } =
+  storeToRefs(pvzsItemStore)
 
 const formRef = ref<FormInst | null>(null)
 
 const message = useMessage()
 
-const validationRules: FormRules = {
-  name: {
-    required: true,
-    message: 'Введите название',
-    trigger: 'blur'
-  }
-}
-
+// Вынести эту функци в слой store?
 async function submitHandler() {
   try {
     const validateResult = await formRef.value?.validate()
 
-    if (!validateResult?.warnings) {
-      await pvzsItemStore.savePvzsItem()
+    if (validateResult?.warnings) {
+      throw new Error('Проверьте корректность заполнения полей')
     }
+
+    const savedPvz = await pvzsItemStore.savePvzsItem()
+
+    if (pvzsItemStore.saveStatus === 'success') {
+      message.success('Данные успешно сохранены')
+    }
+
+    // TODO: Обработать роутинг при успешном сохранении нового пункта выдачи
   } catch (error) {
     console.error(error)
     if (error instanceof Error) {
@@ -48,14 +51,33 @@ async function submitHandler() {
   }
 }
 
-async function deleteHandler() {}
+async function deleteHandler() {
+  await pvzsItemStore.deletePvzsItem(pvzsItem.value.id)
 
-async function cancelHandler() {}
+  if (removeStatus.value === 'success') {
+    message.success('Данные успешно удалены')
+    return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+  }
+
+  if (removeStatus.value === 'error') {
+    message.error(removeError.value)
+  }
+}
+
+async function cancelHandler() {
+  // navigate to parent route
+  await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+}
 </script>
 
 <template>
   <n-card>
-    <n-form ref="formRef" :rules="validationRules" :model="pvzsItem">
+    <n-form
+      ref="formRef"
+      :rules="validationRules"
+      :model="pvzsItem"
+      :disabled="saveStatus === 'pending'"
+    >
       <n-form-item label="Наименование" path="name" :label-props="{ for: 'pvz-name' }">
         <n-input
           v-model:value="pvzsItem.name"
@@ -153,17 +175,35 @@ async function cancelHandler() {}
       </n-form-item>
 
       <n-space>
-        <n-switch v-model:value="pvzsItem.isActive" />
+        <n-switch v-model:value="pvzsItem.isActive" :disabled="saveStatus === 'pending'" />
         <span>Опубликовано</span>
       </n-space>
     </n-form>
 
     <template #action>
       <n-space justify="space-between">
-        <n-button @click="deleteHandler" type="error" v-show="pvzsItem.id">Удалить</n-button>
+        <n-button
+          @click="deleteHandler"
+          type="error"
+          v-show="pvzsItem.id"
+          :disabled="saveStatus === 'pending'"
+          >Удалить</n-button
+        >
         <n-space>
-          <n-button @click="cancelHandler" secondary type="primary">Отменить</n-button>
-          <n-button @click="submitHandler" type="primary">Сохранить</n-button>
+          <n-button
+            @click="cancelHandler"
+            secondary
+            type="primary"
+            :disabled="saveStatus === 'pending'"
+            >Отменить</n-button
+          >
+          <n-button
+            @click="submitHandler"
+            type="primary"
+            :disabled="saveStatus === 'pending'"
+            :loading="saveStatus === 'pending'"
+            >Сохранить</n-button
+          >
         </n-space>
       </n-space>
     </template>

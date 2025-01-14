@@ -19,7 +19,8 @@ const themeOverrides: GlobalThemeOverrides = {
   },
   Card: {
     borderColor: '#e2e8f0',
-    textColor: '#0f172a'
+    textColor: '#0f172a',
+    actionColor: '#f1f5f9'
   },
   Form: {
     labelFontWeight: '500',
@@ -27,7 +28,7 @@ const themeOverrides: GlobalThemeOverrides = {
     feedbackFontSizeMedium: '12px'
   },
   Switch: {
-    railColorActive: '#18a058'
+    railColorActive: '#ebeff5'
   }
 }
 </script>
