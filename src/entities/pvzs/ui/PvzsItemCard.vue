@@ -18,7 +18,7 @@ import { usePvzsItemStore } from '../model/pvzs-item.store'
 import { validationRules } from '../config/validation-rules'
 
 const pvzsItemStore = usePvzsItemStore()
-const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError } =
+const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError, saveError } =
   storeToRefs(pvzsItemStore)
 
 const formRef = ref<FormInst | null>(null)
@@ -34,6 +34,10 @@ async function submitHandler() {
     }
 
     await pvzsItemStore.savePvzsItem()
+
+    if (saveStatus.value === 'error') {
+      throw new Error(saveError.value)
+    }
 
     if (!pvzsItem.value.id) {
       return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })

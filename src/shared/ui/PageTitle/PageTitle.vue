@@ -10,12 +10,7 @@ interface Props {
   backLabel?: string
 }
 
-const {
-  isFixed = false,
-  hasEdit = false,
-  backPath = '/',
-  backLabel = 'Назад'
-} = defineProps<Props>()
+const { backPath = '/', backLabel = 'Назад' } = defineProps<Props>()
 
 const emits = defineEmits<{
   (e: 'onEdit'): void
@@ -30,7 +25,7 @@ function backHandler() {
 
 <template>
   <div class="header-wrap">
-    <div if="hasBack">
+    <div v-if="hasBack">
       <n-button quaternary text @click="backHandler">
         <template #icon>
           <n-icon size="20px">

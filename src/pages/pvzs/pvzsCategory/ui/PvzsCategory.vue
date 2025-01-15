@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage, NP } from 'naive-ui'
+import { NSpace, NH1, useMessage, NP, NButton, NIcon } from 'naive-ui'
 import { PvzsList, usePvzs } from '~/entities/pvzs'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
+import { Plus } from '@vicons/tabler'
 
 const route = useRoute()
 
@@ -28,6 +29,18 @@ if (status.value === 'error') {
       <page-title>
         <template #title>
           <n-h1>{{ title }}</n-h1>
+        </template>
+        <template #actions>
+          <n-button
+            v-if="catId && parseInt(catId as string)"
+            type="primary"
+            @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
+          >
+            <template #icon>
+              <n-icon size="20px"><Plus /></n-icon>
+            </template>
+            Добавить
+          </n-button>
         </template>
       </page-title>
       <PvzsList v-if="data && data.length" :pvzs="data" :ownert-id="parseInt(catId as string)" />
