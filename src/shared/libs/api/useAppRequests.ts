@@ -1,5 +1,4 @@
 import type { FetchOptionsType, RefreshTokenResponse, ResponseApi } from './types'
-// import { useNuxtApp } from '#imports'
 
 export const useAppRequest = () => {
   const { apiGateway } = useRuntimeConfig().public
@@ -11,7 +10,11 @@ export const useAppRequest = () => {
     }
     const res = await baseFetch<RefreshTokenResponse>('/api/users/refresh-token', {
       method: 'POST',
-      body: { deviceId }
+      body: { deviceId },
+      onResponseError() {
+        const app = useNuxtApp()
+        app.$router.push({ path: '/profile/sign-in', query: { meta: 'error' } })
+      }
     })
 
     return res.data
@@ -51,6 +54,11 @@ export const useAppRequest = () => {
 
     if (res.status === 401) {
       const { accessToken } = await makeRefreshToken()
+
+      if (!accessToken) {
+        throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+      }
+
       _options.headers = { ..._options.headers, Authorization: `Bearer ${accessToken}` }
       res = await $apiBase.raw<ResponseApi<DataType>>(url, _options) // Повторная попытка запроса
     } else if (res.status >= 400) {

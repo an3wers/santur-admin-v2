@@ -23,11 +23,7 @@ if (data.value && status.value === 'success') {
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title
-        back-label="Все пункты выдачи"
-        has-back
-        :back-path="`/pvzs/${route.params.catId}`"
-      >
+      <page-title back-label="Пункты выдачи" has-back :back-path="`/pvzs/${route.params.catId}`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>

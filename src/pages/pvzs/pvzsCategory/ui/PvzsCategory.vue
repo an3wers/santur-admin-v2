@@ -26,7 +26,7 @@ if (status.value === 'error') {
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title>
+      <page-title back-label="Пункты выдачи" has-back :back-path="`/pvzs`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>

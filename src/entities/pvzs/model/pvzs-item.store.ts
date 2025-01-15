@@ -64,7 +64,9 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
   const api = usePvzsApi()
 
   async function updateCurrent(id: number) {
-    await refreshNuxtData([itemKey.value, listKey.value])
+    await refreshNuxtData(itemKey.value)
+
+    clearNuxtData(listKey.value)
 
     const { data } = useNuxtData<Pvz>(itemKey.value)
 
