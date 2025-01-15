@@ -28,59 +28,48 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     ownerid: 0
   })
 
-  const pvzsItemStatus = ref<ProcessStatus>('idle')
-  const pvzsItemError = ref('')
-
   const saveStatus = ref<ProcessStatus>('idle')
   const saveError = ref('')
 
   const removeStatus = ref<ProcessStatus>('idle')
   const removeError = ref('')
 
-  function setPvzsItem(item: PvzsItem) {
-    Object.assign(pvzsItem, item)
+  const itemKey = computed(() => `pvzsItem-${pvzsItem.id}`)
+  const listKey = computed(() => `pvzs-${pvzsItemSecondaryFields.ownerid}`)
+
+  function setPvzsItem(item: Pvz) {
+    pvzsItem.address = item.address
+    pvzsItem.cfo = item.cfo
+    pvzsItem.city = item.city
+    pvzsItem.code = item.code
+    pvzsItem.descr = item.descr
+    pvzsItem.forP = item.forP
+    pvzsItem.forU = item.forU
+    pvzsItem.gpsLat = item.gpsLat
+    pvzsItem.gpsLng = item.gpsLng
+    pvzsItem.id = item.id
+    pvzsItem.isActive = item.isActive
+    pvzsItem.name = item.name
+    pvzsItem.phones = item.phones
+    pvzsItem.times = item.times
+    pvzsItem.payvariants = item.payvariants
   }
 
-  function setPvzsItemSecondaryFileds(fields: SecondaryFields) {
-    Object.assign(pvzsItemSecondaryFields, fields)
+  function setPvzsItemSecondaryFileds(fields: Pvz) {
+    pvzsItemSecondaryFields.currentTaEmail = fields.currentTaEmail
+    pvzsItemSecondaryFields.currentTaReg = fields.currentTaReg
+    pvzsItemSecondaryFields.ownerid = fields.ownerid
   }
 
   const api = usePvzsApi()
 
-  async function getPvzsItem(id: string) {
-    try {
-      pvzsItemStatus.value = 'pending'
-      pvzsItemError.value = ''
-      const data = await api.getPvzsItem(id)
-      setPvzsItem({
-        address: data.address,
-        cfo: data.cfo,
-        city: data.city,
-        code: data.code,
-        descr: data.descr,
-        forP: data.forP,
-        forU: data.forU,
-        gpsLat: data.gpsLat,
-        gpsLng: data.gpsLng,
-        id: data.id,
-        isActive: data.isActive,
-        name: data.name,
-        phones: data.phones,
-        times: data.times,
-        payvariants: data.payvariants
-      })
+  async function updateCurrent(id: number) {
+    await refreshNuxtData([itemKey.value, listKey.value])
 
-      setPvzsItemSecondaryFileds({
-        currentTaEmail: data.currentTaEmail,
-        currentTaReg: data.currentTaReg,
-        ownerid: data.ownerid
-      })
+    const { data } = useNuxtData<Pvz>(itemKey.value)
 
-      pvzsItemStatus.value = 'success'
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
-      pvzsItemStatus.value = 'error'
-      pvzsItemError.value = errorMessage
+    if (data.value) {
+      setPvzsItem(data.value)
     }
   }
 
@@ -118,6 +107,7 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
       removeError.value = ''
 
       await api.deletePvzsItem(id.toString())
+      clearNuxtData(listKey.value)
 
       removeStatus.value = 'success'
     } catch (error) {
@@ -152,9 +142,6 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
       ownerid: 0
     })
 
-    pvzsItemStatus.value = 'idle'
-    pvzsItemError.value = ''
-
     saveStatus.value = 'idle'
     saveError.value = ''
 
@@ -170,10 +157,12 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     saveError,
     removeStatus,
     removeError,
-    getPvzsItem,
+    itemKey,
+    listKey,
     savePvzsItem,
     deletePvzsItem,
-    pvzsItemStatus,
-    pvzsItemError
+    setPvzsItem,
+    setPvzsItemSecondaryFileds,
+    updateCurrent
   }
 })

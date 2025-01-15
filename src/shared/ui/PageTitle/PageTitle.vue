@@ -1,37 +1,60 @@
 <script setup lang="ts">
 import { NButton, NIcon } from 'naive-ui'
-import { Pencil } from '@vicons/tabler'
+import { Pencil, ArrowNarrowLeft } from '@vicons/tabler'
 
 interface Props {
   hasEdit?: boolean
-  isFixed?: boolean
+  isFixed?: boolean // ?
+  hasBack?: boolean
+  backPath?: string
+  backLabel?: string
 }
 
-const { isFixed = false, hasEdit = false } = defineProps<Props>()
+const {
+  isFixed = false,
+  hasEdit = false,
+  backPath = '/',
+  backLabel = 'Назад'
+} = defineProps<Props>()
 
 const emits = defineEmits<{
   (e: 'onEdit'): void
 }>()
 
 const editHandler = () => emits('onEdit')
+
+function backHandler() {
+  navigateTo({ path: backPath })
+}
 </script>
 
 <template>
-  <div class="header-container">
-    <div class="title">
-      <slot name="title" />
-    </div>
-    <div class="actions">
-      <slot name="actions" />
-      <n-button v-if="hasEdit" @click="editHandler" secondary type="primary">
+  <div class="header-wrap">
+    <div if="hasBack">
+      <n-button quaternary text @click="backHandler">
         <template #icon>
           <n-icon size="20px">
-            <Pencil />
-            <!-- <EditIcon color="#1976d2" /> -->
+            <ArrowNarrowLeft />
           </n-icon>
         </template>
-        Изменить
+        {{ backLabel }}
       </n-button>
+    </div>
+    <div class="header-container">
+      <div class="title">
+        <slot name="title" />
+      </div>
+      <div class="actions">
+        <slot name="actions" />
+        <n-button v-if="hasEdit" @click="editHandler" secondary type="primary">
+          <template #icon>
+            <n-icon size="20px">
+              <Pencil />
+            </n-icon>
+          </template>
+          Изменить
+        </n-button>
+      </div>
     </div>
   </div>
 </template>

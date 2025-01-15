@@ -25,7 +25,6 @@ const formRef = ref<FormInst | null>(null)
 
 const message = useMessage()
 
-// Вынести эту функци в слой store?
 async function submitHandler() {
   try {
     const validateResult = await formRef.value?.validate()
@@ -34,13 +33,16 @@ async function submitHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
-    const savedPvz = await pvzsItemStore.savePvzsItem()
+    await pvzsItemStore.savePvzsItem()
 
-    if (pvzsItemStore.saveStatus === 'success') {
-      message.success('Данные успешно сохранены')
+    if (!pvzsItem.value.id) {
+      return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+      // return await navigateTo({
+      //   path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}/${savedPvz.id}`
+      // })
     }
 
-    // TODO: Обработать роутинг при успешном сохранении нового пункта выдачи
+    await pvzsItemStore.updateCurrent(pvzsItem.value.id)
   } catch (error) {
     console.error(error)
     if (error instanceof Error) {
@@ -184,6 +186,7 @@ async function cancelHandler() {
       <n-space justify="space-between">
         <n-button
           @click="deleteHandler"
+          attr-type="button"
           type="error"
           v-show="pvzsItem.id"
           :disabled="saveStatus === 'pending'"
@@ -193,6 +196,7 @@ async function cancelHandler() {
           <n-button
             @click="cancelHandler"
             secondary
+            attr-type="button"
             type="primary"
             :disabled="saveStatus === 'pending'"
             >Отменить</n-button
@@ -200,6 +204,7 @@ async function cancelHandler() {
           <n-button
             @click="submitHandler"
             type="primary"
+            attr-type="button"
             :disabled="saveStatus === 'pending'"
             :loading="saveStatus === 'pending'"
             >Сохранить</n-button

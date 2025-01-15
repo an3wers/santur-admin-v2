@@ -28,7 +28,7 @@ const themeOverrides: GlobalThemeOverrides = {
     feedbackFontSizeMedium: '12px'
   },
   Switch: {
-    railColorActive: '#ebeff5'
+    railColorActive: '#18a058'
   }
 }
 </script>

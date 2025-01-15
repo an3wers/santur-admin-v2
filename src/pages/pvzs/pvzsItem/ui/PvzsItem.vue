@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NSpace, NH1 } from 'naive-ui'
-import { PvzsItemCard, usePvzsItemStore } from '~/entities/pvzs'
+import { PvzsItemCard, usePvzsItemStore, usePvzsApi, usePvzsItem } from '~/entities/pvzs'
 
 const title = ref('')
 const route = useRoute()
@@ -11,30 +11,28 @@ const pvzsItemStore = usePvzsItemStore()
 
 pvzsItemStore.$reset()
 
-await pvzsItemStore.getPvzsItem(itemId as string)
+const { data, status } = await usePvzsItem(itemId as string)
 
-if (pvzsItemStore.pvzsItemStatus === 'error') {
-  // TODO: Обработать сценарий с ошибкой
+if (data.value && status.value === 'success') {
+  pvzsItemStore.setPvzsItem(data.value)
+  pvzsItemStore.setPvzsItemSecondaryFileds(data.value)
+  title.value = data.value.name
 }
-
-if (pvzsItemStore.pvzsItemStatus === 'success') {
-  title.value = pvzsItemStore.pvzsItem.name
-}
-
-onMounted(() => {
-  console.log('Route', route.params)
-})
 </script>
 
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title>
+      <page-title
+        back-label="Все пункты выдачи"
+        has-back
+        :back-path="`/pvzs/${route.params.catId}`"
+      >
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PvzsItemCard v-if="pvzsItemStore.pvzsItemStatus === 'success'" />
+      <PvzsItemCard v-if="status === 'success' || data" />
     </n-space>
   </div>
 </template>
