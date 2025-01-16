@@ -38,8 +38,7 @@ export const usePvzsApi = () => {
 
     const _data = checkError(res).data
 
-    // добавить zod схему
-    console.log('@@', _data)
+    //TODO: добавить zod схему
     return _data
   }
 
@@ -51,9 +50,8 @@ export const usePvzsApi = () => {
     const res = await fetchWithToken(`Org/DeletePickupPoint?${query.toString()}`)
 
     const _data = checkError(res).data
-    console.log('@@', _data)
 
-    // добавить zod схему
+    //TODO: добавить zod схему
     return _data
   }
 

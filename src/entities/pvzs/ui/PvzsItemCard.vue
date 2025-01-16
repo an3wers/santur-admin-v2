@@ -18,8 +18,15 @@ import { usePvzsItemStore } from '../model/pvzs-item.store'
 import { validationRules } from '../config/validation-rules'
 
 const pvzsItemStore = usePvzsItemStore()
-const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError, saveError } =
-  storeToRefs(pvzsItemStore)
+const {
+  pvzsItem,
+  pvzsItemSecondaryFields,
+  saveStatus,
+  removeStatus,
+  removeError,
+  saveError,
+  listKey
+} = storeToRefs(pvzsItemStore)
 
 const formRef = ref<FormInst | null>(null)
 
@@ -39,8 +46,14 @@ async function submitHandler() {
       throw new Error(saveError.value)
     }
 
+    if (saveStatus.value === 'success') {
+      message.success('Данные успешно сохранены')
+    }
+
     if (!pvzsItem.value.id) {
+      clearNuxtData(listKey.value)
       return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+
       // return await navigateTo({
       //   path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}/${savedPvz.id}`
       // })

@@ -89,6 +89,8 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
 
       if (id) {
         request.id = id
+      } else {
+        request.currentTaReg = new Date().toISOString()
       }
 
       const savedPvz = await api.savePvzsItem(request)

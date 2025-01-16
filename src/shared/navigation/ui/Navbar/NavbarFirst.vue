@@ -6,7 +6,13 @@ import { useNavStore } from '~/shared/navigation'
 const navStore = useNavStore()
 
 const selectedKey = ref(0)
-selectedKey.value = navStore.mapNavigation?.[navStore.firstLevelName]?.id ?? 0
+
+const computedSelectedKey = computed({
+  get: () => navStore.mapNavigation?.[navStore.firstLevelName]?.id ?? 0,
+  set: (value) => {
+    selectedKey.value = value
+  }
+})
 
 async function changeResource(value: string) {
   navStore.setActiveResource(value)
@@ -43,7 +49,11 @@ async function changeResource(value: string) {
         <NText depth="3">Разделы</NText>
       </div>
       <div class="nav-container__menu">
-        <NMenu v-model:value="selectedKey" :options="navStore.getMenuOptions" :indent="20" />
+        <NMenu
+          v-model:value="computedSelectedKey"
+          :options="navStore.getMenuOptions"
+          :indent="20"
+        />
       </div>
     </div>
     <slot name="footer" />

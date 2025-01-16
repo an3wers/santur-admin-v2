@@ -109,6 +109,7 @@ export const useNavStore = defineStore('navigation', () => {
     }, {})
   }
 
+  // TODO: Рефакторинг, можно перенести в утилиты
   function _mappingNavItemsToMenuOptions(navItems: MenuItem[]): MenuOption[] {
     if (!navItems.length) {
       return []
@@ -117,7 +118,7 @@ export const useNavStore = defineStore('navigation', () => {
     const mappedMenu: MenuOption[] = navItems.map((item) => {
       let path = ''
       if (item.modelName === 'media') {
-        path = `/${item.modelName}/${item.categoryId}`
+        path = `/${item.modelName}`
       } else if (item.modelName === 'analytics' || item.modelName === 'pvzs') {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0 && item.needSubmenu
         path = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`

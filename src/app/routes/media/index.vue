@@ -1,7 +1,9 @@
-<template>
-  <div></div>
-</template>
+<script setup lang="ts">
+import { MediaMain } from '~/pages/media'
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <MediaMain />
+</template>
 
 <style scoped></style>

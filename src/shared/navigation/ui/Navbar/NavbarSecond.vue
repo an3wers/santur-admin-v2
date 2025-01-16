@@ -6,8 +6,15 @@ const navStore = useNavStore()
 
 const modalTitle = 'Добавить категорию'
 
-const selectedKey = ref(-1)
-selectedKey.value = navStore.secondLevelId
+// const selectedKey = ref(-1)
+// selectedKey.value = navStore.secondLevelId
+
+// const computedSelectedKey = computed({
+//   get: () => navStore.secondLevelId,
+//   set: (value) => {
+//     selectedKey.value = value
+//   }
+// })
 
 const showModal = ref(false)
 
@@ -41,8 +48,9 @@ const hasActionBtn = computed(() => {
           >Добавить категорию</n-button
         >
       </div>
+      <!-- v-model:value="computedSelectedKey" -->
       <n-menu
-        v-model:value="selectedKey"
+        :value="navStore.secondLevelId"
         :builtin-theme-overrides="{ itemHeight: '32px' }"
         class="sub-menu"
         :indent="20"
