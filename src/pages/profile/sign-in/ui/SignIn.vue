@@ -132,6 +132,7 @@ async function submitHandler() {
   margin: auto auto;
   height: auto;
   align-self: center;
+  justify-content: center;
 }
 
 .logo-container {

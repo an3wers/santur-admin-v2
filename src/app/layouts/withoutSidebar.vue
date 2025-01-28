@@ -9,6 +9,7 @@
 
 <style scoped>
 .main {
+  min-height: 100dvh;
   height: 100%;
   display: flex;
   flex-direction: column;
