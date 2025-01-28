@@ -1,15 +1,46 @@
 <script setup lang="ts">
-import { MediaList } from '~/entities/media'
+import { MediaList, type MediaListType, type MediaListItem, MediaView } from '~/entities/media'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
-import { NH1, NButton } from 'naive-ui'
+import { NH1, NButton, NUpload, NModal } from 'naive-ui'
 
 const navStore = useNavStore()
+
+const showMediaView = ref(false)
+const selectedMedia = ref<MediaListItem | null>(null)
+
+function openMediaHanler(mediaId: number) {
+  const item = getMediaFile(mediaId)
+  if (item) {
+    selectedMedia.value = item
+    showMediaView.value = true
+  }
+}
+
+function getMediaFile(mediaId: number): MediaListItem | undefined {
+  const { data } = useNuxtData<MediaListType>('media-list')
+  return data.value?.files.items.find((item) => item.id === mediaId)
+}
+
+watch(showMediaView, (newVal) => {
+  if (!newVal) {
+    selectedMedia.value = null
+  }
+})
+
+async function updateMediaList() {
+  refreshNuxtData('media-list')
+  closeMediaView()
+}
+
+function closeMediaView() {
+  showMediaView.value = false
+}
 </script>
 
 <template>
   <div class="media-container">
-    <media-list>
+    <media-list @on-media-open="openMediaHanler">
       <template #header="{ onUpload }">
         <page-title back-label="Главная" has-back :back-path="`/`">
           <template #title>
@@ -18,12 +49,23 @@ const navStore = useNavStore()
             </n-h1>
           </template>
           <template #actions>
-            <n-button type="primary" @click="onUpload">Загрузить файл</n-button>
+            <n-upload multiple :show-file-list="false" :max="50" @change="onUpload">
+              <n-button attr-type="button" type="primary">Загрузить файл</n-button>
+            </n-upload>
           </template>
         </page-title>
       </template>
     </media-list>
-    <!-- Modal file preview -->
+    <n-modal
+      size="medium"
+      style="width: 640px"
+      :title="selectedMedia?.fileName"
+      preset="card"
+      v-model:show="showMediaView"
+    >
+      <MediaView v-if="selectedMedia" :media-item="selectedMedia" @on-update="updateMediaList" />
+      <!-- TODO: Обработать selectedMedia = null -->
+    </n-modal>
   </div>
 </template>
 

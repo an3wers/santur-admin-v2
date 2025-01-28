@@ -9,6 +9,7 @@ export const usePvzs = (ownerId: string) => {
         return { id, name, address, times, phones, isActive, gpscoords, city }
       })
     },
+
     getCachedData(key, nuxtApp) {
       return nuxtApp.payload.data[key] || null
     }

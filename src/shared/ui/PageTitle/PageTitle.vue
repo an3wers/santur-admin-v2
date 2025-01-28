@@ -26,7 +26,7 @@ function backHandler() {
 <template>
   <div class="header-wrap">
     <div v-if="hasBack">
-      <n-button quaternary text @click="backHandler">
+      <n-button text @click="backHandler">
         <template #icon>
           <n-icon size="20px">
             <ArrowNarrowLeft />

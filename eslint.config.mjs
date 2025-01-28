@@ -23,14 +23,14 @@ export default withNuxt(
       'eslint-disable-next-line': 'off',
       'vue/attributes-order': 'off',
       'dot-notation': 'off',
-      'no-var': 'off',
+      'no-var': 'warn',
       'import/no-named-as-default': 'off',
       'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/unified-signatures': 'off',
-      '@typescript-eslint/ban-types': 'warn',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-dynamic-delete': 'warn',
+      '@typescript-eslint/no-empty-object-type': 'off',
       'prettier/prettier': [
         'warn',
         {

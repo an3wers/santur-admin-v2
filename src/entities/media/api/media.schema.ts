@@ -36,3 +36,8 @@ export interface MediaFilesRequest {
   period?: string // example: `${year}:${month}`
   limit?: string
 }
+
+export interface UploadMediaFilesRequest {
+  // app?: string
+  files: File[]
+}

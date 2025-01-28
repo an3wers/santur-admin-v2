@@ -9,22 +9,91 @@ import {
   NCard,
   NButton,
   NPagination,
-  useMessage
+  useMessage,
+  NText,
+  NIcon
 } from 'naive-ui'
 import { useMediaList } from '../libs/useMediaList'
+import { Trash } from '@vicons/tabler'
+import { useUploadMedia } from '../libs/useUploadMedia'
+import type { OptionsType } from '../libs/types'
+import { useDeleteMedia } from '../libs/useDeleteMedia'
 
-const { data, status, page, error } = await useMediaList()
+const { mediaViewMode = 'open' } = defineProps<{
+  mediaViewMode?: 'open' | 'select'
+}>()
+
+const emits = defineEmits<{
+  (e: 'onMediaSelect', id: number): void
+  (e: 'onMediaOpen', id: number): void
+}>()
+
 const message = useMessage()
+const { uploadFile, status: ulpoadStatus } = useUploadMedia()
+const { data, status, page, error, refresh } = useMediaList()
+const { deleteFile, status: deleteStatus } = useDeleteMedia()
 
 if (status.value === 'error') {
   message.error(error.value?.message ?? 'На странице произошла ошибка')
+}
+
+function mediaHandler(id: number) {
+  if (mediaViewMode === 'open') {
+    emits('onMediaOpen', id)
+  } else if (mediaViewMode === 'select') {
+    emits('onMediaSelect', id)
+  }
+}
+
+async function deleteHandler(id: number) {
+  await deleteFile(id.toString())
+  if (deleteStatus.value === 'error') {
+    message.error('Произошла ошибка при удалении файла')
+  }
+
+  if (deleteStatus.value === 'success') {
+    await refresh()
+    message.success('Файл успешно удален')
+  }
+}
+
+const fileList = new Set<File>()
+let timer: any = null
+async function uploadHandler(options: OptionsType) {
+  const { file } = options
+
+  if (!file.file) {
+    return
+  }
+
+  fileList.add(file.file)
+
+  if (timer) {
+    clearTimeout(timer)
+  }
+
+  timer = setTimeout(async () => {
+    await uploadFile(fileList)
+
+    if (ulpoadStatus.value === 'error') {
+      message.error('Произошла ошибка при загрузке файлов')
+    }
+
+    if (ulpoadStatus.value === 'success') {
+      await refresh()
+      message.success('Файлы успешно загружены')
+    }
+
+    fileList.clear()
+    timer = null
+  }, 300)
 }
 </script>
 
 <template>
   <div class="media-list-container">
     <n-space vertical size="large">
-      <slot name="header" :on-upload="() => {}"></slot>
+      <slot name="header" :on-upload="uploadHandler"></slot>
       <n-spin :show="status === 'pending'">
         <n-upload
           v-if="status !== 'error'"
@@ -32,21 +101,48 @@ if (status.value === 'error') {
           directory-dnd
           :max="50"
           :show-file-list="false"
-          @change="() => {}"
+          @change="uploadHandler"
         >
           <n-upload-dragger>
             <n-grid v-if="data" :x-gap="12" :y-gap="12" cols="s:4 m:5 l:6 xl:8" responsive="screen">
-              <n-grid-item>
-                <n-card>
-                  <template #cover></template>
-                  <template #action></template>
+              <n-grid-item v-for="media in data.files.items" :key="media.id">
+                <n-card
+                  class="n-card-item"
+                  size="small"
+                  :hoverable="true"
+                  @click.stop="mediaHandler(media.id)"
+                >
+                  <template #cover>
+                    <img :src="media.imgPath" :alt="media.fileName" />
+                  </template>
+                  <template #action>
+                    <n-text class="media-title" :title="media.fileName">
+                      {{
+                        media.fileName.length > 16
+                          ? media.fileName.slice(0, 16) +
+                            '…' +
+                            media.fileName.slice(media.fileName.length - 4, media.fileName.length)
+                          : media.fileName
+                      }}
+                    </n-text>
+                  </template>
+                  <n-button
+                    class="options-btn"
+                    secondary
+                    type="error"
+                    circle
+                    @click.stop="deleteHandler(media.id)"
+                  >
+                    <n-icon size="20px">
+                      <Trash />
+                    </n-icon>
+                  </n-button>
                 </n-card>
               </n-grid-item>
             </n-grid>
           </n-upload-dragger>
         </n-upload>
       </n-spin>
-      <!-- Пагинация -->
       <div class="media-pagination">
         <NPagination v-model:page="page" :page-count="data?.files.totalPages" />
       </div>
@@ -55,8 +151,8 @@ if (status.value === 'error') {
 </template>
 
 <style scoped>
-.media-list-container {
-}
+/* .media-list-container {
+} */
 
 .media-pagination {
   padding: 1rem 0;

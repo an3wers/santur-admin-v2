@@ -17,7 +17,7 @@ export const pvzSchema = z.object({
   isActive: z.boolean(),
   name: z.string(),
   ownerid: z.number(),
-  payvariants: z.string(),
+  payVariants: z.string(),
   phones: z.string(),
   times: z.string()
 })
@@ -31,7 +31,7 @@ export interface SavePvzsItemRequest {
   address: string
   phones: string
   times: string
-  payvariants: string
+  payVariants: string
   ownerid: number
   descr: string
   cfo: string

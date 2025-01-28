@@ -1,28 +1,41 @@
 import { useNavStore } from '~/shared/navigation'
 import { useMediaApi } from '../api/media.api'
+import type { MediaListDto } from '../api/media.schema'
 
-export const useMediaList = async () => {
+export const useMediaList = () => {
   const api = useMediaApi()
   const navStore = useNavStore()
   const page = ref(1)
+  const limit = 24
 
-  const { data, status, error, refresh } = await useAsyncData(
+  function init() {
+    page.value = 1
+  }
+
+  init()
+  const { data, status, error, refresh } = useAsyncData(
     'media-list',
     () =>
       api.getMediaFiles({
         app: navStore.activeResource,
-        page: page.value.toString()
+        page: page.value.toString(),
+        limit: limit.toString()
       }),
     {
       watch: [page],
       getCachedData(key, nuxtApp) {
-        return nuxtApp.payload.data[key] || null
+        let cache = nuxtApp.payload.data[key] as MediaListDto | undefined
+
+        if (cache && page.value !== cache.files.currentPage) {
+          cache = undefined
+        }
+
+        return cache
       }
     }
   )
-
-  if (status.value === 'success') {
-    page.value = data.value?.files.currentPage!
+  if (status.value === 'success' && data.value) {
+    page.value = data.value.files.currentPage
   }
 
   return {
