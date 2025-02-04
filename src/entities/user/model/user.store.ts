@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', () => {
   async function loadUser() {
     isLoaded.value = false
     const userData = await api.getUser(userId.value)
-
+    console.log('userData', userData)
     if (!userData) {
       throw Error('Пользователь не найден')
     }

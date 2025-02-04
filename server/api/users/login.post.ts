@@ -12,14 +12,14 @@ export default defineEventHandler(async (event) => {
     method: 'POST',
     body,
     ignoreResponseError: true
+    // credentials: 'include'
   })
-
+  console.log('RES: ', JSON.stringify(res._data))
   if (!res.ok) {
     const { message } = res._data as Record<string, unknown>
 
     throw createError({
-      statusCode: res.status,
-      statusMessage: res.statusText,
+      statusCode: res?.status,
       data: res._data,
       message: JSON.stringify(message)
     })
@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
   if (!data?.success) {
     throw createError({
       statusCode: 400,
-      statusText: 'Что-то пошло не так'
+      data: data,
+      message: JSON.stringify(data?.message)
     })
   }
 

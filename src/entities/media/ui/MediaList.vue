@@ -29,7 +29,7 @@ const emits = defineEmits<{
 }>()
 
 const message = useMessage()
-const { uploadFile, status: ulpoadStatus } = useUploadMedia()
+const { status: ulpoadStatus, setFileToList, uploadFilesDebounce } = useUploadMedia()
 const { data, status, page, error, refresh } = useMediaList()
 const { deleteFile, status: deleteStatus } = useDeleteMedia()
 
@@ -57,8 +57,6 @@ async function deleteHandler(id: number) {
   }
 }
 
-const fileList = new Set<File>()
-let timer: any = null
 async function uploadHandler(options: OptionsType) {
   const { file } = options
 
@@ -66,28 +64,21 @@ async function uploadHandler(options: OptionsType) {
     return
   }
 
-  fileList.add(file.file)
+  setFileToList(file.file)
 
-  if (timer) {
-    clearTimeout(timer)
+  await uploadFilesDebounce()
+}
+
+watchEffect(() => {
+  if (ulpoadStatus.value === 'error') {
+    message.error('Произошла ошибка при загрузке файлов')
   }
 
-  timer = setTimeout(async () => {
-    await uploadFile(fileList)
-
-    if (ulpoadStatus.value === 'error') {
-      message.error('Произошла ошибка при загрузке файлов')
-    }
-
-    if (ulpoadStatus.value === 'success') {
-      await refresh()
-      message.success('Файлы успешно загружены')
-    }
-
-    fileList.clear()
-    timer = null
-  }, 300)
-}
+  if (ulpoadStatus.value === 'success') {
+    refresh()
+    message.success('Файлы успешно загружены')
+  }
+})
 </script>
 
 <template>

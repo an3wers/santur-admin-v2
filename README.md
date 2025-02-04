@@ -73,3 +73,28 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## Архитектура проекта
+
+```
+src/
+  ├── app/                    # Инициализация приложения
+  │   ├── styles/
+  │   └── index.tsx
+  ├── pages/                  # Страницы приложения
+  │   ├── main/
+  │   └── profile/
+  ├── widgets/                # Композиционный слой
+  │   ├── header/
+  │   └── sidebar/
+  ├── features/              # Переиспользуемая функциональность
+  │   ├── auth-form/
+  │   └── theme-switcher/
+  ├── entities/              # Бизнес-сущности
+  │   ├── user/
+  │   └── post/
+  └── shared/               # Переиспользуемые модули
+      ├── ui/
+      ├── lib/
+      └── api/
+```

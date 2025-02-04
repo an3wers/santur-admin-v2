@@ -56,22 +56,14 @@ export const useNavStore = defineStore('navigation', () => {
   })
 
   async function loadMenu(recource: string): Promise<void> {
-    try {
-      const data = await api.getNavigation(recource)
-      navigation.value = data
-      mapNavigation.value = _mappingNavItemsToMap(data)
-    } catch (error) {
-      throw error
-    }
+    const data = await api.getNavigation(recource)
+    navigation.value = data
+    mapNavigation.value = _mappingNavItemsToMap(data)
   }
 
   async function loadResurces(): Promise<void> {
-    try {
-      const data = await api.getResources()
-      resources.value = data
-    } catch (error) {
-      throw error
-    }
+    const data = await api.getResources()
+    resources.value = data
   }
 
   function $reset(): void {

@@ -17,7 +17,7 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     name: '',
     phones: '',
     times: '',
-    payvariants: ''
+    payVariants: ''
   })
 
   type SecondaryFields = Pick<Pvz, 'currentTaEmail' | 'currentTaReg' | 'ownerid'>
@@ -52,7 +52,7 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     pvzsItem.name = item.name
     pvzsItem.phones = item.phones
     pvzsItem.times = item.times
-    pvzsItem.payvariants = item.payvariants
+    pvzsItem.payVariants = item.payVariants
   }
 
   function setPvzsItemSecondaryFileds(fields: Pvz) {

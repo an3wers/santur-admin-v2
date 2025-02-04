@@ -1,11 +1,16 @@
-import type { OptionsType } from './types'
 import { useMediaApi } from '../api/media.api'
 
 export const useUploadMedia = () => {
+  const fileList = new Set<File>()
   const status = ref<ProcessStatus>('idle')
 
   const api = useMediaApi()
-  async function uploadFile(files: Set<File>) {
+
+  function setFileToList(file: File) {
+    fileList.add(file)
+  }
+
+  async function uploadFiles(files: Set<File> | File[]) {
     const formData = new FormData()
 
     files.forEach((file) => {
@@ -19,8 +24,12 @@ export const useUploadMedia = () => {
     } catch (error) {
       console.error(error)
       status.value = 'error'
+    } finally {
+      fileList.clear()
     }
   }
 
-  return { uploadFile, status }
+  const uploadFilesDebounce = useDebounceFn(() => uploadFiles(fileList), 300)
+
+  return { uploadFiles, status, uploadFilesDebounce, setFileToList }
 }

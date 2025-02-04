@@ -32,6 +32,8 @@ export const useUserApi = () => {
       ignoreResponseError: true
     })
 
+    console.log('@@res: ', res)
+
     const isUser = (value: ResponseApi<UserDto> | ErrorResponse): value is ResponseApi<UserDto> => {
       if ('data' in value && value.data.id !== undefined) {
         return true

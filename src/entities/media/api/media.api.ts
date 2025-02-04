@@ -34,7 +34,7 @@ export const useMediaApi = () => {
 
     const _data = checkError(res).data
 
-    return z.number().parse(_data)
+    return z.object({}).parse(_data) //z.number().parse(_data)
   }
 
   async function updateFileName(id: string, name: string) {

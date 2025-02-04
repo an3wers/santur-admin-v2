@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { useMessage } from 'naive-ui'
 import { useCategoryStore } from '../model/category.store'
-import { NCard, NDynamicInput, NForm, NFormItem, NInput, NSpace, NModal, NButton } from 'naive-ui'
+import {
+  NCard,
+  NDynamicInput,
+  NForm,
+  NFormItem,
+  NInput,
+  NSpace,
+  NModal,
+  NButton,
+  useMessage
+} from 'naive-ui'
 
 interface Props {
   id?: number
@@ -26,10 +35,8 @@ const {
   categoryStatus,
   removeStatus,
   removeError,
-  categoryError,
   saveStatus,
   saveError,
-  extFieldsError,
   showConfirmForRemoveField
 } = storeToRefs(categoryStore)
 
