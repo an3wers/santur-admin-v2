@@ -30,14 +30,14 @@ export const mediaListSchema = z.object({
 export type MediaListDto = z.infer<typeof mediaListSchema>
 export type MediaListItemDto = MediaListDto['files']['items'][number]
 
-export interface MediaFilesRequest {
+export interface MediaFilesDto {
   app: string
   page: string
   period?: string // example: `${year}:${month}`
   limit?: string
 }
 
-export interface UploadMediaFilesRequest {
+export interface UploadMediaFilesDto {
   // app?: string
   files: File[]
 }

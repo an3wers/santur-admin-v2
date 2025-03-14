@@ -18,7 +18,7 @@ function openMediaHanler(mediaId: number) {
 }
 
 function getMediaFile(mediaId: number): MediaListItem | undefined {
-  const { data } = useNuxtData<MediaListType>('media-list')
+  const { data } = useNuxtData<MediaListType>('media-list') // TODO: Вынести key в константы
   return data.value?.files.items.find((item) => item.id === mediaId)
 }
 
@@ -29,7 +29,7 @@ watch(showMediaView, (newVal) => {
 })
 
 async function updateMediaList() {
-  refreshNuxtData('media-list')
+  refreshNuxtData('media-list') // TODO: Вынести key в константы
   closeMediaView()
 }
 

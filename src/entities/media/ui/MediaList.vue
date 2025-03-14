@@ -13,11 +13,11 @@ import {
   NText,
   NIcon
 } from 'naive-ui'
-import { useMediaList } from '../libs/useMediaList'
+import { useMediaList } from '../model/use-media-list'
 import { Trash } from '@vicons/tabler'
-import { useUploadMedia } from '../libs/useUploadMedia'
-import type { OptionsType } from '../libs/types'
-import { useDeleteMedia } from '../libs/useDeleteMedia'
+import { useUploadMedia } from '../model/use-upload-media'
+import { useDeleteMedia } from '../model/use-delete-media'
+import type { OptionsType } from '../model/media-types'
 
 const { mediaViewMode = 'open' } = defineProps<{
   mediaViewMode?: 'open' | 'select'

@@ -1,4 +1,4 @@
-import { useMediaApi } from '../api/media.api'
+import { useMediaApi } from '../api/media-api'
 
 export const useUploadMedia = () => {
   const fileList = new Set<File>()

@@ -1,4 +1,4 @@
-import { useMediaApi } from '../api/media.api'
+import { useMediaApi } from '../api/media-api'
 
 export const useDeleteMedia = () => {
   const status = ref<ProcessStatus>('idle')

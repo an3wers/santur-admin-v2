@@ -1,5 +1,5 @@
-import type { MediaListItem } from '../model/media.types'
-import { useMediaApi } from '../api/media.api'
+import type { MediaListItem } from './media-types'
+import { useMediaApi } from '../api/media-api'
 import type { FormRules } from 'naive-ui'
 type InitialState = Pick<MediaListItem, 'fileName'>
 

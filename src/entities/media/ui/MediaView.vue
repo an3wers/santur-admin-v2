@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useDeleteMedia } from '../libs/useDeleteMedia'
-import { useMediaView } from '../libs/useMediaView'
-import type { MediaListItem } from '../model/media.types'
+import { useDeleteMedia } from '../model/use-delete-media'
+import { useMediaView } from '../model/use-media-view'
+import type { MediaListItem } from '../model/media-types'
 import {
   useMessage,
   NCard,

@@ -1,6 +1,6 @@
 import { useNavStore } from '~/shared/navigation'
-import { useMediaApi } from '../api/media.api'
-import type { MediaListDto } from '../api/media.schema'
+import { useMediaApi } from '../api/media-api'
+import type { MediaListDto } from '../api/media-schemas'
 
 export const useMediaList = () => {
   const api = useMediaApi()
@@ -13,6 +13,8 @@ export const useMediaList = () => {
   }
 
   init()
+
+  // TODO: Вынести key в константы
   const { data, status, error, refresh } = useAsyncData(
     'media-list',
     () =>

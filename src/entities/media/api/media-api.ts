@@ -1,10 +1,10 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import { mediaListSchema, type MediaFilesRequest } from './media.schema'
+import { mediaListSchema, type MediaFilesDto } from './media-schemas'
 import { z } from 'zod'
 
 export const useMediaApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
-  async function getMediaFiles(options: MediaFilesRequest) {
+  async function getMediaFiles(options: MediaFilesDto) {
     const query = new URLSearchParams(options as unknown as Record<string, string>)
 
     const res = await fetchWithToken(`Admin/GetMediaFiles?${query.toString()}`)
