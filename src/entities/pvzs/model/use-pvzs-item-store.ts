@@ -1,5 +1,5 @@
-import type { PvzsItem, Pvz } from './pvzs.types'
-import { usePvzsApi } from '../api/pvzs.api'
+import type { PvzsItem, Pvz } from './pvzs-types'
+import { usePvzsApi } from '../api/pvzs-api'
 
 export const usePvzsItemStore = defineStore('pvzs-item', () => {
   const pvzsItem = reactive<PvzsItem>({

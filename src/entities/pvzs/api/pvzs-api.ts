@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import { pvzSchema, type SavePvzsItemRequest } from './pvzs.schemas'
+import { pvzSchema, type SavePvzsItemRequest } from './pvzs-schemas'
 
 export const usePvzsApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()

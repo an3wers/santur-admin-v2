@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { NCard, NList, NIcon, NListItem, NText, NTag, NDropdown, NButton } from 'naive-ui'
-import type { PvzsListItem } from '../model/pvzs.types'
-import { Dots } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
+import { Dots } from '@vicons/tabler'
+import type { PvzsListItem } from '../model/pvzs-types'
 
 const { pvzs, ownertId } = defineProps<{
   pvzs: PvzsListItem[]

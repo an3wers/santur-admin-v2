@@ -1,4 +1,4 @@
-import type { PvzDto } from '../api/pvzs.schemas'
+import type { PvzDto } from '../api/pvzs-schemas'
 
 export interface Pvz extends PvzDto {}
 export type PvzsListItem = Pick<

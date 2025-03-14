@@ -14,7 +14,7 @@ import {
   useMessage,
   NSwitch
 } from 'naive-ui'
-import { usePvzsItemStore } from '../model/pvzs-item.store'
+import { usePvzsItemStore } from '../model/use-pvzs-item-store'
 import { validationRules } from '../config/validation-rules'
 
 const pvzsItemStore = usePvzsItemStore()
