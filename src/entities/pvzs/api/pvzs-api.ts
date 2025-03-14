@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import { pvzSchema, type SavePvzsItemRequest } from './pvzs-schemas'
+import { pvzSchema, type SavePvzsItemDto } from './pvzs-schemas'
 
 export const usePvzsApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
@@ -31,7 +31,7 @@ export const usePvzsApi = () => {
     return pvzSchema.parse(otherFields)
   }
 
-  async function savePvzsItem(data: SavePvzsItemRequest) {
+  async function savePvzsItem(data: SavePvzsItemDto) {
     console.log(data)
     const res = await fetchWithToken('Org/SavePickupPoint', {
       method: 'POST',
