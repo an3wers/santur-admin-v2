@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCategoryStore } from '../model/category.store'
+import { useCategoryStore } from '../model/use-category-store'
 import {
   NCard,
   NDynamicInput,
@@ -97,7 +97,7 @@ onUnmounted(() => {
             <n-dynamic-input
               :value="category.extFields"
               placeholder="Название поля"
-              :on-create="categoryStore.addExtendFiledInput"
+              :on-create="categoryStore.addExtendFieldInput"
               :on-remove="categoryStore.removeExtendFieldInput"
             >
               <template #default="{ value }">

@@ -1,7 +1,7 @@
-import type { Category } from './category.types'
-import { useCategoryApi } from '../api/category.api'
+import type { Category } from './category-types'
+import { useCategoryApi } from '../api/category-api'
 import { useNavStore } from '~/shared/navigation'
-import { generateAlias } from '~/shared/libs/generateAlias'
+import { generateAlias } from '~/shared/libs/generate-alias'
 
 export const useCategoryStore = defineStore('category', () => {
   const api = useCategoryApi()
@@ -17,7 +17,7 @@ export const useCategoryStore = defineStore('category', () => {
   })
 
   const showConfirmForRemoveField = ref(false)
-  const _fieldIdToRemove = ref(-1)
+  const _fieldIdForRemove = ref(-1)
 
   const categoryStatus = ref<ProcessStatus>('idle')
   const categoryError = ref('')
@@ -31,7 +31,7 @@ export const useCategoryStore = defineStore('category', () => {
   const extFieldsStatus = ref<ProcessStatus>('idle')
   const extFieldsError = ref('')
 
-  function addExtendFiledInput() {
+  function addExtendFieldInput() {
     category.extFields.push({
       id: 0,
       title: ''
@@ -51,7 +51,7 @@ export const useCategoryStore = defineStore('category', () => {
 
     if (childCount > 0) {
       showConfirmForRemoveField.value = true
-      _fieldIdToRemove.value = currFieldId
+      _fieldIdForRemove.value = currFieldId
       return false
     } else {
       await deleteExtendField(currFieldId)
@@ -66,19 +66,19 @@ export const useCategoryStore = defineStore('category', () => {
   }
 
   async function removeAfterConfirm() {
-    if (_fieldIdToRemove.value === -1) return
+    if (_fieldIdForRemove.value === -1) return
 
-    await deleteExtendField(_fieldIdToRemove.value)
+    await deleteExtendField(_fieldIdForRemove.value)
 
     if (extFieldsStatus.value === 'success') {
-      category.extFields = category.extFields.filter((f) => f.id !== _fieldIdToRemove.value)
-      _fieldIdToRemove.value = -1
+      category.extFields = category.extFields.filter((f) => f.id !== _fieldIdForRemove.value)
+      _fieldIdForRemove.value = -1
       showConfirmForRemoveField.value = false
     }
   }
 
   async function cancelRemoveConfirm() {
-    _fieldIdToRemove.value = -1
+    _fieldIdForRemove.value = -1
     showConfirmForRemoveField.value = false
   }
 
@@ -149,7 +149,6 @@ export const useCategoryStore = defineStore('category', () => {
       const errorText = e instanceof Error ? e.message : JSON.stringify(e)
       removeError.value = errorText
       removeStatus.value = 'error'
-    } finally {
     }
   }
 
@@ -215,7 +214,7 @@ export const useCategoryStore = defineStore('category', () => {
     category.type = 0
     category.menuOrder = 0
 
-    _fieldIdToRemove.value = -1
+    _fieldIdForRemove.value = -1
     showConfirmForRemoveField.value = false
   }
 
@@ -236,7 +235,7 @@ export const useCategoryStore = defineStore('category', () => {
     removeCategory,
     saveCategory,
     deleteExtendField,
-    addExtendFiledInput,
+    addExtendFieldInput,
     removeExtendFieldInput,
     $reset
   }

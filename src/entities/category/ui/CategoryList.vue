@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { NCard, NList, NIcon, NListItem, NText } from 'naive-ui'
-import type { MenuItem } from '~/shared/navigation/model/nav.types'
+import type { MenuItem } from '~/shared/navigation/model/nav-types'
 import { ArrowNarrowRight } from '@vicons/tabler'
 
 interface Props {
   items: MenuItem[]
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 </script>
 
 <template>

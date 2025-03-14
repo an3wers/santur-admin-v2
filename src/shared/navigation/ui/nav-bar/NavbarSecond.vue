@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type MenuOption, NModal, NButton, NMenu } from 'naive-ui'
+import { NModal, NButton, NMenu } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 
 const navStore = useNavStore()
@@ -72,11 +72,6 @@ const hasActionBtn = computed(() => {
           :on-update-menu="updateMenu"
           :on-cancel-modal="toogleModal"
         />
-        <!-- <post-category-edit
-          @on-cancel="toogleModal"
-          @on-update="updateMenu"
-          :type="firstLevelMenuName === 'posts' ? 'post' : 'banner'"
-        /> -->
       </n-modal>
     </teleport>
   </div>

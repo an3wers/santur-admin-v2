@@ -10,18 +10,18 @@ export type ExtFieldsDto = z.infer<typeof extFieldsSchema>
 export const categorySchema = z.object({
   alias: z.string(),
   app: z.string(),
-  customFields: z.array(z.unknown()),
-  extFields: z.array(z.lazy(() => extFieldsSchema)),
-  extendFields: z.nullable(z.array(z.unknown())),
   id: z.number(),
   menuOrder: z.number(),
   name: z.string(),
-  type: z.number()
+  type: z.number(),
+  customFields: z.array(z.unknown()),
+  extFields: z.array(z.lazy(() => extFieldsSchema)),
+  extendFields: z.nullable(z.array(z.unknown()))
 })
 
 export type CategoryDto = z.infer<typeof categorySchema>
 
-export interface SaveCategoryRequest {
+export interface SaveCategoryDto {
   id: number
   app?: string
   title?: string

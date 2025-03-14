@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NSpace, NH1 } from 'naive-ui'
-import { PvzsItemCard, usePvzsItemStore, usePvzsApi, usePvzsItem } from '~/entities/pvzs'
+import { PvzsItemCard, usePvzsItemStore, usePvzsItem } from '~/entities/pvzs'
 
 const title = ref('')
 const route = useRoute()

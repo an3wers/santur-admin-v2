@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MediaList, type MediaListType, type MediaListItem, MediaView } from '~/entities/media'
 import { useNavStore } from '~/shared/navigation'
-import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
+import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { NH1, NButton, NUpload, NModal } from 'naive-ui'
 
 const navStore = useNavStore()

@@ -2,7 +2,7 @@
 import { NH1, NSpace } from 'naive-ui'
 import { CategoryList } from '~/entities/category'
 import { useNavStore } from '~/shared/navigation'
-import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
+import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 
 const navStore = useNavStore()
 </script>

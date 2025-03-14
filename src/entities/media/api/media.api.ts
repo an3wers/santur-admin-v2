@@ -1,4 +1,4 @@
-import { useAppRequest } from '~/shared/libs/api/useAppRequests'
+import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import { mediaListSchema, type MediaFilesRequest } from './media.schema'
 import { z } from 'zod'
 

@@ -2,7 +2,7 @@
 import { NSpace, NH1, useMessage, NP, NButton, NIcon } from 'naive-ui'
 import { PvzsList, usePvzs } from '~/entities/pvzs'
 import { useNavStore } from '~/shared/navigation'
-import PageTitle from '~/shared/ui/PageTitle/PageTitle.vue'
+import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { Plus } from '@vicons/tabler'
 
 const route = useRoute()

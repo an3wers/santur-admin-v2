@@ -1,5 +1,5 @@
-import { useAppRequest } from '~/shared/libs/api/useAppRequests'
-import { type MenuItemDto, menuItemSchema, type ResourceDto, resourceSchema } from './nav.schema'
+import { useAppRequest } from '~/shared/libs/api/use-app-requests'
+import { type MenuItemDto, menuItemSchema, type ResourceDto, resourceSchema } from './nav-schema'
 
 export const useNavApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()

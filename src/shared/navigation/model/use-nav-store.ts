@@ -1,5 +1,5 @@
-import { useNavApi } from '../api/nav.api'
-import type { MenuItem, Resource } from './nav.types'
+import { useNavApi } from '../api/nav-api'
+import type { MenuItem, Resource } from './nav-types'
 import type { MenuOption } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 

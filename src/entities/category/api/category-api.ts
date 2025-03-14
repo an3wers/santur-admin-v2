@@ -1,12 +1,12 @@
-import { useAppRequest } from '~/shared/libs/api/useAppRequests'
-import { categorySchema, type CategoryDto, type SaveCategoryRequest } from './category.schemas'
+import { useAppRequest } from '~/shared/libs/api/use-app-requests'
+import { categorySchema, type CategoryDto, type SaveCategoryDto } from './category-schemas'
 import { z } from 'zod'
 
 export const useCategoryApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
   type CategoryIdResponse = number
-  async function saveCategory(data: SaveCategoryRequest) {
+  async function saveCategory(data: SaveCategoryDto) {
     const res = await fetchWithToken<CategoryIdResponse>('Admin/SaveCategory', {
       method: 'POST',
       body: data
