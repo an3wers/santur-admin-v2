@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { BannersMain } from '~/pages/banners/bannersMain'
+import { BannersMainPage } from '~/pages/banners/banners-main'
 </script>
 
 <template>
-  <BannersMain />
+  <BannersMainPage />
 </template>
 
 <style scoped></style>

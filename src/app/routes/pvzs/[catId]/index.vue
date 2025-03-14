@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { PvzsCategory } from '~/pages/pvzs/pvzsCategory'
+import { PvzsCategoryPage } from '~/pages/pvzs/pvzs-category'
 </script>
 
 <template>
-  <PvzsCategory />
+  <PvzsCategoryPage />
 </template>
 
 <style scoped></style>

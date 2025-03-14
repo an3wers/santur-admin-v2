@@ -1,1 +1,1 @@
-export { default as ForgotPassword } from './ui/FogotPassword.vue'
+export { default as ForgotPasswordPage } from './ui/FogotPasswordPage.vue'

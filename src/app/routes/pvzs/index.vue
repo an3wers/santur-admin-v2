@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { PvzsMain } from '~/pages/pvzs/pvzsMain'
+import { PvzsMainPage } from '~/pages/pvzs/pvzs-main'
 </script>
 <template>
-  <PvzsMain />
+  <PvzsMainPage />
 </template>
 
 <style scoped></style>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { PvzsItem } from '~/pages/pvzs/pvzsItem'
+import { PvzsItemPage } from '~/pages/pvzs/pvzs-item'
 </script>
 
 <template>
-  <PvzsItem />
+  <PvzsItemPage />
 </template>
 
 <style scoped></style>

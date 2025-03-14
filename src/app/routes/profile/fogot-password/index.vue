@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ForgotPassword } from '~/pages/profile/fogot-password'
+import { ForgotPasswordPage } from '~/pages/profile/fogot-password'
 
 definePageMeta({
   layout: 'without-sidebar'
 })
 </script>
 <template>
-  <ForgotPassword />
+  <ForgotPasswordPage />
 </template>
 
 <style scoped></style>

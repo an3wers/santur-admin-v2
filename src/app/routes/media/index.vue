@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MediaMain } from '~/pages/media'
+import { MediaMainPage } from '~/pages/media'
 
 definePageMeta({
   isRequaredAuth: true
@@ -7,7 +7,7 @@ definePageMeta({
 </script>
 
 <template>
-  <MediaMain />
+  <MediaMainPage />
 </template>
 
 <style scoped></style>

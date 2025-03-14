@@ -1,1 +1,1 @@
-export { default as MediaMain } from './ui/MediaMain.vue'
+export { default as MediaMainPage } from './ui/MediaMainPage.vue'
