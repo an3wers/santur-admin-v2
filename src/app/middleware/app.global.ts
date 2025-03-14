@@ -1,4 +1,4 @@
-import { useUserStore } from '~/entities/user/model/user.store'
+import { useUserStore } from '~/entities/user/model/use-user-store'
 import { publicRoutes } from '~/shared/config/config'
 // import { useAppRequest } from '~/shared/libs/api/useAppRequests'
 

@@ -1,6 +1,6 @@
-import { useUserApi } from '../api/user.api'
-import type { LoginRequest } from '../api/user.schemas'
-import type { User } from './user.types'
+import { useUserApi } from '../api/user-api'
+import type { LoginRequest } from '../api/user-schemas'
+import type { User } from './user-types'
 import { nanoid } from 'nanoid'
 
 export const useUserStore = defineStore('user', () => {
@@ -9,7 +9,7 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const userId = ref<number | null>(null)
 
-  // TODO: Заменить на статус
+  // TODO: Заменить на статус: idle | pending | success | error
   const isLoaded = ref(false)
 
   const isAuthenticated = computed(() => !!user.value?.id)

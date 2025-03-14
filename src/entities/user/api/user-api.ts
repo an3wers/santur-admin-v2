@@ -6,7 +6,7 @@ import {
   type LoginRequest,
   type UserDto,
   loginFogotSchema
-} from './user.schemas'
+} from './user-schemas'
 import type { ErrorResponse, ResponseApi } from '~/shared/libs/api/types'
 
 export const useUserApi = () => {
@@ -31,8 +31,6 @@ export const useUserApi = () => {
       method: 'GET',
       ignoreResponseError: true
     })
-
-    console.log('@@res: ', res)
 
     const isUser = (value: ResponseApi<UserDto> | ErrorResponse): value is ResponseApi<UserDto> => {
       if ('data' in value && value.data.id !== undefined) {

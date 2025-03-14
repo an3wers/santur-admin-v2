@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { NText, NDropdown, NButton, NIcon, useMessage } from 'naive-ui'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
-import { useUserStore } from '../model/user.store'
-import { NText, NDropdown, NButton, NIcon, useMessage } from 'naive-ui'
+import { useUserStore } from '../model/use-user-store'
 
 const userStore = useUserStore()
 const message = useMessage()
