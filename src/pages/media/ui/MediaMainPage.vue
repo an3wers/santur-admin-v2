@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { NH1, NButton, NUpload, NModal } from 'naive-ui'
 import { MediaList, type MediaListType, type MediaListItem, MediaView } from '~/entities/media'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
-import { NH1, NButton, NUpload, NModal } from 'naive-ui'
 
 const navStore = useNavStore()
 
@@ -64,7 +64,7 @@ function closeMediaView() {
       v-model:show="showMediaView"
     >
       <MediaView v-if="selectedMedia" :media-item="selectedMedia" @on-update="updateMediaList" />
-      <!-- TODO: Обработать selectedMedia = null -->
+      <!-- TODO: Обработать selectedMedia === null -->
     </n-modal>
   </div>
 </template>

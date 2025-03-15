@@ -14,10 +14,11 @@ import {
   NIcon
 } from 'naive-ui'
 import { useMediaList } from '../model/use-media-list'
-import { Trash } from '@vicons/tabler'
+import { Trash, File } from '@vicons/tabler'
 import { useUploadMedia } from '../model/use-upload-media'
 import { useDeleteMedia } from '../model/use-delete-media'
 import type { OptionsType } from '../model/media-types'
+import { checkIsImage } from '../libs/check-is-image'
 
 const { mediaViewMode = 'open' } = defineProps<{
   mediaViewMode?: 'open' | 'select'
@@ -29,15 +30,15 @@ const emits = defineEmits<{
 }>()
 
 const message = useMessage()
-const { status: ulpoadStatus, setFileToList, uploadFilesDebounce } = useUploadMedia()
 const { data, status, page, error, refresh } = useMediaList()
+const { status: ulpoadStatus, setFileToList, uploadFilesDebounce } = useUploadMedia()
 const { deleteFile, status: deleteStatus } = useDeleteMedia()
 
 if (status.value === 'error') {
   message.error(error.value?.message ?? 'На странице произошла ошибка')
 }
 
-function mediaHandler(id: number) {
+function mediaItemHandler(id: number) {
   if (mediaViewMode === 'open') {
     emits('onMediaOpen', id)
   } else if (mediaViewMode === 'select') {
@@ -45,7 +46,7 @@ function mediaHandler(id: number) {
   }
 }
 
-async function deleteHandler(id: number) {
+async function deleteItem(id: number) {
   await deleteFile(id.toString())
   if (deleteStatus.value === 'error') {
     message.error('Произошла ошибка при удалении файла')
@@ -57,7 +58,7 @@ async function deleteHandler(id: number) {
   }
 }
 
-async function uploadHandler(options: OptionsType) {
+async function uploadItems(options: OptionsType) {
   const { file } = options
 
   if (!file.file) {
@@ -67,6 +68,21 @@ async function uploadHandler(options: OptionsType) {
   setFileToList(file.file)
 
   await uploadFilesDebounce()
+}
+
+function cropFileName(fileName: string, ext?: string) {
+  let result = ''
+  if (fileName.length > 16) {
+    result = `${fileName.slice(0, 16)}…${fileName.slice(fileName.length - 4, fileName.length)}`
+  } else {
+    result = fileName
+  }
+
+  if (ext) {
+    result = ext.at(0) === '.' ? `${result}${ext}` : `${result}.${ext}`
+  }
+
+  return result
 }
 
 watchEffect(() => {
@@ -84,7 +100,7 @@ watchEffect(() => {
 <template>
   <div class="media-list-container">
     <n-space vertical size="large">
-      <slot name="header" :on-upload="uploadHandler"></slot>
+      <slot name="header" :on-upload="uploadItems"></slot>
       <n-spin :show="status === 'pending'">
         <n-upload
           v-if="status !== 'error'"
@@ -92,7 +108,7 @@ watchEffect(() => {
           directory-dnd
           :max="50"
           :show-file-list="false"
-          @change="uploadHandler"
+          @change="uploadItems"
         >
           <n-upload-dragger>
             <n-grid v-if="data" :x-gap="12" :y-gap="12" cols="s:4 m:5 l:6 xl:8" responsive="screen">
@@ -101,20 +117,23 @@ watchEffect(() => {
                   class="n-card-item"
                   size="small"
                   :hoverable="true"
-                  @click.stop="mediaHandler(media.id)"
+                  @click.stop="mediaItemHandler(media.id)"
                 >
                   <template #cover>
-                    <img :src="media.imgPath" :alt="media.fileName" />
+                    <img
+                      v-if="checkIsImage(media.ext)"
+                      :src="media.imgPath"
+                      :alt="media.fileName"
+                    />
+                    <div v-else class="media-default">
+                      <n-icon size="40px" depth="3">
+                        <File />
+                      </n-icon>
+                    </div>
                   </template>
                   <template #action>
                     <n-text class="media-title" :title="media.fileName">
-                      {{
-                        media.fileName.length > 16
-                          ? media.fileName.slice(0, 16) +
-                            '…' +
-                            media.fileName.slice(media.fileName.length - 4, media.fileName.length)
-                          : media.fileName
-                      }}
+                      {{ cropFileName(media.fileName, media.ext) }}
                     </n-text>
                   </template>
                   <n-button
@@ -122,7 +141,7 @@ watchEffect(() => {
                     secondary
                     type="error"
                     circle
-                    @click.stop="deleteHandler(media.id)"
+                    @click.stop="deleteItem(media.id)"
                   >
                     <n-icon size="20px">
                       <Trash />
@@ -189,5 +208,15 @@ watchEffect(() => {
 .media-title {
   font-size: 0.75rem;
   line-height: 1.3;
+}
+
+.media-default {
+  height: 160px;
+  width: 100%;
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

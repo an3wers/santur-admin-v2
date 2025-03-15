@@ -2,7 +2,13 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['nuxtjs-naive-ui', '@pinia/nuxt', '@nuxt/eslint', '@vueuse/nuxt'],
+  modules: [
+    'nuxtjs-naive-ui',
+    '@pinia/nuxt',
+    '@nuxt/eslint',
+    '@vueuse/nuxt',
+    '@nuxt/test-utils/module'
+  ],
   ssr: false,
   app: {
     head: {

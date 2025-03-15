@@ -12,8 +12,13 @@ import {
   NGrid,
   NGridItem,
   NImage,
-  NSpace
+  NSpace,
+  NIcon,
+  NInputGroup
 } from 'naive-ui'
+import { checkIsImage } from '../libs/check-is-image'
+import { File, Copy } from '@vicons/tabler'
+import { copyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
 const { mediaItem } = defineProps<{
   mediaItem: MediaListItem
@@ -28,8 +33,10 @@ const formRef = ref()
 const message = useMessage()
 
 const { status, mediaViewModel, updateFileName, validateRules } = useMediaView({
-  fileName: mediaItem?.fileName ?? ''
+  fileName: mediaItem?.fileName ?? '',
+  imgPath: mediaItem?.imgPath ?? ''
 })
+
 const { deleteFile, status: deleteStatus } = useDeleteMedia()
 
 async function updateFileNameHandler(mediaId: number) {
@@ -66,6 +73,15 @@ async function deleteHandler(mediaId: number) {
     message.error('Что-то пошло не так')
   }
 }
+
+async function copyHandler(text: string) {
+  try {
+    await copyToClipboard(text)
+    message.success('Значение скопировано в буфер обмена')
+  } catch {
+    message.error('При копировании произошла ошибка, попробуйте скопировать самостоятельно')
+  }
+}
 </script>
 
 <template>
@@ -73,16 +89,40 @@ async function deleteHandler(mediaId: number) {
     <n-grid :x-gap="12" :y-gap="8" :cols="2">
       <n-grid-item>
         <n-image
+          v-if="checkIsImage(mediaItem.ext)"
           object-fit="contain"
           height="200"
           :alt="mediaItem.fileName"
           :src="mediaItem.imgPath"
         />
+        <div v-else class="media-default">
+          <n-icon size="64px" depth="3">
+            <File />
+          </n-icon>
+        </div>
       </n-grid-item>
       <n-grid-item>
         <n-form ref="formRef" :model="mediaViewModel" :rules="validateRules">
           <n-form-item label="Название файла" path="fileName">
-            <n-input v-model:value="mediaViewModel.fileName" placeholder="Название файла" />
+            <n-input-group>
+              <n-input v-model:value="mediaViewModel.fileName" placeholder="Название файла">
+              </n-input>
+              <n-button ghost @click.stop="copyHandler(mediaViewModel.fileName)">
+                <n-icon size="20px" :component="Copy" />
+              </n-button>
+            </n-input-group>
+          </n-form-item>
+          <n-form-item label="Ссылка на файл" path="filePath">
+            <n-input-group>
+              <n-input
+                v-model:value="mediaViewModel.filePath"
+                placeholder="Ссылка на файла"
+                :readonly="true"
+              />
+              <n-button ghost @click.stop="copyHandler(mediaViewModel.filePath)">
+                <n-icon size="20px" :component="Copy" />
+              </n-button>
+            </n-input-group>
           </n-form-item>
         </n-form>
       </n-grid-item>
@@ -101,4 +141,14 @@ async function deleteHandler(mediaId: number) {
   </n-card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.media-default {
+  height: 200px;
+  width: 100%;
+  background-color: var(--gray-100);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+</style>

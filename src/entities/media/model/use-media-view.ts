@@ -1,11 +1,12 @@
 import type { MediaListItem } from './media-types'
 import { useMediaApi } from '../api/media-api'
 import type { FormRules } from 'naive-ui'
-type InitialState = Pick<MediaListItem, 'fileName'>
+type InitialState = Pick<MediaListItem, 'fileName' | 'imgPath'>
 
 export const useMediaView = (initialState: InitialState) => {
   const mediaViewModel = reactive({
-    fileName: initialState.fileName
+    fileName: initialState.fileName,
+    filePath: initialState.imgPath
   })
 
   const validateRules: FormRules = {
@@ -13,6 +14,10 @@ export const useMediaView = (initialState: InitialState) => {
       required: true,
       message: 'Введите название',
       trigger: 'blur'
+    },
+    // Readonly input
+    filePath: {
+      required: true
     }
   }
 
