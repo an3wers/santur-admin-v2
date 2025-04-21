@@ -2,9 +2,7 @@
 import { NSpace, NH1 } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
-import BannersList from './BannersList.vue'
-import { useBannersCategory } from '../model/use-banners-category'
-import { useBannersCategoryData } from '../model/use-banners-category-data'
+import { useBannersCategory, BannersListUi as BannersList } from '@/entities/banner'
 
 const route = useRoute()
 const { catId } = route.params
@@ -16,15 +14,14 @@ const title = computed(() => {
     ?.label
 })
 
-const { setPage, page, search, sort } = useBannersCategory()
+const { data, setPage, status, execute } = await useBannersCategory(
+  catId as string,
+  navStore.activeResource
+)
 
-const { data, status, error } = useBannersCategoryData({
-  catId: catId as string,
-  app: navStore.activeResource,
-  page,
-  search,
-  sort
-})
+function updateBannerHandler() {
+  execute()
+}
 </script>
 
 <template>
@@ -35,8 +32,12 @@ const { data, status, error } = useBannersCategoryData({
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      {{ (status, error) }}
-      <!-- <BannersList v-if="data" :banners="data" /> -->
+      <BannersList
+        v-if="status === 'success'"
+        :banners="data?.items ?? []"
+        :ownert-id="navStore.secondLevelId"
+        @on-update="updateBannerHandler"
+      />
     </n-space>
   </div>
 </template>

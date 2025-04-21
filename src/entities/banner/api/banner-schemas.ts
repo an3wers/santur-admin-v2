@@ -29,3 +29,25 @@ export const bannersSchema = z.object({
 })
 
 export type BannersDto = z.infer<typeof bannersSchema>
+
+export interface SaveBannerDto {
+  id: number
+  name: string
+  imgPath: string
+  link: string
+  nn: number
+  categoryId: number
+  app: string
+  descr: string
+}
+
+export interface BannerDto {
+  id: number
+  imgPath: string
+  link: string
+  name: string
+  order: number
+  regDate: string
+  nn: number
+  categoryId: number
+}
