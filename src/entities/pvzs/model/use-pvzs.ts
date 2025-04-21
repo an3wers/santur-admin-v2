@@ -5,13 +5,21 @@ export const usePvzs = (ownerId: string) => {
   return useAsyncData(`pvzs-${ownerId}`, () => getPvzs(ownerId), {
     transform: (data) => {
       return data.map((el) => {
-        const { id, name, address, times, phones, isActive, gpscoords, city } = el
-        return { id, name, address, times, phones, isActive, gpscoords, city }
+        return {
+          id: el.id,
+          name: el.name,
+          address: el.address,
+          times: el.times,
+          phones: el.phones,
+          isActive: el.isActive,
+          gpscoords: el.gpscoords,
+          city: el.city
+        }
       })
     },
 
     getCachedData(key, nuxtApp) {
-      return nuxtApp.payload.data[key] || null
+      return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
     }
   })
 }

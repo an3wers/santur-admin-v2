@@ -10,11 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module'
   ],
   ssr: false,
-  app: {
-    head: {
-      link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }]
-    }
-  },
+  app: { head: { link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }] } },
   srcDir: 'src/',
   spaLoadingTemplate: false,
   dir: {
@@ -28,11 +24,7 @@ export default defineNuxtConfig({
   },
   serverDir: 'server',
   components: [
-    {
-      path: '~/shared',
-      extensions: ['.vue'],
-      pathPrefix: false
-    }
+    { path: '~/shared', extensions: ['.vue'], pathPrefix: false }
     // {
     //   path: '~/entities',
     //   extensions: ['.vue'],
@@ -51,7 +43,8 @@ export default defineNuxtConfig({
   $production: {
     vite: {
       esbuild: {
-        pure: ['console.log', 'debugger']
+        // pure: ['console.log', 'debugger']
+        pure: ['console.log']
       }
     },
     runtimeConfig: {
@@ -63,9 +56,7 @@ export default defineNuxtConfig({
   },
 
   $development: {
-    sourcemap: {
-      client: true
-    },
+    sourcemap: { client: true },
 
     runtimeConfig: {
       public: {
@@ -99,11 +90,7 @@ export default defineNuxtConfig({
               : process.env.BASE_URL_PROXY + 'apiadmin/**'
         }
       },
-      '/api-gateway/**': {
-        proxy: {
-          to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**'
-        }
-      }
+      '/api-gateway/**': { proxy: { to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**' } }
     }
   }
 })

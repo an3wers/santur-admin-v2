@@ -6,9 +6,10 @@ import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { Plus } from '@vicons/tabler'
 
 const route = useRoute()
+const { catId } = route.params
 
 const navStore = useNavStore()
-const { catId } = route.params
+
 const title = computed(() => {
   return navStore.currentNavigationMenu?.items.find((i) => i.id === parseInt(catId as string))
     ?.label
