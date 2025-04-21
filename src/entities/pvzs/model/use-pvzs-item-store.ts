@@ -1,5 +1,8 @@
 import type { PvzsItem, Pvz } from './pvzs-types'
 import { usePvzsApi } from '../api/pvzs-api'
+import { getPvzsCategoryKey } from '../api/query-keys'
+
+// TODO: Заменить глобальный стор на composable или на контекст provide/inject
 
 export const usePvzsItemStore = defineStore('pvzs-item', () => {
   const pvzsItem = reactive<PvzsItem>({
@@ -28,14 +31,14 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     ownerid: 0
   })
 
+  const loadStatus = ref<ProcessStatus>('idle')
+  const loadError = ref('')
+
   const saveStatus = ref<ProcessStatus>('idle')
   const saveError = ref('')
 
   const removeStatus = ref<ProcessStatus>('idle')
   const removeError = ref('')
-
-  const itemKey = computed(() => `pvzsItem-${pvzsItem.id}`)
-  const listKey = computed(() => `pvzs-${pvzsItemSecondaryFields.ownerid}`)
 
   function setPvzsItem(item: Pvz) {
     pvzsItem.address = item.address
@@ -63,15 +66,20 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
 
   const api = usePvzsApi()
 
-  async function updateCurrent(id: number) {
-    await refreshNuxtData(itemKey.value)
+  async function loadPvzsItem(id: string | number) {
+    try {
+      loadStatus.value = 'pending'
+      loadError.value = ''
 
-    clearNuxtData(listKey.value)
+      const res = await api.getPvzsItem(String(id))
 
-    const { data } = useNuxtData<Pvz>(itemKey.value)
-
-    if (data.value) {
-      setPvzsItem(data.value)
+      setPvzsItem(res)
+      setPvzsItemSecondaryFileds(res)
+      loadStatus.value = 'success'
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+      loadStatus.value = 'error'
+      loadError.value = errorMessage
     }
   }
 
@@ -93,11 +101,10 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
         request.currentTaReg = new Date().toISOString()
       }
 
-      const savedPvz = await api.savePvzsItem(request)
+      await api.savePvzsItem(request)
+      clearNuxtData(getPvzsCategoryKey(pvzsItemSecondaryFields.ownerid))
 
       saveStatus.value = 'success'
-
-      return savedPvz
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
       saveStatus.value = 'error'
@@ -105,13 +112,14 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
     }
   }
 
-  async function deletePvzsItem(id: number) {
+  async function deletePvzsItem(id: string | number) {
     try {
       removeStatus.value = 'pending'
       removeError.value = ''
 
-      await api.deletePvzsItem(id.toString())
-      clearNuxtData(listKey.value)
+      await api.deletePvzsItem(String(id))
+
+      clearNuxtData(getPvzsCategoryKey(pvzsItemSecondaryFields.ownerid))
 
       removeStatus.value = 'success'
     } catch (error) {
@@ -140,11 +148,10 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
       payvariants: ''
     })
 
-    Object.assign(pvzsItemSecondaryFields, {
-      currentTaEmail: '',
-      currentTaReg: '',
-      ownerid: 0
-    })
+    Object.assign(pvzsItemSecondaryFields, { currentTaEmail: '', currentTaReg: '', ownerid: 0 })
+
+    loadStatus.value = 'idle'
+    loadError.value = ''
 
     saveStatus.value = 'idle'
     saveError.value = ''
@@ -156,17 +163,15 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
   return {
     pvzsItem,
     pvzsItemSecondaryFields,
-    $reset,
+    loadStatus,
+    loadError,
     saveStatus,
     saveError,
     removeStatus,
     removeError,
-    itemKey,
-    listKey,
+    $reset,
+    loadPvzsItem,
     savePvzsItem,
-    deletePvzsItem,
-    setPvzsItem,
-    setPvzsItemSecondaryFileds,
-    updateCurrent
+    deletePvzsItem
   }
 })

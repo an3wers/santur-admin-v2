@@ -9,7 +9,6 @@ const title = 'Новый пункт выдачи'
 const pvzsItemStore = usePvzsItemStore()
 
 pvzsItemStore.$reset()
-
 pvzsItemStore.pvzsItemSecondaryFields.ownerid = parseInt(catId as string)
 </script>
 

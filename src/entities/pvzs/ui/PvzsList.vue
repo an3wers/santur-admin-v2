@@ -9,6 +9,7 @@ const { pvzs, ownertId } = defineProps<{
   ownertId: number
 }>()
 
+// TODO: добавить label для удаления
 const moreMenu: DropdownMixedOption[] = [{ label: 'Изменить', key: 'edit' }]
 
 function handleDropdown(key: string, itemId: number) {

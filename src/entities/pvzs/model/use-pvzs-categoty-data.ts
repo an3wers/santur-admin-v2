@@ -1,8 +1,9 @@
 import { usePvzsApi } from '../api/pvzs-api'
+import { getPvzsCategoryKey } from '../api/query-keys'
 
 export const usePvzs = (ownerId: string) => {
   const { getPvzs } = usePvzsApi()
-  return useAsyncData(`pvzs-${ownerId}`, () => getPvzs(ownerId), {
+  return useAsyncData(getPvzsCategoryKey(ownerId), () => getPvzs(ownerId), {
     transform: (data) => {
       return data.map((el) => {
         return {

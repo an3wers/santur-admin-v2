@@ -18,15 +18,9 @@ import { usePvzsItemStore } from '../model/use-pvzs-item-store'
 import { validationRules } from '../config/validation-rules'
 
 const pvzsItemStore = usePvzsItemStore()
-const {
-  pvzsItem,
-  pvzsItemSecondaryFields,
-  saveStatus,
-  removeStatus,
-  removeError,
-  saveError,
-  listKey
-} = storeToRefs(pvzsItemStore)
+
+const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError, saveError } =
+  storeToRefs(pvzsItemStore)
 
 const formRef = ref<FormInst | null>(null)
 
@@ -48,18 +42,17 @@ async function submitHandler() {
 
     if (saveStatus.value === 'success') {
       message.success('Данные успешно сохранены')
+
+      if (!pvzsItem.value.id) {
+        return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+        // TODO: роутинг
+        // return await navigateTo({
+        //   path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}/${savedPvz.id}`
+        // })
+      }
+
+      await pvzsItemStore.loadPvzsItem(pvzsItem.value.id)
     }
-
-    if (!pvzsItem.value.id) {
-      clearNuxtData(listKey.value)
-      return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
-
-      // return await navigateTo({
-      //   path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}/${savedPvz.id}`
-      // })
-    }
-
-    await pvzsItemStore.updateCurrent(pvzsItem.value.id)
   } catch (error) {
     console.error(error)
     if (error instanceof Error) {
@@ -84,8 +77,7 @@ async function deleteHandler() {
 }
 
 async function cancelHandler() {
-  // navigate to parent route
-  await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
+  return await navigateTo({ path: `/pvzs/${pvzsItemSecondaryFields.value.ownerid}` })
 }
 </script>
 

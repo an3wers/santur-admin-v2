@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NSpace, NH1 } from 'naive-ui'
-import { PvzsItemCard, usePvzsItemStore, usePvzsItem } from '~/entities/pvzs'
+import { NSpace, NH1, useMessage } from 'naive-ui'
+import { PvzsItemCard, usePvzsItemStore } from '~/entities/pvzs'
 
 const title = ref('')
+
 const route = useRoute()
 
 const { itemId } = route.params
@@ -10,13 +11,17 @@ const { itemId } = route.params
 const pvzsItemStore = usePvzsItemStore()
 
 pvzsItemStore.$reset()
+await pvzsItemStore.loadPvzsItem(itemId as string)
 
-const { data, status } = await usePvzsItem(itemId as string)
+const message = useMessage()
 
-if (data.value && status.value === 'success') {
-  pvzsItemStore.setPvzsItem(data.value)
-  pvzsItemStore.setPvzsItemSecondaryFileds(data.value)
-  title.value = data.value.name
+if (pvzsItemStore.loadStatus === 'success') {
+  title.value = pvzsItemStore.pvzsItem.name
+}
+
+if (pvzsItemStore.loadStatus === 'error') {
+  console.error(pvzsItemStore.loadError)
+  message.error(pvzsItemStore.loadError || 'На странице произошла ошибка')
 }
 </script>
 
@@ -28,7 +33,7 @@ if (data.value && status.value === 'success') {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PvzsItemCard v-if="status === 'success' || data" />
+      <PvzsItemCard v-if="pvzsItemStore.loadStatus === 'success'" />
     </n-space>
   </div>
 </template>
