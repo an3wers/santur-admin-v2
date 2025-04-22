@@ -17,7 +17,7 @@ import { useMediaList } from '../model/use-media-list'
 import { Trash, File } from '@vicons/tabler'
 import { useUploadMedia } from '../model/use-upload-media'
 import { useDeleteMedia } from '../model/use-delete-media'
-import type { OptionsType } from '../model/media-types'
+import type { MediaListItem, OptionsType } from '../model/media-types'
 import { checkIsImage } from '../libs/check-is-image'
 
 const { mediaViewMode = 'open' } = defineProps<{
@@ -25,7 +25,7 @@ const { mediaViewMode = 'open' } = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'onMediaSelect', id: number): void
+  (e: 'onMediaSelect', media: MediaListItem): void
   (e: 'onMediaOpen', id: number): void
 }>()
 
@@ -38,11 +38,11 @@ if (status.value === 'error') {
   message.error(error.value?.message ?? 'На странице произошла ошибка')
 }
 
-function mediaItemHandler(id: number) {
+function mediaItemHandler(media: MediaListItem) {
   if (mediaViewMode === 'open') {
-    emits('onMediaOpen', id)
+    emits('onMediaOpen', media.id)
   } else if (mediaViewMode === 'select') {
-    emits('onMediaSelect', id)
+    emits('onMediaSelect', media)
   }
 }
 
@@ -117,7 +117,7 @@ watchEffect(() => {
                   class="n-card-item"
                   size="small"
                   :hoverable="true"
-                  @click.stop="mediaItemHandler(media.id)"
+                  @click.stop="mediaItemHandler(media)"
                 >
                   <template #cover>
                     <img

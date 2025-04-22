@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NSpace, NH1 } from 'naive-ui'
+import { NSpace, NH1, NButton, NIcon } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { useBannersCategory, BannersListUi as BannersList } from '@/entities/banner'
+import { Plus } from '@vicons/tabler'
 
 const route = useRoute()
 const { catId } = route.params
@@ -14,10 +15,7 @@ const title = computed(() => {
     ?.label
 })
 
-const { data, setPage, status, execute } = await useBannersCategory(
-  catId as string,
-  navStore.activeResource
-)
+const { data, status, execute } = await useBannersCategory(catId as string, navStore.activeResource)
 
 function updateBannerHandler() {
   execute()
@@ -30,6 +28,18 @@ function updateBannerHandler() {
       <page-title back-label="Баннеры" has-back :back-path="`/banners`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
+        </template>
+        <template #actions>
+          <n-button
+            v-if="catId && parseInt(catId as string)"
+            type="primary"
+            @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
+          >
+            <template #icon>
+              <n-icon size="20px"><Plus /></n-icon>
+            </template>
+            Добавить
+          </n-button>
         </template>
       </page-title>
       <BannersList

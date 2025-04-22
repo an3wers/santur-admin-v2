@@ -1,7 +1,6 @@
+<script setup lang="ts">
+import { BannersNewItemPage } from '~/pages/banners/banners-new-item'
+</script>
 <template>
-  <div></div>
+  <BannersNewItemPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

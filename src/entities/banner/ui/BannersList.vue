@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NList } from 'naive-ui'
+import { NCard, NList, NP } from 'naive-ui'
 import type { BannersListItem } from '@/entities/banner'
 import BannersListItemUi from './BannersListItem.vue'
 
@@ -15,7 +15,7 @@ defineEmits<{
 
 <template>
   <n-card>
-    <n-list hoverable>
+    <n-list v-if="banners.length" hoverable>
       <BannersListItemUi
         v-for="banner in banners"
         :key="banner.id"
@@ -25,5 +25,8 @@ defineEmits<{
       />
       <!-- TODO: Постраничная навигация -->
     </n-list>
+    <div v-else>
+      <n-p :depth="3" style="text-align: center">Список баннеров пуст</n-p>
+    </div>
   </n-card>
 </template>

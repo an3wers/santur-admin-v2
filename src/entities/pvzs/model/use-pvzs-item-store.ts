@@ -3,7 +3,6 @@ import { usePvzsApi } from '../api/pvzs-api'
 import { getPvzsCategoryKey } from '../api/query-keys'
 
 // TODO: Заменить глобальный стор на composable или на контекст provide/inject
-
 export const usePvzsItemStore = defineStore('pvzs-item', () => {
   const pvzsItem = reactive<PvzsItem>({
     address: '',
@@ -34,9 +33,11 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
   const loadStatus = ref<ProcessStatus>('idle')
   const loadError = ref('')
 
+  // TODO: можно вынести в отдельный модуль
   const saveStatus = ref<ProcessStatus>('idle')
   const saveError = ref('')
 
+  // TODO: можно вынести в отдельный модуль
   const removeStatus = ref<ProcessStatus>('idle')
   const removeError = ref('')
 

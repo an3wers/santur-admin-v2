@@ -18,7 +18,7 @@ import {
 } from 'naive-ui'
 import { checkIsImage } from '../libs/check-is-image'
 import { File, Copy } from '@vicons/tabler'
-import { copyToClipboard } from '~/shared/libs/copy-to-clipboard'
+import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
 const { mediaItem } = defineProps<{
   mediaItem: MediaListItem
@@ -38,6 +38,8 @@ const { status, mediaViewModel, updateFileName, validateRules } = useMediaView({
 })
 
 const { deleteFile, status: deleteStatus } = useDeleteMedia()
+
+const copyToClipboard = useCopyToClipboard()
 
 async function updateFileNameHandler(mediaId: number) {
   try {
@@ -73,15 +75,6 @@ async function deleteHandler(mediaId: number) {
     message.error('Что-то пошло не так')
   }
 }
-
-async function copyHandler(text: string) {
-  try {
-    await copyToClipboard(text)
-    message.success('Значение скопировано в буфер обмена')
-  } catch {
-    message.error('При копировании произошла ошибка, попробуйте скопировать самостоятельно')
-  }
-}
 </script>
 
 <template>
@@ -107,7 +100,7 @@ async function copyHandler(text: string) {
             <n-input-group>
               <n-input v-model:value="mediaViewModel.fileName" placeholder="Название файла">
               </n-input>
-              <n-button ghost @click.stop="copyHandler(mediaViewModel.fileName)">
+              <n-button ghost @click.stop="copyToClipboard(mediaViewModel.fileName)">
                 <n-icon size="20px" :component="Copy" />
               </n-button>
             </n-input-group>
@@ -119,7 +112,7 @@ async function copyHandler(text: string) {
                 placeholder="Ссылка на файла"
                 :readonly="true"
               />
-              <n-button ghost @click.stop="copyHandler(mediaViewModel.filePath)">
+              <n-button ghost @click.stop="copyToClipboard(mediaViewModel.filePath)">
                 <n-icon size="20px" :component="Copy" />
               </n-button>
             </n-input-group>

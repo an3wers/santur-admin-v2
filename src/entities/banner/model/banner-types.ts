@@ -17,3 +17,14 @@ export interface BannersList {
   totalCount: number
   extendedData?: unknown
 }
+
+export interface BannerItem {
+  id: number
+  imgPath: string
+  link: string
+  name: string
+  order: number
+  regDate: string
+  nn: number
+  categoryId: number
+}
