@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AddEditCategory from '~/entities/category/ui/AddEditCategory.vue'
+import { CategoryDetail } from '~/entities/category'
 import UserPreview from '~/entities/user/ui/UserPreview.vue'
 import { NavbarFirst, NavbarSecond, useNavStore } from '~/shared/navigation'
 
@@ -12,6 +12,7 @@ async function initLayout() {
     await navStore.loadMenu(navStore.activeResource)
     navStore.saveActiveResourceToLS(navStore.activeResource)
   } catch (error) {
+    console.error(error)
     throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
   }
 }
@@ -29,7 +30,7 @@ await initLayout()
       </NavbarFirst>
       <NavbarSecond v-if="navStore.currentSubmenu.needSubmenu">
         <template #modal="{ firstLevelMenuName, onCancelModal, onUpdateMenu }">
-          <AddEditCategory
+          <CategoryDetail
             :first-level-name="firstLevelMenuName"
             @on-update="onUpdateMenu"
             @on-cancel="onCancelModal"

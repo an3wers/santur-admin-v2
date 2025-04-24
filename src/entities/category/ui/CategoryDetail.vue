@@ -9,6 +9,7 @@ import {
   NSpace,
   NModal,
   NButton,
+  NP,
   useMessage
 } from 'naive-ui'
 
@@ -27,6 +28,8 @@ const emits = defineEmits<{
 const message = useMessage()
 
 const categoryStore = useCategoryStore()
+
+categoryStore.$reset()
 
 await categoryStore.loadCategory(id ?? 0)
 
@@ -72,21 +75,20 @@ async function removeCategory() {
     emits('onUpdate')
     emits('onCancel')
     message.success('Категория удалена')
-    navigateTo({ name: firstLevelName, replace: true })
+    return navigateTo({ name: firstLevelName, replace: true })
   }
 
   if (removeStatus.value === 'error') {
     message.error(removeError.value)
   }
 }
-
-onUnmounted(() => {
-  categoryStore.$reset()
-})
 </script>
 
 <template>
   <n-card>
+    <div v-if="id" style="margin-bottom: 8px">
+      <n-p :depth="3">ID: {{ id }}</n-p>
+    </div>
     <n-form :model="category">
       <n-form-item label="Название категории" path="name">
         <n-input v-model:value="category.name" placeholder="Название категории" />

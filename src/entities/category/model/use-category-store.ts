@@ -84,24 +84,21 @@ export const useCategoryStore = defineStore('category', () => {
 
   async function loadCategory(catId: number): Promise<void> {
     if (catId === 0) {
-      // Лишняя операция
-      // Object.assign(category, {
-      //   alias: '',
-      //   app: navStore.activeResource,
-      //   extFields: [],
-      //   id: 0,
-      //   name: '',
-      //   type: 0,
-      //   menuOrder: 0
-      // })
       return
     }
 
     try {
       categoryStatus.value = 'pending'
       categoryError.value = ''
-      const data = api.getCategory(catId)
-      Object.assign(category, data)
+      const data = await api.getCategory(catId)
+
+      category.id = data.id
+      category.alias = data.alias
+      category.app = data.app
+      category.name = data.name
+      category.type = data.type
+      category.menuOrder = data.menuOrder
+      category.extFields = data.extFields
 
       categoryStatus.value = 'success'
     } catch (e) {

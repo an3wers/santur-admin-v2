@@ -14,9 +14,9 @@ export const categorySchema = z.object({
   menuOrder: z.number(),
   name: z.string(),
   type: z.number(),
-  customFields: z.array(z.unknown()),
+  customFields: z.array(z.unknown()).optional(),
   extFields: z.array(z.lazy(() => extFieldsSchema)),
-  extendFields: z.nullable(z.array(z.unknown()))
+  extendFields: z.nullable(z.array(z.unknown())).optional()
 })
 
 export type CategoryDto = z.infer<typeof categorySchema>

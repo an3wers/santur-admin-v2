@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { NSpace, NH1, NButton, NIcon } from 'naive-ui'
+import { NSpace, NH1, NButton, NIcon, NModal } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { useBannersCategory, BannersListUi as BannersList } from '@/entities/banner'
-import { Plus } from '@vicons/tabler'
+import { Plus, Edit } from '@vicons/tabler'
+import { CategoryDetail } from '~/entities/category'
 
 const route = useRoute()
 const { catId } = route.params
@@ -18,7 +19,18 @@ const title = computed(() => {
 const { data, status, execute } = await useBannersCategory(catId as string, navStore.activeResource)
 
 function updateBannerHandler() {
-  execute()
+  return execute()
+}
+
+const isShowEditCategory = ref(false)
+
+function toggleEditCategory() {
+  isShowEditCategory.value = !isShowEditCategory.value
+}
+
+async function updateCategoryHandler() {
+  await navStore.loadMenu(navStore.activeResource)
+  // updateBannerHandler()
 }
 </script>
 
@@ -40,6 +52,12 @@ function updateBannerHandler() {
             </template>
             Добавить
           </n-button>
+          <n-button secondary type="primary" @click="toggleEditCategory">
+            <template #icon>
+              <n-icon size="20px"><Edit /></n-icon>
+            </template>
+            Изменить
+          </n-button>
         </template>
       </page-title>
       <BannersList
@@ -49,6 +67,28 @@ function updateBannerHandler() {
         @on-update="updateBannerHandler"
       />
     </n-space>
+    <!-- Edit category modal -->
+
+    <n-modal
+      style="max-width: 640px"
+      size="medium"
+      preset="card"
+      v-model:show="isShowEditCategory"
+      :title="title"
+    >
+      <!-- <slot
+          name="modal"
+          :first-level-menu-name="navStore.firstLevelName"
+          :on-update-menu="updateMenu"
+          :on-cancel-modal="toogleModal"
+        /> -->
+      <CategoryDetail
+        :id="parseInt(catId as string)"
+        :first-level-name="navStore.firstLevelName"
+        @on-cancel="toggleEditCategory"
+        @on-update="updateCategoryHandler"
+      />
+    </n-modal>
   </div>
 </template>
 
