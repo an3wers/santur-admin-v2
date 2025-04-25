@@ -1,7 +1,7 @@
+<script setup lang="ts">
+import { BrandsMainPage } from '~/pages/brands/brands-main'
+</script>
+
 <template>
-  <div></div>
+  <BrandsMainPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

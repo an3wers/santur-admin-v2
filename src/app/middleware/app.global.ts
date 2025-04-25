@@ -6,6 +6,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // const { baseFetch } = useAppRequest()
   // const res = await baseFetch('/api/users/app-cookie', { method: 'GET' })
 
+  // await $fetch('/api/test/set-cookie', { method: 'POST' })
+
   const { checkAuth, $reset } = useUserStore()
   const isAuth = await checkAuth()
 
