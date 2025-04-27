@@ -1,5 +1,13 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import { type BrandsDto, type BrandsOptionsDto, brandsSchema } from './brand-schemas'
+import {
+  type BrandByIdDto,
+  type BrandsDto,
+  type BrandsOptionsDto,
+  brandsSchema,
+  brandByIdSchema,
+  type BrandSaveDto,
+  type BrandSaveFilesDto
+} from './brand-schemas'
 
 export const useBrandApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
@@ -23,5 +31,46 @@ export const useBrandApi = () => {
     return checkError(res).data
   }
 
-  return { getBrands, changePublish }
+  async function getBrand(brandId: number) {
+    const res = await fetchWithToken<BrandByIdDto>(`Admin/GetBrendDetail?id=${brandId}`)
+    const _data = checkError(res).data
+    return brandByIdSchema.parse(_data)
+  }
+
+  async function saveBrand(data: BrandSaveDto, files: BrandSaveFilesDto[]) {
+    const formData = new FormData()
+
+    Object.keys(data).forEach((key) => {
+      const value = data[key as keyof BrandSaveDto]
+      formData.append(key, value.toString())
+    })
+
+    if (files.length) {
+      files.forEach((file) => {
+        formData.append(file.key, file.file as File)
+      })
+    }
+
+    // TODO: типизировать
+    const res = await fetchWithToken<unknown>('Admin/BrendSave', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
+  async function removeLogo(brandId: string | number, size: 'small' | 'big' | 'both') {
+    const res = await fetchWithToken<unknown>(
+      `Admin/RemoveLogoBrend?brendId=${brandId}&size=${size}`
+    )
+    return checkError(res).data
+  }
+
+  async function removeDocument(docId: number | string) {
+    const res = await fetchWithToken<unknown>(`Admin/DeleteFile?id=${docId}`)
+    return checkError(res).data
+  }
+
+  return { getBrands, changePublish, getBrand, saveBrand, removeLogo, removeDocument }
 }

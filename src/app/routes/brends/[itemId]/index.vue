@@ -1,7 +1,6 @@
+<script setup lang="ts">
+import { BrandItemPage } from '@/pages/brands/brands-item'
+</script>
 <template>
-  <div></div>
+  <BrandItemPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

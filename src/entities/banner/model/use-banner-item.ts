@@ -23,7 +23,7 @@ export const userBannerItem = ({ catId }: { catId: number }) => {
     [() => banner.name, () => banner.imgPath, () => banner.link, () => banner.categoryId],
     ([newName, newImgPath, newLink, newCatId], [oldName, oldImgPath, oldLink, oldCatId]) => {
       if ((status.value === 'success' && oldName !== '') || status.value === 'idle') {
-        console.log({ newName, oldName, org: originalBanner.value?.name })
+        // console.log({ newName, oldName, org: originalBanner.value?.name })
         isModified.value =
           (newName !== oldName && newName !== originalBanner.value?.name) ||
           (newImgPath !== oldImgPath && newImgPath !== originalBanner.value?.imgPath) ||

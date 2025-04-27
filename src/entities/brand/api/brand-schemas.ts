@@ -10,15 +10,6 @@ export interface BrandsOptionsDto {
   search: string
 }
 
-/*
-export interface GetBrandByIdResponse {
-  brend: BrandsItem
-  files: BrandFile[]
-  logoSmallUrl: string
-  logoBigUrl: string
-}
-*/
-
 export const brandsItemSchema = z.object({
   thisObject: z.any().optional(),
   id: z.number(),
@@ -55,3 +46,58 @@ export const brandsSchema = z.object({
 })
 
 export type BrandsDto = z.infer<typeof brandsSchema>
+
+export const brandByIdSchema = z.object({
+  brend: brandsItemSchema,
+  files: z.array(
+    z.object({
+      category: z.string(),
+      ext: z.string(),
+      id: z.number(),
+      lc: z.null(),
+      lcd: z.string(),
+      name: z.string()
+    })
+  ),
+  logoSmallUrl: z.string(),
+  logoBigUrl: z.string()
+})
+
+export type BrandByIdDto = z.infer<typeof brandByIdSchema>
+
+export interface BrandFile {
+  category: string
+  ext: string
+  id: number
+  lc: null | any
+  lcd: string
+  name: string
+}
+
+export const fileList = {
+  file1: 'Паспорт',
+  file2: 'Сертификат дилера',
+  file3: 'Cертификат',
+  file4: 'Каталог',
+  logobig: 'Большое лого',
+  logosmall: 'Маленькое лого'
+} as const
+
+export type FilesKeys = keyof typeof fileList
+
+export interface BrandSaveDto {
+  id: number
+  name: string
+  descr: string
+  alias: string
+  address: string
+  phones: string
+  email: string
+  site: string
+  published: boolean
+}
+
+export interface BrandSaveFilesDto {
+  key: FilesKeys
+  file: File | undefined | null
+}

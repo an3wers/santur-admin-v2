@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
 
   // Если не передан id, то берем из токена
   if (!_id) {
+    // TODO: Исправлять логику access и refresh токенов
     const tokenCookie = getCookie(event, '_user_token')
     if (!tokenCookie) {
       throw createError({
