@@ -6,27 +6,18 @@ export default defineEventHandler(async (event) => {
 
   let _id: string = id === '0' ? '' : (id as string)
 
-  // Если не передан id, то берем из токена
-  if (!_id) {
-    // TODO: Исправлять логику access и refresh токенов
-    const tokenCookie = getCookie(event, '_user_token')
-    if (!tokenCookie) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Token is not found'
-      })
-    }
-
-    const [_, payloadEncoded] = tokenCookie.split('.')
-    const payload = Buffer.from(payloadEncoded, 'base64').toString('utf-8')
-    _id = JSON.parse(payload).sub
-  }
-
   if (!cookieToken) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized'
     })
+  }
+
+  // Если не передан id, то берем из токена
+  if (!_id) {
+    const [_, payloadEncoded] = cookieToken.split('.')
+    const payload = Buffer.from(payloadEncoded, 'base64').toString('utf-8')
+    _id = JSON.parse(payload).sub
   }
 
   const res = await $fetch.raw(`${apiGateway}Auth/GetUser?id=${_id}`, {

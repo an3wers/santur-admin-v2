@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     ignoreResponseError: true
     // credentials: 'include'
   })
-  console.log('RES: ', JSON.stringify(res._data))
+  // console.log('RES: ', JSON.stringify(res._data))
   if (!res.ok) {
     const { message } = res._data as Record<string, unknown>
 
@@ -37,7 +37,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const expresDate1 = new Date(Date.now() + 1000 * 60 * 60 * 24 * 1)
+  const expresDate1 = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+
   setCookie(event, '_user_token', data.data.accessToken, {
     httpOnly: false,
     secure: false,

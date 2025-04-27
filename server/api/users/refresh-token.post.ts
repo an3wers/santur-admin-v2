@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const expresDate1 = new Date(Date.now() + 1000 * 60 * 60 * 24 * 1)
+  const expresDate1 = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
   setCookie(event, '_user_token', data.accessToken, {
     httpOnly: false,
     secure: false,

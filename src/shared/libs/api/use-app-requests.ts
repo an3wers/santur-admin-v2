@@ -12,6 +12,7 @@ export const useAppRequest = () => {
       method: 'POST',
       body: { deviceId },
       onResponseError() {
+        // Зачем тут редирект?
         const app = useNuxtApp()
         app.$router.push({ path: '/profile/sign-in', query: { meta: 'error' } })
       }

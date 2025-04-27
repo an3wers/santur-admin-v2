@@ -88,7 +88,7 @@ export const useUserApi = () => {
 
   async function loginFogot(email: string) {
     const res = await baseFetch<string>(`apissz/LoginFogot/?u=${email}&tosms=N`, {
-      baseURL: apiBase
+      baseURL: apiBase as string
     })
     const _data = checkError(res).data
 
