@@ -1,7 +1,6 @@
+<script setup lang="ts">
+import { PostsCategoryPage } from '~/pages/posts/posts-category'
+</script>
 <template>
-  <div></div>
+  <PostsCategoryPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

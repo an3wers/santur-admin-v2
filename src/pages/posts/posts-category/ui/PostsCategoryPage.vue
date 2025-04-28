@@ -1,25 +1,37 @@
 <script setup lang="ts">
-import { NSpace, NH1, NButton, NIcon, NModal } from 'naive-ui'
+import { NSpace, NH1, useMessage, NButton, NIcon, NModal } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
-import { useBannersCategory, BannersListUi as BannersList } from '@/entities/banner'
 import { Plus, Edit } from '@vicons/tabler'
+import { usePostsCategory } from '../model/use-posts-category'
 import { CategoryDetail } from '~/entities/category'
+import { PostsList } from '~/entities/post'
 
 const route = useRoute()
 const { catId } = route.params
 
 const navStore = useNavStore()
 
+const catName = computed(
+  () =>
+    navStore.currentNavigationMenu?.items.find((el) => el.id === parseInt(catId as string))
+      ?.label ?? ''
+)
+
+console.log('@@', catName.value)
+
 const title = computed(() => {
   return navStore.currentNavigationMenu?.items.find((i) => i.id === parseInt(catId as string))
     ?.label
 })
 
-const { data, status, execute } = await useBannersCategory(catId as string, navStore.activeResource)
+const { data, status, page, setPage, search, execute } = await usePostsCategory(
+  catId as string,
+  navStore.activeResource
+)
 
-function updateBannerHandler() {
-  return execute()
+if (status.value === 'error') {
+  throw createError({ statusMessage: 'На странице произошла ошибка' })
 }
 
 const isShowEditCategory = ref(false)
@@ -28,16 +40,19 @@ function toggleEditCategory() {
   isShowEditCategory.value = !isShowEditCategory.value
 }
 
+function updatePostsHandler() {
+  execute()
+}
+
 async function updateCategoryHandler() {
   await navStore.loadMenu(navStore.activeResource)
-  // updateBannerHandler()
 }
 </script>
 
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title back-label="Баннеры" has-back :back-path="`/banners`">
+      <page-title back-label="Страницы" has-back :back-path="`/posts`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>
@@ -60,12 +75,21 @@ async function updateCategoryHandler() {
           </n-button>
         </template>
       </page-title>
-      <BannersList
-        v-if="status === 'success'"
-        :banners="data?.items ?? []"
-        :ownert-id="navStore.secondLevelId"
-        @on-update="updateBannerHandler"
-      />
+      <PostsList
+        v-if="status !== 'error'"
+        :posts="data?.items ?? []"
+        :ownert-id="parseInt(catId as string)"
+        :owner-name="catName"
+        :page="page"
+        :search="search"
+        :total-pages="data?.totalPages ?? 0"
+        @on-change-page="setPage"
+        @on-update="updatePostsHandler"
+      >
+        <template #search>
+          <InputSearch v-model="search" />
+        </template>
+      </PostsList>
     </n-space>
     <n-modal
       style="max-width: 640px"

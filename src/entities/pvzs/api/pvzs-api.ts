@@ -15,9 +15,7 @@ export const usePvzsApi = () => {
       const { thisObject, ...otherFields } = el
       return otherFields
     })
-    const r = pvzSchema.array().parse(mapped)
-    console.log('r', r)
-    return r //pvzSchema.array().parse(mapped)
+    return pvzSchema.array().parse(mapped)
   }
 
   async function getPvzsItem(id: string) {

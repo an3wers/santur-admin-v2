@@ -10,16 +10,14 @@ const { pvzs, ownertId } = defineProps<{
 }>()
 
 // TODO: добавить label для удаления
-const moreMenu: DropdownMixedOption[] = [{ label: 'Изменить', key: 'edit' }]
+const moreMenu = [{ label: 'Изменить', key: 'edit' }] as const
+type MenuKeys = (typeof moreMenu)[number]['key']
 
-function handleDropdown(key: string, itemId: number) {
+function handleDropdown(key: MenuKeys, itemId: number) {
   switch (key) {
     case 'edit':
       navigateTo(`${ownertId}/${itemId}`)
       break
-
-    default:
-      console.log('Dropdown', key)
   }
 }
 </script>
@@ -52,7 +50,7 @@ function handleDropdown(key: string, itemId: number) {
           <div class="item-btn">
             <n-dropdown
               trigger="click"
-              :options="moreMenu"
+              :options="moreMenu as unknown as DropdownMixedOption[]"
               @select="(key) => handleDropdown(key, item.id)"
             >
               <n-button quaternary circle size="small">

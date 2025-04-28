@@ -1,7 +1,6 @@
+<script setup lang="ts">
+import { PostsMainPage } from '~/pages/posts/posts-main'
+</script>
 <template>
-  <div></div>
+  <PostsMainPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

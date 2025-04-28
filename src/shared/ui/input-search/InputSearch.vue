@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NInput } from 'naive-ui'
+import { NInput, NIcon } from 'naive-ui'
 import type { Size } from 'naive-ui/es/input/src/interface'
 import { Search } from '@vicons/tabler'
 
