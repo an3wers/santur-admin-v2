@@ -40,7 +40,7 @@ export const usePostItem = ({ catId }: { catId: number }) => {
       postItem.categoryId = res.categoryId
       postItem.content = res.content
       postItem.date = res.regDateS
-      postItem.extFields = res.extFields
+      postItem.extFields = res.extFields ?? []
       postItem.published = res.status === 'published'
       postItem.descr = res.description
       postItem.dateTimestamp = getTimestamp(res.regDate)
@@ -55,7 +55,7 @@ export const usePostItem = ({ catId }: { catId: number }) => {
           date: res.regDateS,
           dateTimestamp: getTimestamp(res.regDate),
           descr: res.description,
-          extFields: res.extFields,
+          extFields: res.extFields ?? [],
           published: res.status === 'published'
         })
       )

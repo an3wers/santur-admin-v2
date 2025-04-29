@@ -55,8 +55,16 @@ export const useCategoryApi = () => {
     })
 
     const res = await fetchWithToken<unknown>(`Admin/DeleteExtendField?${query.toString()}`)
+    /*
+      Баг на серверной стороне, запрос возвращает 200 и выполняется успешно,
+      но в теле ответа "success":false, из-за чего пришлось делать кастомную проверка, а не использовать checkError(res).data 
+    */
 
-    return checkError(res).data
+    if (!res.data) {
+      throw new Error('Произошла ошибка')
+    }
+
+    return res.data
   }
 
   // TODO: добавить проверку Zod схемы

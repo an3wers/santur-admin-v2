@@ -32,7 +32,7 @@ const description = computed(() => {
 
 const moreMenu = [
   { label: 'Изменить', key: 'edit' },
-  { label: 'Дублировать', key: 'copy' },
+  { label: 'Дублировать', key: 'copy', disabled: true },
   { label: 'Удалить', key: 'remove' }
 ] as const
 
@@ -56,6 +56,12 @@ function handleDropdown(key: MenuKeys, itemId: number) {
 function editPost(id: number) {
   return navigateTo(`${ownertId}/${id}`)
 }
+
+/*
+  TODO: исправлять баг копирования поста на серверной стороне
+  Копирование поста работает с ошибкой на серверной стороне.
+  Скопированный объект возвращается с id = 0, alias - исходной сущности, extFields - null
+*/
 
 const { makeCopy, status: copyStatus } = useCopyPost()
 async function copyPost(id: number) {

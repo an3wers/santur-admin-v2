@@ -10,7 +10,8 @@ import {
   NModal,
   NButton,
   NP,
-  useMessage
+  useMessage,
+  NSpin
 } from 'naive-ui'
 
 interface Props {
@@ -31,7 +32,7 @@ const categoryStore = useCategoryStore()
 
 categoryStore.$reset()
 
-await categoryStore.loadCategory(id ?? 0)
+categoryStore.loadCategory(id ?? 0)
 
 const {
   category,
@@ -86,32 +87,34 @@ async function removeCategory() {
 
 <template>
   <n-card>
-    <div v-if="id" style="margin-bottom: 8px">
-      <n-p :depth="3">ID: {{ id }}</n-p>
-    </div>
-    <n-form :model="category">
-      <n-form-item label="Название категории" path="name">
-        <n-input v-model:value="category.name" placeholder="Название категории" />
-      </n-form-item>
-      <n-space v-if="firstLevelName === 'posts'" vertical>
-        <n-form-item label="Дополнительные поля">
-          <n-space vertical style="width: 100%">
-            <n-dynamic-input
-              :value="category.extFields"
-              placeholder="Название поля"
-              :on-create="categoryStore.addExtendFieldInput"
-              :on-remove="categoryStore.removeExtendFieldInput"
-            >
-              <template #default="{ value }">
-                <div style="display: flex; align-items: center; width: 100%">
-                  <n-input v-model:value="value.title" type="text" />
-                </div>
-              </template>
-            </n-dynamic-input>
-          </n-space>
+    <n-spin :show="categoryStatus === 'pending'">
+      <div v-if="id" style="margin-bottom: 8px">
+        <n-p :depth="3">ID: {{ id }}</n-p>
+      </div>
+      <n-form :model="category">
+        <n-form-item label="Название категории" path="name">
+          <n-input v-model:value="category.name" placeholder="Название категории" />
         </n-form-item>
-      </n-space>
-    </n-form>
+        <n-space v-if="firstLevelName === 'posts'" vertical>
+          <n-form-item label="Дополнительные поля">
+            <n-space vertical style="width: 100%">
+              <n-dynamic-input
+                :value="category.extFields"
+                placeholder="Название поля"
+                :on-create="categoryStore.addExtendFieldInput"
+                :on-remove="categoryStore.removeExtendFieldInput"
+              >
+                <template #default="{ value }">
+                  <div style="display: flex; align-items: center; width: 100%">
+                    <n-input v-model:value="value.title" type="text" />
+                  </div>
+                </template>
+              </n-dynamic-input>
+            </n-space>
+          </n-form-item>
+        </n-space>
+      </n-form>
+    </n-spin>
     <template #action>
       <div class="btn-group">
         <n-button
@@ -150,8 +153,7 @@ async function removeCategory() {
       :mask-closable="false"
       preset="dialog"
       title="Внимание"
-      content="Дополнительное поле используется в записях
-      Вы уверены что хотите удалить его?"
+      content="Дополнительное поле используется в записях, уверены что хотите удалить его?"
       positive-text="Удалить"
       negative-text="Отмена"
       @positive-click="categoryStore.removeAfterConfirm"

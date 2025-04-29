@@ -51,7 +51,7 @@ export interface PostDetailDto {
   categoryId: number
   author: string
   status: string // "" or "published"
-  extFields: ExtFieldsValue[]
+  extFields: ExtFieldsValue[] | null
   order: number
 }
 
