@@ -6,6 +6,7 @@ import { generateAlias } from '~/shared/libs/generate-alias'
 export const useCategoryStore = defineStore('category', () => {
   const api = useCategoryApi()
   const navStore = useNavStore()
+
   const category = reactive<Category>({
     alias: '',
     app: navStore.activeResource,

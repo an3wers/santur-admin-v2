@@ -1,7 +1,7 @@
+<script setup lang="ts">
+import { PostItemPage } from '~/pages/posts/posts-item'
+</script>
+
 <template>
-  <div></div>
+  <PostItemPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

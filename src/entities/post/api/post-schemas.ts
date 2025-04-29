@@ -18,7 +18,7 @@ export interface PostListItem {
   order: number
   categoryId: number
   categoryName: string
-  extFields: IExtFieldsValue[] | null
+  extFields: ExtFieldsValue[] | null
 }
 
 export interface PostsDto {
@@ -29,12 +29,12 @@ export interface PostsDto {
   totalCount: number
 }
 
-export interface IExtFields {
+export interface ExtFields {
   id: number
   title: string
 }
 
-export interface IExtFieldsValue extends IExtFields {
+export interface ExtFieldsValue extends ExtFields {
   extFieldId: number
   value: string
 }
@@ -50,8 +50,8 @@ export interface PostDetailDto {
   authorId: number
   categoryId: number
   author: string
-  status: string
-  extFields: IExtFieldsValue[]
+  status: string // "" or "published"
+  extFields: ExtFieldsValue[]
   order: number
 }
 
@@ -63,6 +63,6 @@ export interface SavePostDto {
   content: string
   categoryId: number
   date: string // example: 26.06.2023
-  extFields: IExtFields[]
+  extFields: ExtFields[]
   published: 'Y' | 'N'
 }

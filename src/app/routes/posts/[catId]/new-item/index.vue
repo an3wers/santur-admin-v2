@@ -1,7 +1,9 @@
-<template>
-  <div></div>
-</template>
+<script setup lang="ts">
+import PostNewItemPage from '~/pages/posts/posts-new-item/ui/PostNewItemPage.vue'
+</script>
 
-<script setup lang="ts"></script>
+<template>
+  <PostNewItemPage />
+</template>
 
 <style scoped></style>

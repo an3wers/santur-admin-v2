@@ -24,6 +24,7 @@ import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
 const model = defineModel<BannerItem>('state')
 
+// TODO: ownertId -> ownerId
 const { isModified, ownertId } = defineProps<{
   isModified: boolean
   ownertId: number
@@ -73,8 +74,6 @@ async function saveHandler() {
   try {
     const errors = await formRef.value?.validate()
 
-    console.log('errors', errors)
-
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
@@ -92,9 +91,14 @@ async function saveHandler() {
       nn: model.value.nn
     })
 
-    message.success('Баннер сохранен')
+    if (saveStatus.value === 'error') {
+      throw new Error('Ошибка сохранения')
+    }
 
-    return navigateTo({ path: `/banners/${ownertId}` })
+    if (saveStatus.value === 'success') {
+      message.success('Баннер сохранен')
+      return navigateTo({ path: `/banners/${ownertId}` })
+    }
   } catch (error) {
     if (Array.isArray(error)) {
       error.forEach((err) => {

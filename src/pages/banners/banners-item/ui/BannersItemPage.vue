@@ -1,28 +1,26 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage, NModal } from 'naive-ui'
+import { NSpace, NH1, NModal } from 'naive-ui'
 import { BannerItemCard, userBannerItem } from '~/entities/banner'
 import { MediaList, type MediaListItem } from '@/entities/media'
-
-const title = ref('')
 
 const route = useRoute()
 
 const { itemId, catId } = route.params
+
+const title = ref('')
+
 const { loadBanner, status, banner, removeMedia, selectMedia, isModified } = userBannerItem({
   catId: parseInt(catId as string)
 })
 
 await loadBanner(parseInt(itemId as string))
 
-const message = useMessage()
-
-if (status.value === 'success') {
-  title.value = banner.name
+if (status.value === 'error') {
+  throw createError({ statusMessage: 'Произошла ошибка при загрузке баннера', statusCode: 400 })
 }
 
-if (status.value === 'error') {
-  console.error(status.value)
-  message.error(status.value || 'На странице произошла ошибка')
+if (status.value === 'success') {
+  title.value = banner?.name ?? ''
 }
 
 const hasMediaManagerModel = ref(false)
