@@ -1,7 +1,12 @@
+<script setup lang="ts">
+import { AnalyticsCategoryPage } from '~/pages/analytics/analytics-category';
+
+</script>
+
 <template>
-  <div></div>
+  <AnalyticsCategoryPage />
 </template>
 
-<script setup lang="ts"></script>
+
 
 <style scoped></style>

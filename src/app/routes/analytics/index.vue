@@ -1,7 +1,12 @@
+<script setup lang="ts">
+  definePageMeta({
+    middleware: () => {
+      return navigateTo('/analytics/1')
+    }
+  })
+</script>
 <template>
   <div></div>
 </template>
 
-<script setup lang="ts"></script>
 
-<style scoped></style>
