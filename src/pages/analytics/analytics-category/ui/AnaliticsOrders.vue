@@ -5,12 +5,17 @@ import { useAnalyticsApi } from '../../api/analytics-api'
 import { Refresh, Download } from '@vicons/tabler'
 import InputSearch from '@/shared/ui/input-search/InputSearch.vue'
 import { fromatCurrency } from '@/shared/libs/format-currency'
+import {
+  getAnalyticsOrdersQueryKey,
+  getAnalyticsOrdersStatusesQueryKey
+} from '../../api/query-keys'
 
 const range = ref<[number, number]>([Date.now(), Date.now()])
 
 const state = ref('')
 const search = ref('')
-const source = ref('ssz:ekb;santur:ekb;santur:tagil;ssz:tagil;ssz:perm;santur:perm')
+// const source = ref('ssz:ekb;santur:ekb;santur:tagil;ssz:tagil;ssz:perm;santur:perm')
+const source = ref('ssz:ekb;santur:ekb')
 // const source = ref([
 //   'ssz:ekb',
 //   'santur:ekb',
@@ -112,7 +117,7 @@ const {
   status,
   refresh: refreshOrders
 } = await useAsyncData(
-  'analyticsOrdes',
+  getAnalyticsOrdersQueryKey(),
   () =>
     api.getOrders({
       page: pagination.page,
@@ -145,27 +150,31 @@ const {
   }
 )
 
-const { data: statusesListData } = await useAsyncData('analyticsStatuses', api.getOrdersStatuses, {
-  transform(data) {
-    const mapped = data.map((el) => {
-      if (el.code === 'X') {
-        return { label: 'Отменен (пользователем)', value: el.code }
-      }
-      return { label: el.name, value: el.code }
-    })
+const { data: statusesListData } = await useAsyncData(
+  getAnalyticsOrdersStatusesQueryKey(),
+  api.getOrdersStatuses,
+  {
+    transform(data) {
+      const mapped = data.map((el) => {
+        if (el.code === 'X') {
+          return { label: 'Отменен (пользователем)', value: el.code }
+        }
+        return { label: el.name, value: el.code }
+      })
 
-    return [
-      {
-        label: 'Все статусы',
-        value: ''
-      },
-      ...mapped
-    ]
-  },
-  getCachedData(key, nuxtApp) {
-    return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+      return [
+        {
+          label: 'Все статусы',
+          value: ''
+        },
+        ...mapped
+      ]
+    },
+    getCachedData(key, nuxtApp) {
+      return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+    }
   }
-})
+)
 
 watch(search, () => {
   refreshOrderWithDelay()
@@ -196,32 +205,32 @@ async function updateDate() {
 const sourceOptions = ref([
   {
     label: 'Все источники',
-    value: 'ssz:ekb;santur:ekb;santur:tagil;ssz:tagil;ssz:perm;santur:perm'
+    value: 'ssz:ekb;santur:ekb'
   },
   {
     label: 'santur.ru:ekb',
     value: 'santur:ekb'
   },
-  {
-    label: 'santur.ru:tagil',
-    value: 'santur:tagil'
-  },
-  {
-    label: 'santur.ru:perm',
-    value: 'santur:perm'
-  },
+  // {
+  //   label: 'santur.ru:tagil',
+  //   value: 'santur:tagil'
+  // },
+  // {
+  //   label: 'santur.ru:perm',
+  //   value: 'santur:perm'
+  // },
   {
     label: 'ССЗ:ekb',
     value: 'ssz:ekb'
-  },
-  {
-    label: 'ССЗ:tagil',
-    value: 'ssz:tagil'
-  },
-  {
-    label: 'ССЗ:perm',
-    value: 'ssz:perm'
   }
+  // {
+  //   label: 'ССЗ:tagil',
+  //   value: 'ssz:tagil'
+  // },
+  // {
+  //   label: 'ССЗ:perm',
+  //   value: 'ssz:perm'
+  // }
 ])
 
 const createSummary: DataTableCreateSummary = () => {
@@ -268,7 +277,7 @@ const refreshOrderWithDelay = useDebounceFn(refreshOrdersWithSearch, 600)
 
 function cleanFilters() {
   state.value = ''
-  source.value = 'ssz:ekb;santur:ekb;santur:tagil;ssz:tagil;ssz:perm;santur:perm'
+  source.value = 'ssz:ekb;santur:ekb'
   range.value = [Date.now(), Date.now()]
 }
 </script>

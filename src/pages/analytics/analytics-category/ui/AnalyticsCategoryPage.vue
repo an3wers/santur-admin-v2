@@ -2,6 +2,7 @@
 import { NH1 } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import AnaliticsOrders from './AnaliticsOrders.vue'
+import AnaliticsClients from './AnaliticsClients.vue'
 
 const route = useRoute()
 const { catId } = route.params
@@ -16,6 +17,8 @@ function getComponent(key: string) {
   switch (key) {
     case 'Заказы':
       return AnaliticsOrders
+    case 'Клиенты':
+      return AnaliticsClients
     default:
       return NH1
   }
