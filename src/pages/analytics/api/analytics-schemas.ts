@@ -119,6 +119,10 @@ export interface ReportClientSalesDto {
   rightDate: string
   client: string
   ta: string
+  summB: string
+  summTK: string
+  summBrealized: string
+  summTKrealized: string
   brends: {
     title: string
     sumAll: number

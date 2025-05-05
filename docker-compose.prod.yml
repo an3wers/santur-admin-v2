@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  app:
+    container_name: admin-app
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    working_dir: /opt/app
+    environment:
+      - TZ=Asia/Yekaterinburg
+      - NODE_ENV=production
+    env_file:
+      - ./.env
+    ports:
+      - 3006:3000
+    restart: always

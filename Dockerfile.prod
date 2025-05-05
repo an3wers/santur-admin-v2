@@ -1,0 +1,16 @@
+FROM node:20-alpine as builder
+WORKDIR /opt/app
+#RUN apk upgrade --no-cache
+#RUN apk --no-cache add openssh g++ make python3 git
+COPY package*.json ./
+RUN npm i --production=false
+COPY . . 
+RUN npm run build
+
+# production
+FROM node:20-alpine
+WORKDIR /opt/app
+COPY --from=builder /opt/app/.output /opt/app/.output
+COPY --from=builder /opt/app/.nuxt /opt/app/.nuxt
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]

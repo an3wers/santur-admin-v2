@@ -40,14 +40,30 @@ export const useAnalyticsApi = () => {
   }
 
   async function getReportSummaryClients(options: GetReportSummaryClientsDto) {
-    const res = await baseFetch<ReportSummaryClientsDto>('apissz/ReportSummaryCliens', {
-      query: options
+    const { leftDate, ownerId, rightDate } = options
+
+    const query = new URLSearchParams({
+      leftDate,
+      rightDate,
+      ownerId: String(ownerId)
     })
+
+    const res = await baseFetch<ReportSummaryClientsDto>(
+      `apissz/ReportSummaryCliens?${query.toString()}`
+    )
     return checkError(res).data
   }
 
   async function getReportClienSales(options: GetReportClienSalesDto) {
-    const res = await baseFetch<ReportClientSalesDto>('apissz/ReportClienSales', { query: options })
+    const { leftDate, ownerId, rightDate, src, subjectId } = options
+    const query = new URLSearchParams({
+      leftDate,
+      ownerId: String(ownerId),
+      rightDate,
+      src,
+      subjectId: String(subjectId)
+    })
+    const res = await baseFetch<ReportClientSalesDto>(`apissz/ReportClienSales?${query.toString()}`)
     return checkError(res).data
   }
 

@@ -30,6 +30,9 @@ const themeOverrides: GlobalThemeOverrides = {
   Switch: {
     railColorActive: '#18a058'
   },
+  Table: {
+    borderColor: '#e2e8f0'
+  },
   DataTable: {
     borderColor: '#e2e8f0'
   }
