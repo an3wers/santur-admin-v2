@@ -143,9 +143,9 @@ const {
       })
       return { ...other, items: modifiedItems }
     },
-    getCachedData(key, nuxtApp) {
-      return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
-    },
+    // getCachedData(key, nuxtApp) {
+    //   return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+    // },
     watch: [() => pagination.page, () => pagination.pageSize, range, source, state]
   }
 )

@@ -39,8 +39,10 @@ h5 {
 
 a {
   text-decoration: underline;
+  color: var(--primary-color);
 }
 
 a:hover {
+  color: var(--primary-color-hover);
   text-decoration: underline;
 }

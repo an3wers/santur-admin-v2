@@ -1,7 +1,6 @@
+<script setup lang="ts">
+import { TntksMainPage } from '~/pages/tntks/tntks-main'
+</script>
 <template>
-  <div></div>
+  <TntksMainPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>
