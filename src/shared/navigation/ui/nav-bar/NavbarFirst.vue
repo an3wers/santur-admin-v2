@@ -76,7 +76,7 @@ async function changeResource(value: string) {
 }
 
 .logo-container {
-  margin: 0 0.25rem;
+  margin: 0 0.5rem;
 }
 
 .logo-descr {

@@ -14,16 +14,7 @@ const range = ref<[number, number]>([Date.now(), Date.now()])
 
 const state = ref('')
 const search = ref('')
-// const source = ref('ssz:ekb;santur:ekb;santur:tagil;ssz:tagil;ssz:perm;santur:perm')
 const source = ref('ssz:ekb;santur:ekb')
-// const source = ref([
-//   'ssz:ekb',
-//   'santur:ekb',
-//   'santur:tagil',
-//   'ssz:tagil',
-//   'ssz:perm',
-//   'santur:perm'
-// ])
 
 const pagination = reactive({
   page: 1,
@@ -143,9 +134,6 @@ const {
       })
       return { ...other, items: modifiedItems }
     },
-    // getCachedData(key, nuxtApp) {
-    //   return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
-    // },
     watch: [() => pagination.page, () => pagination.pageSize, range, source, state]
   }
 )
@@ -321,7 +309,6 @@ function cleanFilters() {
         <n-button quaternary @click="cleanFilters">Сбросить</n-button>
       </n-space>
     </n-card>
-
     <n-data-table
       remote
       size="small"
