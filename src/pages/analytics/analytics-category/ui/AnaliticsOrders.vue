@@ -298,6 +298,7 @@ function cleanFilters() {
             v-model:value="range"
             type="daterange"
             format="dd-MM-yyyy"
+            :first-day-of-week="0"
             @update:value="updateDate"
           />
         </div>

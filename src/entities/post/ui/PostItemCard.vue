@@ -177,7 +177,12 @@ async function saveHandler() {
         </n-form-item>
         <n-form-item label="Дата публикации">
           <n-space align="center">
-            <n-date-picker :format="dateFormat" v-model:value="model.dateTimestamp" type="date" />
+            <n-date-picker
+              :format="dateFormat"
+              v-model:value="model.dateTimestamp"
+              type="date"
+              :first-day-of-week="0"
+            />
             <n-switch v-model:value="model.published" />
             <span>Опубликовано</span>
           </n-space>

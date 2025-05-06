@@ -64,20 +64,32 @@ export interface GetReportClienSalesDto {
 export interface ClientsReport {
   subjectId: number
   subjectName: string
+  nameTA: string
+  cfo: string
   qtyOrdersSelf: number
   sumOrdersSelf: number
   sumOrdersSelfStr: string
   qtyRealizedOrdersSelf: number
   sumRealizedOrdersSelf: number
   sumRealizedOrdersSelfStr: string
+  converceSelf: number
+  converceSelfStr: string
+  sumOrdersTa: number
+  sumOrdersTaStr: string
+  qtyOrdersTa: number
+  qtyRealizedOrdersTa: number
+  sumRealizedOrdersTa: number
+  sumRealizedOrdersTaStr: string
+  converceTa: number
+  converceTaStr: string
   qtyOrders: number
   sumOrders: number
   sumOrdersStr: string
   qtyRealizedOrders: number
   sumRealizedOrders: number
   sumRealizedOrdersStr: string
-  converce: string
-  converceSelf: string
+  converce: number
+  converceStr: string
 }
 
 export interface ReportsSummery {
@@ -89,6 +101,10 @@ export interface ReportsSummery {
   qtyOrdersSelfStr: string
   qtyRealizedOrdersSelf: number
   qtyRealizedOrdersSelfStr: string
+  qtyOrdersTa: number
+  qtyOrdersTaStr: string
+  qtyRealizedOrdersTa: number
+  qtyRealizedOrdersTaStr: string
   qtyOrders: number
   qtyOrdersStr: string
   qtyRealizedOrders: number
@@ -97,12 +113,20 @@ export interface ReportsSummery {
   sumOrdersSelfStr: string
   sumRealizedOrdersSelf: number
   sumRealizedOrdersSelfStr: string
+  sumOrdersTa: number
+  sumOrdersTaStr: string
+  sumRealizedOrdersTa: number
+  sumRealizedOrdersTaStr: string
   sumOrders: number
   sumOrdersStr: string
   sumRealizedOrders: number
   sumRealizedOrdersStr: string
-  converce: string
-  converceSelf: string
+  converce: number
+  converceStr: string
+  converceSelf: number
+  converceSelfStr: string
+  converceTa: number
+  converceTaStr: string
 }
 
 export interface ReportSummaryClientsDto {
@@ -136,5 +160,15 @@ export interface ReportClientSalesDto {
     sumAllStr: string
     sumRealized: number
     sumRealizedStr: string
+  }[]
+  tas: {
+    ta: string
+    sumOrders: number
+    sumRealizedOrders: number
+  }[]
+  cfos: {
+    cfo: string
+    sumOrders: number
+    sumRealizedOrders: number
   }[]
 }
