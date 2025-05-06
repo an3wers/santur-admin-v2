@@ -51,6 +51,11 @@ export const useAnalyticsApi = () => {
     const res = await baseFetch<ReportSummaryClientsDto>(
       `apissz/ReportSummaryCliens?${query.toString()}`
     )
+
+    if (typeof res === 'string') {
+      return checkError(JSON.parse(res)).data
+    }
+
     return checkError(res).data
   }
 
