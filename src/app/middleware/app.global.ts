@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   // await $fetch('/api/test/set-cookie', { method: 'POST' })
 
-  const { checkAuth, $reset } = useUserStore()
+  const { checkAuth, $reset, checkRole } = useUserStore()
   const isAuth = await checkAuth()
 
   if (
@@ -29,5 +29,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
     (to.path === publicRoutes['sign-in'] || to.path === publicRoutes['fogot-password'])
   ) {
     return navigateTo({ path: '/' })
+  }
+
+  if (to.path !== '/' && !to.path.includes('analytics')) {
+    if (!checkRole()) {
+      return navigateTo({ path: '/', query: { error: 'checkRole' } })
+    }
   }
 })

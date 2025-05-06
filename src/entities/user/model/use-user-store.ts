@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', () => {
       throw Error('Пользователь не найден')
     }
 
-    _checkRole(userData)
+    // _checkRole(userData)
     user.value = userData
     isLoaded.value = true
     return userData
@@ -70,8 +70,20 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  function _checkRole(user: User) {
-    if (user.rights !== 'guest' && !(user.rights.includes('ADM') || user.rights.includes('MRKT'))) {
+  function checkRole(payload?: User) {
+    if (!payload) {
+      payload = user.value ?? undefined
+    }
+
+    if (!payload) {
+      return false
+    }
+
+    if (
+      payload.rights !== 'guest' &&
+      !(payload.rights.includes('ADM') || payload.rights.includes('MRKT'))
+    ) {
+      return false
       throw new Error('У вас не хватает прав')
     }
     return true
@@ -99,5 +111,5 @@ export const useUserStore = defineStore('user', () => {
     isLoaded.value = false
   }
 
-  return { $reset, isAuthenticated, checkAuth, login, logout, user }
+  return { $reset, isAuthenticated, checkAuth, login, logout, user, checkRole }
 })

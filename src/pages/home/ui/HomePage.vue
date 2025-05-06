@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { NH2, NH3, NGrid, NGi, NCard, NIcon } from 'naive-ui'
+import { NH2, NSpace, NGrid, NGi, NCard, NIcon, useMessage } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import { ArrowNarrowRight } from '@vicons/tabler'
 
 const navStore = useNavStore()
+
+const route = useRoute()
+const message = useMessage()
+watchEffect(() => {
+  if (route.query?.error === 'checkRole') {
+    message.error('У вас недостаточно прав доступа')
+    return navigateTo({ query: undefined })
+  }
+})
 </script>
 
 <template>

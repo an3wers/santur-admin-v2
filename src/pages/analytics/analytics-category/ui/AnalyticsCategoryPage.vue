@@ -3,7 +3,7 @@ import { NH1, NSpin } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import AnaliticsOrders from './AnaliticsOrders.vue'
 import AnaliticsClients from './AnaliticsClients.vue'
-import { Suspense } from 'vue'
+// import { Suspense } from 'vue'
 
 const route = useRoute()
 const { catId } = route.params
@@ -34,12 +34,12 @@ function getComponent(key: string) {
       </template>
     </page-title>
     <Suspense>
-      <component :is="getComponent(currentCatItem?.label ?? '')" />
       <template #fallback>
         <n-spin>
           <div style="height: 100px"></div>
         </n-spin>
       </template>
+      <component :is="getComponent(currentCatItem?.label ?? '')" />
     </Suspense>
   </div>
 </template>
