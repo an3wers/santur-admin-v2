@@ -53,7 +53,7 @@ export const useAnalyticsApi = () => {
     )
 
     if (typeof res === 'string') {
-      return checkError(JSON.parse(res)).data
+      return checkError(JSON.parse(res)).data as ReportSummaryClientsDto
     }
 
     return checkError(res).data

@@ -15,17 +15,23 @@ export const useUserStore = defineStore('user', () => {
   const isAuthenticated = computed(() => !!user.value?.id)
 
   async function loadUser() {
-    isLoaded.value = false
-    const userData = await api.getUser(userId.value)
-    // console.log('userData', userData)
-    if (!userData) {
-      throw Error('Пользователь не найден')
-    }
+    try {
+      isLoaded.value = false
+      const userData = await api.getUser(userId.value)
+      // console.log('userData', userData)
+      if (!userData) {
+        throw Error('Пользователь не найден')
+      }
 
-    // _checkRole(userData)
-    user.value = userData
-    isLoaded.value = true
-    return userData
+      user.value = userData
+      isLoaded.value = true
+      return userData
+    } catch (error) {
+      console.error('[loadUser]', error)
+      throw error
+    } finally {
+      isLoaded.value = true
+    }
   }
 
   async function checkAuth() {

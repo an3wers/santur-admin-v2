@@ -246,7 +246,9 @@ async function getClientDetails(subjectId: number) {
               <!-- Не хватает поля qtyOrdersTa -->
               <td v-if="makeOrders !== 'site'">{{ r.qtyOrdersTa }}</td>
               <td v-if="makeOrders !== 'ta'">{{ r.qtyOrdersSelf }}</td>
-              <td v-if="makeOrders !== 'site'">{{ r.qtyRealizedOrdersTa }}</td>
+              <td v-if="makeOrders !== 'site'">
+                {{ r.qtyRealizedOrdersTa }}
+              </td>
               <td v-if="makeOrders !== 'ta'">{{ r.qtyRealizedOrdersSelf }}</td>
               <td v-if="makeOrders !== 'site'">{{ fromatCurrency(r.sumOrdersTa) }}</td>
               <td v-if="makeOrders !== 'ta'">{{ fromatCurrency(r.sumOrdersSelf) }}</td>
