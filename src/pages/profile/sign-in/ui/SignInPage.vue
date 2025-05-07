@@ -55,9 +55,17 @@ async function submitHandler() {
 
     return await navigateTo('/')
   } catch (error) {
-    console.error(error)
+    console.error('[submit login error]', error)
     let errorMessage = ''
-    errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+
+    if ('data' in (error as any)) {
+      errorMessage = (error as any).data?.message
+        ? (error as any).data.message
+        : (error as any).message
+    } else {
+      errorMessage = error instanceof Error && error.message ? error.message : JSON.stringify(error)
+    }
+
     message.error(errorMessage)
   } finally {
     isLoading.value = false

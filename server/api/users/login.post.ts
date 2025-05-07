@@ -21,7 +21,8 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: res?.status,
       data: res._data,
-      message: JSON.stringify(message)
+      message: JSON.stringify(message),
+      statusMessage: JSON.stringify(message)
     })
   }
   // TODO: Типизировать
