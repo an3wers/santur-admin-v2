@@ -16,12 +16,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
     to.path !== publicRoutes['sign-in'] &&
     to.path !== publicRoutes['fogot-password']
   ) {
-    return navigateTo({ path: publicRoutes['sign-in'] })
+    return await navigateTo({ path: publicRoutes['sign-in'] })
   }
 
   if (to.path === publicRoutes['sign-in'] && isAuth && to.query.meta === 'error') {
     $reset()
-    return navigateTo({ path: '/profile/sign-in' })
+    return await navigateTo({ path: '/profile/sign-in' })
   }
 
   if (
@@ -31,7 +31,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo({ path: '/' })
   }
 
-  if (to.path !== '/' && !to.path.includes('analytics')) {
+  if (isAuth && to.path !== '/' && !to.path.includes('analytics')) {
     if (!checkRole()) {
       return navigateTo({ path: '/', query: { error: 'checkRole' } })
     }
