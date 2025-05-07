@@ -243,7 +243,6 @@ async function getClientDetails(subjectId: number) {
                   {{ r.subjectName == '' ? 'Без названия' : r.subjectName }}
                 </div>
               </td>
-              <!-- Не хватает поля qtyOrdersTa -->
               <td v-if="makeOrders !== 'site'">{{ r.qtyOrdersTa }}</td>
               <td v-if="makeOrders !== 'ta'">{{ r.qtyOrdersSelf }}</td>
               <td v-if="makeOrders !== 'site'">
@@ -297,11 +296,16 @@ async function getClientDetails(subjectId: number) {
 </template>
 
 <style scoped>
+.table-container {
+  /* overflow-x: auto; */
+}
+
 .table-el {
   position: relative;
   height: auto;
   border-collapse: collapse;
   overflow-y: auto;
+  /* min-width: 1024px; */
 }
 
 .table-el tr:hover td {

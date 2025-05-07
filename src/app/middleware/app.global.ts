@@ -1,13 +1,7 @@
 import { useUserStore } from '~/entities/user/model/use-user-store'
 import { publicRoutes } from '~/shared/config/config'
-// import { useAppRequest } from '~/shared/libs/api/useAppRequests'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  // const { baseFetch } = useAppRequest()
-  // const res = await baseFetch('/api/users/app-cookie', { method: 'GET' })
-
-  // await $fetch('/api/test/set-cookie', { method: 'POST' })
-
   const { checkAuth, $reset, checkRole } = useUserStore()
   const isAuth = await checkAuth()
 
@@ -30,7 +24,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   ) {
     return navigateTo({ path: '/' })
   }
-
+  // TODO: Сделать нормальную проверку ролей пользователя
   if (isAuth && to.path !== '/' && !to.path.includes('analytics')) {
     if (!checkRole()) {
       return navigateTo({ path: '/', query: { error: 'checkRole' } })

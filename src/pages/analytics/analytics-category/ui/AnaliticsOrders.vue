@@ -52,7 +52,10 @@ const columns: DataTableColumns<Orders> = [
   },
   {
     title: 'Дата',
-    key: 'orderDate'
+    key: 'orderDate',
+    render(row) {
+      return [h('div', {}, row.orderDate.split(' ')[0]), h('div', {}, row.orderDate.split(' ')[1])]
+    }
   },
   {
     title: 'Источник',
@@ -96,7 +99,7 @@ const createPeriod = (dates: [number, number]): string => {
       const m = curr.getMonth() + 1
       const d = curr.getDate()
 
-      return `${y}${m < 10 ? '0' + m : m}${d < 10 ? '0' + d : d}`
+      return `${d < 10 ? '0' + d : d}.${m < 10 ? '0' + m : m}.${y}`
     })
     .join(':')
 }
@@ -119,12 +122,13 @@ const {
       state: state.value
     }),
   {
+    // TODO: Убрать transform, трансформировать данные на этапе подготовки к отображению
     transform(payload) {
       const { items, ...other } = payload
       const modifiedItems: Orders[] = items.map((el) => {
         return {
           orderNumber: el.orderCode ? [el.id, el.orderCode] : [el.id],
-          orderDate: el.orderDate.split(' ')[0],
+          orderDate: el.orderDate, // el.orderDate.split(' ')[0],
           orderSource: el.orderSource,
           orderState: el.orderState.name || '-',
           orderSumm: fromatCurrency(el.orderSumm ?? 0),
@@ -186,9 +190,7 @@ function updatePageSize(pageSize: number) {
   pagination.page = 1
 }
 
-async function updateDate() {
-  // TODO: Реализовать фильтрацию по дате?
-}
+async function updateDate() {}
 
 const sourceOptions = ref([
   {
@@ -199,26 +201,10 @@ const sourceOptions = ref([
     label: 'santur.ru:ekb',
     value: 'santur:ekb'
   },
-  // {
-  //   label: 'santur.ru:tagil',
-  //   value: 'santur:tagil'
-  // },
-  // {
-  //   label: 'santur.ru:perm',
-  //   value: 'santur:perm'
-  // },
   {
     label: 'ССЗ:ekb',
     value: 'ssz:ekb'
   }
-  // {
-  //   label: 'ССЗ:tagil',
-  //   value: 'ssz:tagil'
-  // },
-  // {
-  //   label: 'ССЗ:perm',
-  //   value: 'ssz:perm'
-  // }
 ])
 
 const createSummary: DataTableCreateSummary = () => {
