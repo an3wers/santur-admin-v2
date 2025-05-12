@@ -1,7 +1,7 @@
+<script setup lang="ts">
+import { TntksItemPage } from '~/pages/tntks/tntks-item'
+</script>
+
 <template>
-  <div></div>
+  <TntksItemPage />
 </template>
-
-<script setup lang="ts"></script>
-
-<style scoped></style>

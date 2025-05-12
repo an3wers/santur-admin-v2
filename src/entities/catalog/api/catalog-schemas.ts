@@ -13,7 +13,8 @@ export interface GetCatalogItemDto {
   imgExist: boolean
   image: {
     id: number
+    mediaType: string
     url: string
   }
-  gimg: string
+  gimg: string | null
 }

@@ -201,7 +201,7 @@ async function removeLogoHandler(size: 'small' | 'big') {
                   <span>Опубликовано</span>
                 </n-space>
                 <n-divider />
-                <n-grid x-gap="24" y-gap="4" cols="2">
+                <n-grid x-gap="24" y-gap="16" cols="2">
                   <n-form-item-gi label="Адрес">
                     <n-input v-model:value="brandItem.address" placeholder="Адрес" />
                   </n-form-item-gi>

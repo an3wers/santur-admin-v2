@@ -6,6 +6,9 @@ import { Edit } from '@vicons/tabler'
 defineProps<{
   items: CatalogItem[]
 }>()
+function moveEdit(itemId: number) {
+  return navigateTo(`/tntks/${itemId}`)
+}
 </script>
 
 <template>
@@ -14,7 +17,7 @@ defineProps<{
       <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
         <template #header> {{ item.name }}</template>
         <template #header-extra>
-          <n-button quaternary circle size="small">
+          <n-button quaternary circle size="small" @click="moveEdit(item.id)">
             <n-icon size="24px">
               <Edit />
             </n-icon>
@@ -26,7 +29,7 @@ defineProps<{
               <div class="row">
                 <div class="row-name">{{ child.name }}</div>
                 <div class="row-button">
-                  <n-button quaternary circle size="small">
+                  <n-button quaternary circle size="small" @click="moveEdit(child.id)">
                     <n-icon size="24px">
                       <Edit />
                     </n-icon>

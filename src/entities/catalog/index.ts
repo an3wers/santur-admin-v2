@@ -5,3 +5,6 @@ export type { CatalogItem } from './model/catalog-types'
 
 export { default as CatalogList } from './ui/CatalogList.vue'
 export { default as UploadCatalogItemData } from './ui/UploadCatalogItemData.vue'
+export { default as CatalogItemCard } from './ui/CatalogItemCard.vue'
+
+export { useCatalogItem } from './model/use-catalog-item'

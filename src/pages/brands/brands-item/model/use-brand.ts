@@ -7,6 +7,7 @@ import {
 } from '@/entities/brand'
 import type { UploadFileInfo } from 'naive-ui'
 import type { OptionsType } from '~/entities/media'
+import { generateAlias } from '~/shared/libs/generate-alias'
 
 export const useBrand = () => {
   const brandItem = reactive({
@@ -81,7 +82,10 @@ export const useBrand = () => {
     }
   }
 
-  function createAlias(value: string) {}
+  function createAlias(value: string) {
+    const result = generateAlias(value)
+    brandItem.alias = result
+  }
 
   function updatePublishStatus(value: boolean) {
     brandItem.published = value
