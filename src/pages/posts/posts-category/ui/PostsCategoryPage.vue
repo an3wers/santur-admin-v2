@@ -18,8 +18,6 @@ const catName = computed(
       ?.label ?? ''
 )
 
-console.log('@@', catName.value)
-
 const title = computed(() => {
   return navStore.currentNavigationMenu?.items.find((i) => i.id === parseInt(catId as string))
     ?.label

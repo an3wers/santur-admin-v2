@@ -1,0 +1,60 @@
+<script setup lang="ts">
+import type { CatalogItem } from '../model/catalog-types'
+import { NCollapse, NCollapseItem, NCard, NList, NListItem, NButton, NIcon } from 'naive-ui'
+import { Edit } from '@vicons/tabler'
+
+defineProps<{
+  items: CatalogItem[]
+}>()
+</script>
+
+<template>
+  <n-card>
+    <n-collapse :trigger-areas="['main', 'arrow']">
+      <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
+        <template #header> {{ item.name }}</template>
+        <template #header-extra>
+          <n-button quaternary circle size="small">
+            <n-icon size="24px">
+              <Edit />
+            </n-icon>
+          </n-button>
+        </template>
+        <div class="child-container">
+          <n-list hoverable>
+            <n-list-item v-for="child in item.child" :key="child.id">
+              <div class="row">
+                <div class="row-name">{{ child.name }}</div>
+                <div class="row-button">
+                  <n-button quaternary circle size="small">
+                    <n-icon size="24px">
+                      <Edit />
+                    </n-icon>
+                  </n-button>
+                </div>
+              </div>
+            </n-list-item>
+          </n-list>
+        </div>
+      </n-collapse-item>
+    </n-collapse>
+  </n-card>
+</template>
+
+<style scoped>
+.child-container {
+  margin-left: 2rem;
+}
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.row-name {
+  flex-grow: 1;
+}
+
+.row-name {
+  flex-shrink: 0;
+}
+</style>
