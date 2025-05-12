@@ -92,6 +92,7 @@ async function saveHandler() {
         <n-button size="large" secondary type="primary">Выбрать файл</n-button>
       </n-upload>
       <n-p>Файл в формате xls или xlsx.</n-p>
+      <nuxt-link to="/examples/upload_catalog_example.xlsx" external>Пример файла</nuxt-link>
     </n-space>
     <template #action>
       <div class="btn-group">
