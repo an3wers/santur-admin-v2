@@ -52,7 +52,11 @@ const {
 await loadBrandItem(Number(itemId))
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'Произошла ошибка при загрузке брендов', statusCode: 400 })
+  throw createError({
+    statusMessage: 'Произошла ошибка при загрузке брендa',
+    statusCode: 400,
+    fatal: true
+  })
 }
 
 const formRef = ref<FormInst | null>(null)

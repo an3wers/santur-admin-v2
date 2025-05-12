@@ -16,7 +16,11 @@ const { loadBanner, status, banner, removeMedia, selectMedia, isModified } = use
 await loadBanner(parseInt(itemId as string))
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'Произошла ошибка при загрузке баннера', statusCode: 400 })
+  throw createError({
+    statusMessage: 'Произошла ошибка при загрузке баннера',
+    statusCode: 400,
+    fatal: true
+  })
 }
 
 if (status.value === 'success') {

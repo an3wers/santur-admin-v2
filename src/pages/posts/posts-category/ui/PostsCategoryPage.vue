@@ -29,7 +29,7 @@ const { data, status, page, setPage, search, execute } = await usePostsCategory(
 )
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'На странице произошла ошибка' })
+  throw createError({ statusMessage: 'На странице произошла ошибка', statusCode: 404, fatal: true })
 }
 
 const isShowEditCategory = ref(false)

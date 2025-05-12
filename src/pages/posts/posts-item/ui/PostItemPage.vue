@@ -11,7 +11,7 @@ const { postItem, status, loadPostItem, isModified } = usePostItem({ catId: Numb
 await loadPostItem(Number(itemId))
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'Произошла ошибка при загрузке брендов', statusCode: 400 })
+  throw createError({ statusMessage: 'Произошла ошибка на странице', statusCode: 400, fatal: true })
 }
 
 if (status.value === 'success') {
