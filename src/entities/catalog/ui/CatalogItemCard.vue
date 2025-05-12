@@ -10,7 +10,8 @@ import {
   NInputGroup,
   NButton,
   NIcon,
-  NSpace
+  NSpace,
+  useMessage
 } from 'naive-ui'
 import { Refresh } from '@vicons/tabler'
 import type { CatalogItemModel } from '../model/catalog-types'
@@ -43,6 +44,17 @@ function saveHandler() {
 async function cancelHandler() {
   return navigateTo('/tntks')
 }
+
+const message = useMessage()
+
+watchEffect(() => {
+  if (saveStatus.value === 'success') {
+    message.success('Категория успешно сохранена')
+  }
+  if (saveStatus.value === 'error') {
+    message.error('Произошла ошибка при сохранении')
+  }
+})
 </script>
 
 <template>

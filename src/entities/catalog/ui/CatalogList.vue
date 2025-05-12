@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import type { CatalogItem } from '../model/catalog-types'
-import { NCollapse, NCollapseItem, NCard, NList, NListItem, NButton, NIcon } from 'naive-ui'
+import {
+  NCollapse,
+  NCollapseItem,
+  NCard,
+  NList,
+  NListItem,
+  NButton,
+  NIcon,
+  NText,
+  NP
+} from 'naive-ui'
 import { Edit } from '@vicons/tabler'
 
 defineProps<{
@@ -15,7 +25,14 @@ function moveEdit(itemId: number) {
   <n-card>
     <n-collapse :trigger-areas="['main', 'arrow']">
       <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
-        <template #header> {{ item.name }}</template>
+        <template #header
+          ><div>
+            <n-text tag="p">{{ item.name }}</n-text>
+            <n-text tag="p" :depth="3" style="font-size: 12px"
+              >Категорий: {{ item.child.length }}</n-text
+            >
+          </div></template
+        >
         <template #header-extra>
           <n-button quaternary circle size="small" @click="moveEdit(item.id)">
             <n-icon size="24px">
