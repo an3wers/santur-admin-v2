@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { GetCatalogItemDto } from './catalog-schemas'
+import type { DownloadTemplateOption, GetCatalogItemDto } from './catalog-schemas'
 
 export const useCatalogApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
@@ -30,5 +30,16 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
-  return { getCatalog, uploadCategoryDescriptionFromXls, getCatalogItem, saveCatalogItem }
+  async function downloadDescriptionTemplate(tnName: string, option: DownloadTemplateOption) {
+    const res = await fetchWithToken(`Admin/GetDescriptionsTntk/?tn=${tnName}&option=${option}`)
+    return res as unknown as Blob
+  }
+
+  return {
+    getCatalog,
+    uploadCategoryDescriptionFromXls,
+    getCatalogItem,
+    saveCatalogItem,
+    downloadDescriptionTemplate
+  }
 }

@@ -18,3 +18,5 @@ export interface GetCatalogItemDto {
   }
   gimg: string | null
 }
+
+export type DownloadTemplateOption = 'all' | 'full' | 'empty'

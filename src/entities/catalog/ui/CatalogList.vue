@@ -9,15 +9,60 @@ import {
   NButton,
   NIcon,
   NText,
-  NP
+  NDropdown,
+  NSpace,
+  NModal,
+  NSpin,
+  useMessage
 } from 'naive-ui'
-import { Edit } from '@vicons/tabler'
+import { Edit, FileDownload } from '@vicons/tabler'
+import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
+import { useDownloadTemplate } from '../model/use-download-template'
+import type { DownloadTemplateOption } from '../api/catalog-schemas'
 
 defineProps<{
   items: CatalogItem[]
 }>()
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
+}
+
+// function downloadFile(tnName: string, option: 'all' | 'full' | 'empty') {}
+const downloadMenu: DropdownMixedOption[] = [
+  {
+    label: 'Все категории',
+    key: 'all'
+  },
+  {
+    label: 'Категории с заполненными атрибутами',
+    key: 'full'
+  },
+  {
+    label: 'Категории с пустыми атрибутами',
+    key: 'empty'
+  }
+] as const
+
+const { downloadTemplate, status: downloadStatus, downloadFile, reset } = useDownloadTemplate()
+function handleDropdown(key: DownloadTemplateOption, payload: CatalogItem) {
+  downloadTemplate(payload.name, key)
+  showDownloadModal.value = true
+}
+
+const showDownloadModal = ref(false)
+const message = useMessage()
+
+watchEffect(() => {
+  if (downloadStatus.value === 'error') {
+    showDownloadModal.value = false
+    message.error('Произошла ошибка при загрузке')
+  }
+})
+
+function changeShowDownloadModal(show: boolean) {
+  if (!show) {
+    reset()
+  }
 }
 </script>
 
@@ -34,11 +79,25 @@ function moveEdit(itemId: number) {
           </div></template
         >
         <template #header-extra>
-          <n-button quaternary circle size="small" @click="moveEdit(item.id)">
-            <n-icon size="24px">
-              <Edit />
-            </n-icon>
-          </n-button>
+          <div class="btn-group">
+            <n-dropdown
+              trigger="click"
+              :options="downloadMenu"
+              @select="(key) => handleDropdown(key, item)"
+            >
+              <n-button quaternary circle size="small">
+                <n-icon size="24px">
+                  <FileDownload />
+                </n-icon>
+              </n-button>
+            </n-dropdown>
+
+            <n-button quaternary circle size="small" @click="moveEdit(item.id)">
+              <n-icon size="24px">
+                <Edit />
+              </n-icon>
+            </n-button>
+          </div>
         </template>
         <div class="child-container">
           <n-list hoverable>
@@ -58,6 +117,23 @@ function moveEdit(itemId: number) {
         </div>
       </n-collapse-item>
     </n-collapse>
+    <n-modal
+      v-model:show="showDownloadModal"
+      preset="dialog"
+      title="Шаблон товарного направления"
+      :show-icon="false"
+      @update:show="changeShowDownloadModal"
+    >
+      <div style="padding: 1rem 0; text-align: center">
+        <n-spin v-if="downloadStatus === 'pending'" size="small" />
+        <a
+          v-if="downloadStatus === 'success'"
+          :download="downloadFile?.name"
+          :href="downloadFile?.url"
+          >Скачать шаблон</a
+        >
+      </div>
+    </n-modal>
   </n-card>
 </template>
 
@@ -76,5 +152,10 @@ function moveEdit(itemId: number) {
 
 .row-name {
   flex-shrink: 0;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
 }
 </style>
