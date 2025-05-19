@@ -1,3 +1,4 @@
+import { generateAlias } from '~/shared/libs/generate-alias'
 import { useCatalogApi } from '../api/catalog-api'
 import type { GetCatalogItemDto } from '../api/catalog-schemas'
 import type { CatalogItemModel } from './catalog-types'
@@ -69,5 +70,10 @@ export const useCatalogItem = () => {
     isModified.value = false
   }
 
-  return { catalogItem, originalItem, status, isModified, loadCatalogItem, reset }
+  function createAlias(name: string) {
+    const result = generateAlias(name)
+    catalogItem.alias = result
+  }
+
+  return { catalogItem, status, isModified, loadCatalogItem, reset, createAlias }
 }

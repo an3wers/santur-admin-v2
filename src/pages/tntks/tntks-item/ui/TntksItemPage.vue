@@ -7,7 +7,7 @@ const title = ref('')
 const route = useRoute()
 const { itemId } = route.params
 
-const { loadCatalogItem, status, catalogItem, isModified } = useCatalogItem()
+const { loadCatalogItem, status, catalogItem, isModified, createAlias } = useCatalogItem()
 
 await loadCatalogItem(String(itemId))
 
@@ -29,7 +29,11 @@ if (status.value === 'success') {
           <n-h1> {{ title }} </n-h1>
         </template>
       </page-title>
-      <CatalogItemCard v-model:state="catalogItem" :is-modified="isModified" />
+      <CatalogItemCard
+        v-model:state="catalogItem"
+        :is-modified="isModified"
+        @on-create-alias="createAlias"
+      />
     </n-space>
   </div>
 </template>

@@ -66,7 +66,11 @@ watchEffect(() => {
       <n-form-item label="Alias" path="alias">
         <n-input-group>
           <n-input v-model:value="model.alias" placeholder="Введите алиас" />
-          <n-button ghost @click.stop="$emit('onCreateAlias', model.name)">
+          <n-button
+            ghost
+            :disabled="model.name.length === 0"
+            @click.stop="$emit('onCreateAlias', model.name)"
+          >
             <n-icon size="20px" :component="Refresh" />
           </n-button>
         </n-input-group>
