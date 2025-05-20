@@ -10,10 +10,10 @@ import {
   NIcon,
   NText,
   NDropdown,
-  NSpace,
   NModal,
   NSpin,
-  useMessage
+  useMessage,
+  NPopover
 } from 'naive-ui'
 import { Edit, FileDownload } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
@@ -85,18 +85,28 @@ function changeShowDownloadModal(show: boolean) {
               :options="downloadMenu"
               @select="(key) => handleDropdown(key, item)"
             >
-              <n-button quaternary circle size="small">
-                <n-icon size="24px">
-                  <FileDownload />
-                </n-icon>
-              </n-button>
+              <n-popover placement="bottom" trigger="hover">
+                <template #trigger>
+                  <n-button quaternary circle size="small">
+                    <n-icon size="24px">
+                      <FileDownload />
+                    </n-icon>
+                  </n-button>
+                </template>
+                <span> Скачать шаблон для заполнения </span>
+              </n-popover>
             </n-dropdown>
 
-            <n-button quaternary circle size="small" @click="moveEdit(item.id)">
-              <n-icon size="24px">
-                <Edit />
-              </n-icon>
-            </n-button>
+            <n-popover placement="bottom" trigger="hover">
+              <template #trigger>
+                <n-button quaternary circle size="small" @click="moveEdit(item.id)">
+                  <n-icon size="24px">
+                    <Edit />
+                  </n-icon>
+                </n-button>
+              </template>
+              <span> Редактировать </span>
+            </n-popover>
           </div>
         </template>
         <div class="child-container">
