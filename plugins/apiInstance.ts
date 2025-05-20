@@ -3,7 +3,7 @@ export default defineNuxtPlugin({
     const { apiBase: baseUrl } = useRuntimeConfig().public
 
     const apiBase = $fetch.create({
-      baseURL: baseUrl,
+      baseURL: typeof baseUrl === 'string' ? baseUrl : '',
       credentials: 'include',
       onRequest({ request }) {
         console.log('[fetch request]', request)
