@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage, NP, NButton, NIcon } from 'naive-ui'
+import { NSpace, NH1, NP, NButton, NIcon } from 'naive-ui'
 import { PvzsList, usePvzs } from '~/entities/pvzs'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
@@ -17,10 +17,9 @@ const title = computed(() => {
 
 const { data, status, error } = await usePvzs(catId as string)
 
-const message = useMessage()
-
 if (status.value === 'error') {
-  message.error(error.value?.message ?? 'На странице произошла ошибка')
+  console.error(error.value?.message ?? 'На странице произошла ошибка')
+  throw createError({ statusCode: 400, statusMessage: 'На странице произошла ошибка', fatal: true })
 }
 </script>
 

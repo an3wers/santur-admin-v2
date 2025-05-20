@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage, NButton, NIcon, NModal } from 'naive-ui'
+import { NSpace, NH1, NButton, NIcon, NModal } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { Plus, Edit } from '@vicons/tabler'

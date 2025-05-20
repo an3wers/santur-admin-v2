@@ -156,7 +156,7 @@ async function cancelHandler() {
         :label-props="{ for: 'pvz-payvariants' }"
       >
         <n-input
-          v-model:value="pvzsItem.payVariants"
+          v-model:value="pvzsItem.payvariants"
           placeholder="Способы оплаты"
           :input-props="{ name: 'pvz-payvariants', id: 'pvz-payvariants' }"
         />

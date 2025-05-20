@@ -4,7 +4,8 @@ import type { GetCatalogItemDto } from '../api/catalog-schemas'
 import type { CatalogItemModel } from './catalog-types'
 
 export const useCatalogItem = () => {
-  const originalItem = null
+  // TODO: Реализовать функционал с проверкой originalItem
+  const _originalItem = null
 
   const catalogItem = reactive<CatalogItemModel>({
     id: 0,

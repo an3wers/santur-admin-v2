@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NH1, NSpace, NButton, NModal, useMessage, NCard, NSelect, NFormItem } from 'naive-ui'
+import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem } from 'naive-ui'
 import {
   CatalogList,
   getCatalogQueryKey,

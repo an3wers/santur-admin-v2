@@ -19,7 +19,7 @@ interface Props {
   firstLevelName: string
 }
 
-const { id, firstLevelName } = defineProps<Props>()
+const { id = 0, firstLevelName } = defineProps<Props>()
 
 const emits = defineEmits<{
   (e: 'onCancel'): void
@@ -32,7 +32,7 @@ const categoryStore = useCategoryStore()
 
 categoryStore.$reset()
 
-categoryStore.loadCategory(id ?? 0)
+categoryStore.loadCategory(id)
 
 const {
   category,

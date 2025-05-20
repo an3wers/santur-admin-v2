@@ -15,7 +15,7 @@ export interface Pvz {
   isActive: boolean
   name: string
   ownerid: number
-  payVariants: string
+  payvariants: string
   phones: string
   times: string
 }

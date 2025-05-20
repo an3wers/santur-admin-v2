@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NP, NH4, NDivider, NTable, NTabs, NTabPane } from 'naive-ui'
+import { NSpace, NP, NH4, NTable, NTabs, NTabPane } from 'naive-ui'
 
 import type { ReportClientSalesDto } from '../../api/analytics-schemas'
 import { fromatCurrency } from '~/shared/libs/format-currency'
