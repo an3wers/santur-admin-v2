@@ -35,11 +35,17 @@ const {
   isFiltered,
   setBrandsOptions,
   updatePublishForBrandsItem,
-  clearAllFilters
+  clearAllFilters,
+  error
 } = await useBrands()
 
 if (status.value === 'error') {
-  createError({ statusMessage: 'Произошла ошибка при загрузке брендов', statusCode: 400 })
+  console.error(error.value?.message)
+  throw createError({
+    statusMessage: 'Произошла ошибка при загрузке брендов',
+    statusCode: 400,
+    fatal: true
+  })
 }
 
 function lettersHandler(letter: string) {
@@ -88,26 +94,26 @@ watch(searchValue, (val) => setBrandsOptions({ search: val, letter: val ? '' : '
         </template> -->
       </page-title>
 
-      <div class="letters-container">
+      <div v-if="lettersEng.length || lettersRus.length" class="letters-container">
         <div class="letters-row">
           <n-button
+            v-for="item in lettersEng"
             size="small"
-            @click="lettersHandler(item.letter)"
             :disabled="status === 'pending'"
             :type="brandsOptions.letter === item.letter ? 'primary' : 'default'"
-            v-for="item in lettersEng"
             :key="item.letter"
+            @click="lettersHandler(item.letter)"
             >{{ item.letter }}</n-button
           >
         </div>
         <div class="letters-row">
           <n-button
+            v-for="item in lettersRus"
             size="small"
             :disabled="status === 'pending'"
-            @click="lettersHandler(item.letter)"
             :type="brandsOptions.letter === item.letter ? 'primary' : 'default'"
-            v-for="item in lettersRus"
             :key="item.letter"
+            @click="lettersHandler(item.letter)"
             >{{ item.letter }}</n-button
           >
         </div>

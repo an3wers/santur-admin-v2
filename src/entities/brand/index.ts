@@ -8,5 +8,6 @@ export {
   fileList,
   type FilesKeys,
   type BrandFile,
-  type BrandSaveFilesDto
+  type BrandSaveFilesDto,
+  type BrandLetter
 } from './api/brand-schemas'

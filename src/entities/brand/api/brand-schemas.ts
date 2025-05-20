@@ -37,11 +37,14 @@ export const brandsSchema = z.object({
   search: z.string(),
   brends: z.array(brandsItemSchema),
   letters: z.array(
-    z.object({
-      letter: z.string(),
-      qty: z.number(),
-      lng: z.string()
-    })
+    z.union([
+      z.object({
+        letter: z.string(),
+        qty: z.number(),
+        lng: z.string()
+      }),
+      z.object({})
+    ])
   )
 })
 
@@ -100,4 +103,10 @@ export interface BrandSaveDto {
 export interface BrandSaveFilesDto {
   key: FilesKeys
   file: File | undefined | null
+}
+
+export type BrandLetter = {
+  letter: string
+  qty: number
+  lng: string
 }

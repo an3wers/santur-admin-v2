@@ -1,4 +1,4 @@
-import { getBrandsKey, useBrandApi } from '~/entities/brand'
+import { getBrandsKey, useBrandApi, type BrandLetter } from '~/entities/brand'
 
 export const useBrands = async () => {
   const brandsOptions = reactive({
@@ -24,7 +24,7 @@ export const useBrands = async () => {
     })
   }
   const api = useBrandApi()
-  const { data, status, execute } = await useAsyncData(
+  const { data, status, execute, error } = await useAsyncData(
     getBrandsKey(),
     () => api.getBrands(brandsOptions),
     {
@@ -42,12 +42,32 @@ export const useBrands = async () => {
   })
 
   const lettersRus = computed(() => {
-    return data.value ? data.value.letters.filter((el) => el.lng === 'rus') : []
+    if (data.value && data.value.letters.length !== 0) {
+      return data.value.letters.filter((el) => {
+        if (isBrandLetter(el)) {
+          return el.lng === 'rus'
+        }
+        return false
+      }) as BrandLetter[]
+    }
+    return []
   })
 
   const lettersEng = computed(() => {
-    return data.value ? data.value.letters.filter((el) => el.lng === 'eng') : []
+    if (data.value && data.value.letters.length !== 0) {
+      return data.value.letters.filter((el) => {
+        if (isBrandLetter(el)) {
+          return el.lng === 'eng'
+        }
+        return false
+      }) as BrandLetter[]
+    }
+    return []
   })
+
+  function isBrandLetter(letter: BrandLetter | {}): letter is BrandLetter {
+    return 'letter' in letter
+  }
 
   function updatePublishForBrandsItem(brandId: number, status: 'Y' | 'N') {
     if (!data.value) {
@@ -76,6 +96,7 @@ export const useBrands = async () => {
     lettersEng,
     isFiltered,
     filtersDisabled,
+    error,
     execute,
     setBrandsOptions,
     updatePublishForBrandsItem,
