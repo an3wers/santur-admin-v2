@@ -10,7 +10,9 @@ import {
   NSpin,
   NTable,
   NP,
-  NCheckbox
+  NCheckbox,
+  NModal,
+  NIcon
 } from 'naive-ui'
 import { getReportSummaryCliensQueryKey } from '../../api/query-keys'
 import { useAnalyticsApi } from '../../api/analytics-api'
@@ -19,6 +21,10 @@ import type { ReportClientSalesDto } from '../../api/analytics-schemas'
 import { fromatCurrency } from '~/shared/libs/format-currency'
 import AnalyticsClientDetail from './AnalyticsClientDetail.vue'
 import { checkRecomendForSelfOrdering } from '../libs/check-recomend-for-self-ordering'
+import AnalyticsClientDownloadReport from './AnalyticsClientDownloadReport.vue'
+import { Download } from '@vicons/tabler'
+
+const isShowDownloadReport = ref(false)
 
 const range = ref<[number, number]>([Date.now(), Date.now()])
 const ownerId = ref<100000 | 100002 | 100005>(100000)
@@ -156,14 +162,14 @@ async function getClientDetails(subjectId: number) {
             />
           </div>
 
-          <!-- <n-button @click="saveExcelHandler">
-          <template #icon>
-            <n-icon>
-              <Download />
-            </n-icon>
-          </template>
-          Excel
-        </n-button> -->
+          <n-button @click="isShowDownloadReport = true">
+            <template #icon>
+              <n-icon>
+                <Download />
+              </n-icon>
+            </template>
+            Excel
+          </n-button>
           <!-- <n-button @click="() => refreshOrders()">
           <template #icon>
             <n-icon>
@@ -292,6 +298,17 @@ async function getClientDetails(subjectId: number) {
         </n-spin>
       </n-drawer-content>
     </n-drawer>
+    <n-modal
+      style="width: 100%; max-width: 480px"
+      :show="isShowDownloadReport"
+      preset="dialog"
+      title="Отчет по клиентам"
+      :show-icon="false"
+      @esc="isShowDownloadReport = false"
+      @close="isShowDownloadReport = false"
+    >
+      <AnalyticsClientDownloadReport :owner-id="ownerId" :range="range" :owners="ownerOptions" />
+    </n-modal>
   </n-space>
 </template>
 

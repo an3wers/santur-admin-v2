@@ -83,7 +83,7 @@ export const useAnalyticsApi = () => {
     })
 
     const res = await baseFetch<Blob>(`apissz/ReportSummaryCliensAsExcel?${query.toString()}`)
-    return checkError(res).data
+    return res as unknown as Blob
   }
 
   return {
