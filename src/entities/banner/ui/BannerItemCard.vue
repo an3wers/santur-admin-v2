@@ -60,10 +60,14 @@ const formRules = {
     trigger: ['change', 'blur']
   },
   categoryId: {
-    required: true,
+    required: false,
     message: 'Выберите категорию',
     trigger: ['change', 'blur'],
-    validator: (_rule: FormItemRule, value: any) => value !== 0
+    // Закаментировано т.к. в случае добавление баннера в мобильные приложения, категория не указывается из-за того что в мобильных приложениях нет категорий
+    // required: false по этой же причине
+    // TODO: Придумать решение разделное: для сайта и мобильных приложений
+    // validator: (_rule: FormItemRule, value: any) => value !== 0
+    validator: (_rule: FormItemRule, _value: any) => true // value !== 0
   }
 }
 

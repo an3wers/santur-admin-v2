@@ -72,11 +72,26 @@ export const useAnalyticsApi = () => {
     return checkError(res).data
   }
 
+  // apiSSZ/ReportSummaryCliensAsExcel?leftdate=...&rightdate=...
+  async function getReportSummaryClientsToExcel(options: GetReportSummaryClientsDto) {
+    const { leftDate, ownerId, rightDate } = options
+
+    const query = new URLSearchParams({
+      leftDate,
+      rightDate,
+      ownerId: String(ownerId)
+    })
+
+    const res = await baseFetch<Blob>(`apissz/ReportSummaryCliensAsExcel?${query.toString()}`)
+    return checkError(res).data
+  }
+
   return {
     getOrders,
     getOrdersStatuses,
     getOrdersToExcel,
     getReportSummaryClients,
-    getReportClienSales
+    getReportClienSales,
+    getReportSummaryClientsToExcel
   }
 }

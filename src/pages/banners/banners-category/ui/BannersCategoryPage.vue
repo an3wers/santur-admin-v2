@@ -42,8 +42,8 @@ async function updateCategoryHandler() {
           <n-h1>{{ title }}</n-h1>
         </template>
         <template #actions>
+          <!-- v-if="catId && parseInt(catId as string)" -->
           <n-button
-            v-if="catId && parseInt(catId as string)"
             type="primary"
             @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
           >
