@@ -115,11 +115,16 @@ function changeShowDownloadModal(show: boolean) {
               <div class="row">
                 <div class="row-name">{{ child.name }}</div>
                 <div class="row-button">
-                  <n-button quaternary circle size="small" @click="moveEdit(child.id)">
-                    <n-icon size="24px">
-                      <Edit />
-                    </n-icon>
-                  </n-button>
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button quaternary circle size="small" @click="moveEdit(child.id)">
+                        <n-icon size="24px">
+                          <Edit />
+                        </n-icon>
+                      </n-button>
+                    </template>
+                    <span> Редактировать </span>
+                  </n-popover>
                 </div>
               </div>
             </n-list-item>

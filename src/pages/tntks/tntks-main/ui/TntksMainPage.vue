@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem } from 'naive-ui'
+import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem, NIcon } from 'naive-ui'
 import {
   CatalogList,
   getCatalogQueryKey,
@@ -7,7 +7,9 @@ import {
   groupCatalogItems,
   UploadCatalogItemData
 } from '~/entities/catalog'
+import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
 import { useNavStore } from '~/shared/navigation'
+import { FileDownload } from '@vicons/tabler'
 
 const navStore = useNavStore()
 
@@ -113,6 +115,18 @@ const groupedCatalogItems = computed(() => {
 })
 
 const showUploadFileModal = ref(false)
+
+const { downloadTemplate, status: downloadStatus, downloadFile } = useDownloadTemplate()
+async function downloadCatalog() {
+  await downloadTemplate('', 'all')
+
+  if (downloadStatus.value === 'success') {
+    const a = document.createElement('a')
+    a.href = downloadFile.value?.url ?? ''
+    a.download = downloadFile.value?.name ?? ''
+    a.click()
+  }
+}
 </script>
 <template>
   <div class="container">
@@ -129,7 +143,17 @@ const showUploadFileModal = ref(false)
       </page-title>
       <div class="layout">
         <CatalogList :items="groupedCatalogItems" />
-        <div>
+        <n-space vertical>
+          <n-card size="small">
+            <n-button quaternary block @click="downloadCatalog" icon-placement="left">
+              <template #icon>
+                <n-icon size="24px">
+                  <FileDownload />
+                </n-icon>
+              </template>
+              Скачать весь каталог
+            </n-button>
+          </n-card>
           <n-card title="Фильтр">
             <template #header-extra>
               <!-- <n-button
@@ -156,7 +180,7 @@ const showUploadFileModal = ref(false)
               </n-form-item>
             </div>
           </n-card>
-        </div>
+        </n-space>
       </div>
     </n-space>
 

@@ -63,7 +63,7 @@ export const useBannerApi = () => {
       id: String(id)
     })
 
-    const res = await fetchWithToken<unknown>(`Admin/CopyBanner?${query.toString()}`)
+    const res = await fetchWithToken<unknown>(`Admin/CopyBannerV2?${query.toString()}`)
     // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
