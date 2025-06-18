@@ -1,4 +1,4 @@
-export const fromatCurrency = (n: number, curr = 'RUB', LanguageFormat = 'Ru-ru') => {
+export const formatCurrency = (n: number, curr = 'RUB', LanguageFormat = 'Ru-ru') => {
   if (typeof n === 'number' && n > -1) {
     return Intl.NumberFormat(LanguageFormat, {
       style: 'currency',

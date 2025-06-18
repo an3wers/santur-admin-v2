@@ -1,108 +1,51 @@
 <script setup lang="ts">
-import type { DataTableColumns, DataTableCreateSummary, PaginationInfo } from 'naive-ui'
-import { NDatePicker, NSpace, NDataTable, NTag, NButton, NCard, NSelect, NIcon } from 'naive-ui'
+import {
+  NDatePicker,
+  NSpace,
+  NTable,
+  NTag,
+  NButton,
+  NCard,
+  NSelect,
+  NIcon,
+  NSpin,
+  NPagination,
+  NModal
+} from 'naive-ui'
 import { useAnalyticsApi } from '../../api/analytics-api'
 import { Refresh, Download } from '@vicons/tabler'
 import InputSearch from '@/shared/ui/input-search/InputSearch.vue'
-import { fromatCurrency } from '@/shared/libs/format-currency'
+import { formatCurrency } from '@/shared/libs/format-currency'
 import {
   getAnalyticsOrdersQueryKey,
   getAnalyticsOrdersStatusesQueryKey
 } from '../../api/query-keys'
+import { formatRangeDate } from '../libs/format-range-date'
+import AnalyticsOrdersDownloadReport from './AnalyticsOrdersDownloadReport.vue'
+
+const isShowDownloadReport = ref(false)
 
 const range = ref<[number, number]>([Date.now(), Date.now()])
 
 const state = ref('')
 const search = ref('')
 const source = ref('ssz:ekb;santur:ekb')
+const page = ref(1)
+const pageSize = ref(20)
 
-const pagination = reactive({
-  page: 1,
-  pageSize: 20,
-  showSizePicker: true,
-  pageSizes: [20, 40, 60],
-  pageCount: 1,
-  itemCount: 1,
-  prefix: ({ itemCount }: PaginationInfo) => {
-    return `Количество: ${itemCount}.`
-  }
-})
+// const createPeriod = (dates: [number, number]): string => {
+//   return dates
+//     .map((el) => {
+//       const curr = new Date(el)
 
-type Orders = {
-  orderNumber: [number, string] | [number]
-  orderSource: string
-  orderSumm: string
-  orderState: string
-  paymentMethod: string
-  orderDate: string
-  subjectInfo: [number, string]
-}
+//       const y = curr.getFullYear()
+//       const m = curr.getMonth() + 1
+//       const d = curr.getDate()
 
-const columns: DataTableColumns<Orders> = [
-  {
-    title: 'Номер заказа',
-    key: 'orderNumber',
-    className: 'order-number',
-    render(row) {
-      return [
-        h('span', { class: 'small-item' }, row.orderNumber[0]),
-        h('span', {}, row.orderNumber[1])
-      ]
-    }
-  },
-  {
-    title: 'Дата',
-    key: 'orderDate',
-    render(row) {
-      return [h('div', {}, row.orderDate.split(' ')[0]), h('div', {}, row.orderDate.split(' ')[1])]
-    }
-  },
-  {
-    title: 'Источник',
-    key: 'orderSource'
-  },
-  {
-    title: 'Статус',
-    key: 'orderState',
-    render(row) {
-      return h(NTag, {}, row.orderState)
-    }
-  },
-  {
-    title: 'Способ оплаты',
-    key: 'paymentMethod'
-  },
-  {
-    title: 'Контрагент',
-    key: 'subjectName',
-    render(row) {
-      return [
-        h('span', { class: 'small-item' }, row.subjectInfo[0]),
-        h('span', {}, row.subjectInfo[1])
-      ]
-    },
-    className: 'subject-info'
-  },
-  {
-    title: 'Сумма',
-    key: 'orderSumm',
-    className: 'order-summ'
-  }
-]
-
-const createPeriod = (dates: [number, number]): string => {
-  return dates
-    .map((el) => {
-      const curr = new Date(el)
-
-      const y = curr.getFullYear()
-      const m = curr.getMonth() + 1
-      const d = curr.getDate()
-
-      return `${d < 10 ? '0' + d : d}.${m < 10 ? '0' + m : m}.${y}`
-    })
-    .join(':')
-}
+//       return `${d < 10 ? '0' + d : d}.${m < 10 ? '0' + m : m}.${y}`
+//     })
+//     .join(':')
+// }
 
 const api = useAnalyticsApi()
 
@@ -114,31 +57,15 @@ const {
   getAnalyticsOrdersQueryKey(),
   () =>
     api.getOrders({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      period: createPeriod(range.value),
+      page: page.value,
+      pageSize: pageSize.value,
+      period: formatRangeDate(range.value),
       source: source.value,
       search: search.value,
       state: state.value
     }),
   {
-    // TODO: Убрать transform, трансформировать данные на этапе подготовки к отображению
-    transform(payload) {
-      const { items, ...other } = payload
-      const modifiedItems: Orders[] = items.map((el) => {
-        return {
-          orderNumber: el.orderCode ? [el.id, el.orderCode] : [el.id],
-          orderDate: el.orderDate, // el.orderDate.split(' ')[0],
-          orderSource: el.orderSource,
-          orderState: el.orderState.name || '-',
-          orderSumm: fromatCurrency(el.orderSumm ?? 0),
-          paymentMethod: el.paymentMethod,
-          subjectInfo: [el.subjectID, el.subjectName]
-        }
-      })
-      return { ...other, items: modifiedItems }
-    },
-    watch: [() => pagination.page, () => pagination.pageSize, range, source, state]
+    watch: [page, pageSize, range, source, state]
   }
 )
 
@@ -174,23 +101,14 @@ watch(search, () => {
 
 watchEffect(() => {
   if (data.value) {
-    pagination.pageCount = data.value.totalPages
-    pagination.page = data.value.currentPage
-    pagination.pageSize = data.value.pageSize
-    pagination.itemCount = data.value.totalCount
+    page.value = data.value.currentPage
+    pageSize.value = data.value.pageSize
   }
 })
 
-function updateCurrentPage(page: number) {
-  pagination.page = page
+async function updateDate(value: [number, number]) {
+  range.value = value
 }
-
-function updatePageSize(pageSize: number) {
-  pagination.pageSize = pageSize
-  pagination.page = 1
-}
-
-async function updateDate() {}
 
 const sourceOptions = ref([
   {
@@ -206,42 +124,6 @@ const sourceOptions = ref([
     value: 'ssz:ekb'
   }
 ])
-
-const createSummary: DataTableCreateSummary = () => {
-  return {
-    orderSumm: {
-      value: h(
-        'span',
-        { style: { fontWeight: 'bold' } },
-        `${data.value?.totalCount} заказ(ов) на сумму ${fromatCurrency(data.value?.extendedData.totals.totalOrderSumm ?? 0)}`
-      ),
-      colSpan: 1
-    }
-  }
-}
-
-async function saveExcelHandler() {
-  try {
-    const res = (await api.getOrdersToExcel({
-      period: createPeriod(range.value),
-      source: source.value,
-      state: state.value
-    })) as Blob | undefined
-
-    if (res && res instanceof Blob) {
-      const url = URL.createObjectURL(res)
-
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `orders_${Date.now()}.xlsx`
-      a.click()
-
-      URL.revokeObjectURL(url)
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 function refreshOrdersWithSearch() {
   refreshOrders()
@@ -268,8 +150,9 @@ function cleanFilters() {
           <n-select v-model:value="state" :options="statusesListData ?? []" />
         </div>
         <div style="width: 280px">
+          <!-- v-model:value="range" -->
           <n-date-picker
-            v-model:value="range"
+            :value="range"
             type="daterange"
             format="dd-MM-yyyy"
             :first-day-of-week="0"
@@ -277,7 +160,7 @@ function cleanFilters() {
           />
         </div>
 
-        <n-button @click="saveExcelHandler">
+        <n-button @click="isShowDownloadReport = true">
           <template #icon>
             <n-icon>
               <Download />
@@ -295,39 +178,128 @@ function cleanFilters() {
         <n-button quaternary @click="cleanFilters">Сбросить</n-button>
       </n-space>
     </n-card>
-    <n-data-table
-      remote
-      size="small"
-      summary-placement="top"
-      :columns="columns"
-      :loading="status === 'pending'"
-      :data="data?.items"
-      :bordered="false"
-      :pagination="pagination"
-      :summary="createSummary"
-      @update:page="updateCurrentPage"
-      @update:page-size="updatePageSize"
-    />
+
+    <n-spin :show="status === 'pending'">
+      <div v-if="status === 'pending'" style="height: 200px"></div>
+
+      <div v-if="status === 'success'" class="table-container">
+        <n-table
+          :bordered="false"
+          :theme-overrides="{
+            fontSizeSmall: '13px'
+          }"
+          :single-line="false"
+          size="small"
+          class="table-el"
+        >
+          <thead class="table-header">
+            <tr>
+              <th>Номер заказа</th>
+              <th>Дата</th>
+              <th>Источник</th>
+              <th>Статус</th>
+              <th>Способ оплаты</th>
+              <th>Контрагент</th>
+              <th class="col-sum">Сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="r in data?.items" :key="r.id">
+              <td width="140">
+                <div>{{ r.id }}</div>
+                {{ r.orderCode }}
+              </td>
+              <td width="120">
+                <div>{{ r.orderDate.split(' ')[0] }}</div>
+                {{ r.orderDate.split(' ')[1] }}
+              </td>
+              <td>{{ r.orderSource }}</td>
+              <td>
+                <n-tag>{{ r.orderState.name }}</n-tag>
+              </td>
+              <td>{{ r.paymentMethod }}</td>
+              <td>{{ r.subjectName }}</td>
+              <td class="col-sum" width="160">{{ formatCurrency(r.orderSumm) }}</td>
+            </tr>
+            <tr class="table-summery">
+              <td colspan="5"></td>
+              <td>Кол-во заказов: {{ data?.totalCount }}</td>
+              <td class="col-sum">
+                {{ formatCurrency(data?.extendedData.totals.totalOrderSumm ?? 0) }}
+              </td>
+            </tr>
+          </tbody>
+        </n-table>
+        <div class="orders-pagination">
+          <n-pagination v-model:page="page" :page-count="data?.totalPages" />
+        </div>
+        <!-- Пагинация -->
+      </div>
+    </n-spin>
+    <n-modal
+      style="width: 100%; max-width: 480px"
+      preset="dialog"
+      title="Отчет по заказам"
+      :show="isShowDownloadReport"
+      :show-icon="false"
+      @esc="isShowDownloadReport = false"
+      @close="isShowDownloadReport = false"
+    >
+      <AnalyticsOrdersDownloadReport
+        :range="range"
+        :source="source"
+        :state="state"
+        :source-options="sourceOptions"
+        :statuses-options="statusesListData ?? []"
+      />
+      <!-- <AnalyticsClientDownloadReport :owner-id="ownerId" :range="range" :owners="ownerOptions" /> -->
+    </n-modal>
   </n-space>
 </template>
 
 <style scoped>
-:deep(.order-summ) {
-  /* color: rgba(0, 128, 0, 0.75);*/
+.table-container {
+  /* overflow-x: auto; */
+}
 
-  white-space: nowrap;
+.table-el {
+  position: relative;
+  height: auto;
+  border-collapse: collapse;
+  overflow-y: auto;
+  /* min-width: 1024px; */
+}
+
+.table-el tr:hover td {
+  background-color: rgba(247, 247, 250, 1);
+}
+
+.tr-alert td {
+  background-color: rgba(255, 0, 0, 0.09);
+}
+
+.table-el tr.tr-alert:hover td {
+  background-color: rgba(255, 0, 0, 0.09);
+}
+
+.table-header {
+  position: sticky;
+  top: 0;
+}
+
+.table-el .col-sum {
   text-align: right;
 }
 
-:deep(.subject-info) > * {
-  display: block;
+.table-summery {
+  position: sticky;
+  bottom: 0px;
+  font-weight: 900;
 }
 
-:deep(.order-number) > * {
-  display: block;
-}
-
-:deep(.small-item) {
-  font-size: 12px;
+.orders-pagination {
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
 }
 </style>

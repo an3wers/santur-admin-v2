@@ -33,9 +33,14 @@ export const useAnalyticsApi = () => {
     return checkError(res).data
   }
 
-  async function getOrdersToExcel(options: Pick<GetOrdersDto, 'period' | 'source' | 'state'>) {
+  async function getOrdersToExcel(
+    options: Pick<GetOrdersDto, 'period' | 'source' | 'state'>,
+    signal?: AbortSignal
+  ) {
     const query = new URLSearchParams(options)
-    const res = await fetchWithToken(`Admin/GetStatisticsAsExcel?${query.toString()}`)
+    const res = await fetchWithToken(`Admin/GetStatisticsAsExcel?${query.toString()}`, {
+      signal
+    })
     return checkError(res).data
   }
 

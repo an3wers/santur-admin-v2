@@ -2,7 +2,7 @@
 import { NSpace, NP, NH4, NTable, NTabs, NTabPane } from 'naive-ui'
 
 import type { ReportClientSalesDto } from '../../api/analytics-schemas'
-import { fromatCurrency } from '~/shared/libs/format-currency'
+import { formatCurrency } from '~/shared/libs/format-currency'
 
 const { deatils } = defineProps<{
   deatils: ReportClientSalesDto | null
@@ -36,8 +36,8 @@ const { deatils } = defineProps<{
               <tbody>
                 <tr v-for="b in deatils.brends" :key="b.title">
                   <td>{{ b.title }}</td>
-                  <td width="160" class="currency">{{ fromatCurrency(b.sumAll) }}</td>
-                  <td width="170" class="currency">{{ fromatCurrency(b.sumRealized) }}</td>
+                  <td width="160" class="currency">{{ formatCurrency(b.sumAll) }}</td>
+                  <td width="170" class="currency">{{ formatCurrency(b.sumRealized) }}</td>
                 </tr>
               </tbody>
             </n-table>
@@ -61,8 +61,8 @@ const { deatils } = defineProps<{
               <tbody>
                 <tr v-for="tk in deatils.tks" :key="tk.title">
                   <td>{{ tk.title }}</td>
-                  <td width="160" class="currency">{{ fromatCurrency(tk.sumAll) }}</td>
-                  <td width="170" class="currency">{{ fromatCurrency(tk.sumRealized) }}</td>
+                  <td width="160" class="currency">{{ formatCurrency(tk.sumAll) }}</td>
+                  <td width="170" class="currency">{{ formatCurrency(tk.sumRealized) }}</td>
                 </tr>
               </tbody>
             </n-table>

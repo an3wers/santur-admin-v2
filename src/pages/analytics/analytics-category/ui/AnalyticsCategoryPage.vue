@@ -3,7 +3,6 @@ import { NH1, NSpin } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import AnaliticsOrders from './AnaliticsOrders.vue'
 import AnaliticsClients from './AnaliticsClients.vue'
-// import { Suspense } from 'vue'
 
 const route = useRoute()
 const { catId } = route.params

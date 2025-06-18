@@ -18,7 +18,7 @@ import { getReportSummaryCliensQueryKey } from '../../api/query-keys'
 import { useAnalyticsApi } from '../../api/analytics-api'
 import { formatDateForServer } from '~/shared/libs/format-date-for-server'
 import type { ReportClientSalesDto } from '../../api/analytics-schemas'
-import { fromatCurrency } from '~/shared/libs/format-currency'
+import { formatCurrency } from '~/shared/libs/format-currency'
 import AnalyticsClientDetail from './AnalyticsClientDetail.vue'
 import { checkRecomendForSelfOrdering } from '../libs/check-recomend-for-self-ordering'
 import AnalyticsClientDownloadReport from './AnalyticsClientDownloadReport.vue'
@@ -255,10 +255,10 @@ async function getClientDetails(subjectId: number) {
                 {{ r.qtyRealizedOrdersTa }}
               </td>
               <td v-if="makeOrders !== 'ta'">{{ r.qtyRealizedOrdersSelf }}</td>
-              <td v-if="makeOrders !== 'site'">{{ fromatCurrency(r.sumOrdersTa) }}</td>
-              <td v-if="makeOrders !== 'ta'">{{ fromatCurrency(r.sumOrdersSelf) }}</td>
-              <td v-if="makeOrders !== 'site'">{{ fromatCurrency(r.sumRealizedOrdersTa) }}</td>
-              <td v-if="makeOrders !== 'ta'">{{ fromatCurrency(r.sumRealizedOrdersSelf) }}</td>
+              <td v-if="makeOrders !== 'site'">{{ formatCurrency(r.sumOrdersTa) }}</td>
+              <td v-if="makeOrders !== 'ta'">{{ formatCurrency(r.sumOrdersSelf) }}</td>
+              <td v-if="makeOrders !== 'site'">{{ formatCurrency(r.sumRealizedOrdersTa) }}</td>
+              <td v-if="makeOrders !== 'ta'">{{ formatCurrency(r.sumRealizedOrdersSelf) }}</td>
               <td v-if="makeOrders !== 'site'">{{ Number(r.converceTa).toFixed(2) }}%</td>
               <td v-if="makeOrders !== 'ta'">{{ Number(r.converceSelf).toFixed(2) }}%</td>
             </tr>
@@ -269,16 +269,16 @@ async function getClientDetails(subjectId: number) {
               <td v-if="makeOrders !== 'site'">{{ dataReposrts?.summary.qtyRealizedOrdersTa }}</td>
               <td v-if="makeOrders !== 'ta'">{{ dataReposrts?.summary.qtyRealizedOrdersSelf }}</td>
               <td v-if="makeOrders !== 'site'">
-                {{ fromatCurrency(dataReposrts?.summary.sumOrdersTa ?? 0) }}
+                {{ formatCurrency(dataReposrts?.summary.sumOrdersTa ?? 0) }}
               </td>
               <td v-if="makeOrders !== 'ta'">
-                {{ fromatCurrency(dataReposrts?.summary.sumOrdersSelf ?? 0) }}
+                {{ formatCurrency(dataReposrts?.summary.sumOrdersSelf ?? 0) }}
               </td>
               <td v-if="makeOrders !== 'site'">
-                {{ fromatCurrency(dataReposrts?.summary.sumRealizedOrdersTa ?? 0) }}
+                {{ formatCurrency(dataReposrts?.summary.sumRealizedOrdersTa ?? 0) }}
               </td>
               <td v-if="makeOrders !== 'ta'">
-                {{ fromatCurrency(dataReposrts?.summary.sumRealizedOrdersSelf ?? 0) }}
+                {{ formatCurrency(dataReposrts?.summary.sumRealizedOrdersSelf ?? 0) }}
               </td>
               <td v-if="makeOrders !== 'site'">
                 {{ Number(dataReposrts?.summary.converceTa ?? 0).toFixed(2) }}%
