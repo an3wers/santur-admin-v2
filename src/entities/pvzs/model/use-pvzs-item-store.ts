@@ -1,6 +1,7 @@
 import type { PvzsItem, Pvz } from './pvzs-types'
 import { usePvzsApi } from '../api/pvzs-api'
 import { getPvzsCategoryKey } from '../api/query-keys'
+import { mapPvzsItem } from '../libs/map-pvzs-item'
 
 // TODO: Заменить глобальный стор на composable или на контекст provide/inject
 export const usePvzsItemStore = defineStore('pvzs-item', () => {
@@ -74,8 +75,10 @@ export const usePvzsItemStore = defineStore('pvzs-item', () => {
 
       const res = await api.getPvzsItem(String(id))
 
-      setPvzsItem(res)
-      setPvzsItemSecondaryFileds(res)
+      const data = mapPvzsItem(res)
+
+      setPvzsItem(data)
+      setPvzsItemSecondaryFileds(data)
       loadStatus.value = 'success'
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
