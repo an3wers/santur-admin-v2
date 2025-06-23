@@ -41,7 +41,8 @@ export const useAnalyticsApi = () => {
     const res = await fetchWithToken(`Admin/GetStatisticsAsExcel?${query.toString()}`, {
       signal
     })
-    return checkError(res).data
+
+    return res as unknown as Blob // checkError(res).data
   }
 
   async function getReportSummaryClients(options: GetReportSummaryClientsDto) {
