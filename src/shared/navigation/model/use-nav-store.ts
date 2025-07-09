@@ -17,7 +17,7 @@ export const useNavStore = defineStore('navigation', () => {
     () => resources.value?.map((r) => ({ label: r.label, value: r.code })) ?? []
   )
 
-  const getMenuOptions = computed(() => _mappingNavItemsToMenuOptions(navigation.value ?? []))
+  const getMenuOptions = computed(() => mappingNavItemsToMenuOptions(navigation.value ?? []))
 
   const getSubMenuBySlug = computed(() => (slug: string) => {
     const navItem = mapNavigation.value?.[slug]
@@ -28,7 +28,7 @@ export const useNavStore = defineStore('navigation', () => {
 
     return {
       label: navItem.label,
-      items: _mappingNavItemsToMenuOptions(navItem.items),
+      items: mappingNavItemsToMenuOptions(navItem.items),
       needSubmenu: navItem.needSubmenu
     }
   })
@@ -57,8 +57,9 @@ export const useNavStore = defineStore('navigation', () => {
 
   async function loadMenu(recource: string): Promise<void> {
     const data = await api.getNavigation(recource)
-    navigation.value = data
-    mapNavigation.value = _mappingNavItemsToMap(data)
+    const dataWithSomeOtherData = [...data, createUploadingMenuItem()]
+    navigation.value = dataWithSomeOtherData
+    mapNavigation.value = mappingNavItemsToMap(dataWithSomeOtherData)
   }
 
   async function loadResurces(): Promise<void> {
@@ -94,7 +95,7 @@ export const useNavStore = defineStore('navigation', () => {
     setActiveResource(resLs)
   }
 
-  function _mappingNavItemsToMap(navItems: MenuItem[]): Record<string, MenuItem> {
+  function mappingNavItemsToMap(navItems: MenuItem[]): Record<string, MenuItem> {
     return navItems.reduce((acc: Record<string, MenuItem>, item) => {
       acc[item.modelName] = item
       return acc
@@ -102,7 +103,7 @@ export const useNavStore = defineStore('navigation', () => {
   }
 
   // TODO: Рефакторинг, можно перенести в утилиты
-  function _mappingNavItemsToMenuOptions(navItems: MenuItem[]): MenuOption[] {
+  function mappingNavItemsToMenuOptions(navItems: MenuItem[]): MenuOption[] {
     if (!navItems.length) {
       return []
     }
@@ -111,7 +112,11 @@ export const useNavStore = defineStore('navigation', () => {
       let path = ''
       if (item.modelName === 'media') {
         path = `/${item.modelName}`
-      } else if (item.modelName === 'analytics' || item.modelName === 'pvzs') {
+      } else if (
+        item.modelName === 'analytics' ||
+        item.modelName === 'pvzs' ||
+        item.modelName === 'uploading'
+      ) {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0 && item.needSubmenu
         path = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
       } else {
@@ -124,6 +129,28 @@ export const useNavStore = defineStore('navigation', () => {
       }
     })
     return mappedMenu
+  }
+
+  function createUploadingMenuItem(): MenuItem {
+    return {
+      app: 'santur',
+      categoryId: 0,
+      id: 10,
+      items: [
+        {
+          app: 'santur',
+          categoryId: 0,
+          id: 1,
+          items: [],
+          label: 'XML feed',
+          modelName: 'uploading',
+          needSubmenu: false
+        }
+      ],
+      label: 'Выгрузки',
+      modelName: 'uploading',
+      needSubmenu: true
+    }
   }
 
   return {
