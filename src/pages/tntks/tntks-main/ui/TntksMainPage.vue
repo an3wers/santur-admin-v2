@@ -5,11 +5,13 @@ import {
   getCatalogQueryKey,
   useCatalogApi,
   groupCatalogItems,
-  UploadCatalogItemData
+  UploadCatalogItemData,
+  type CatalogItem
 } from '~/entities/catalog'
 import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
 import { useNavStore } from '~/shared/navigation'
 import { FileDownload } from '@vicons/tabler'
+import type { GetCatalogItemDto } from '~/entities/catalog/api/catalog-schemas'
 
 const navStore = useNavStore()
 
@@ -108,10 +110,7 @@ const filteredByDescr = computed(() => {
 })
 
 const groupedCatalogItems = computed(() => {
-  // if (!data.value) {
-  //   return []
-  // }
-  return groupCatalogItems(filteredByDescr.value)
+  return groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
 })
 
 const showUploadFileModal = ref(false)

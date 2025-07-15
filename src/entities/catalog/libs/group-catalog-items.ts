@@ -1,10 +1,7 @@
-import type { GetCatalogItemDto } from '../api/catalog-schemas'
-import type { CatalogItem } from '../model/catalog-types'
-
-export const groupCatalogItems = (items: GetCatalogItemDto[]): CatalogItem[] => {
-  const firstLevel: CatalogItem[] = items
+export const groupCatalogItems = <T extends { parent_id: number; id: number }>(items: T[]) => {
+  const firstLevel = items
     .filter((item) => item.parent_id === 0)
-    .map((item) => ({ ...item, child: [] }))
+    .map((item) => ({ ...item, child: [] as T[] }))
 
   const secondLevel = items.filter((item) => item.parent_id !== 0)
 

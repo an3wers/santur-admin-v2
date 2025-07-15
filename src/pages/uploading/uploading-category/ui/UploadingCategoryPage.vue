@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NSpace, NH1 } from 'naive-ui'
-import UploadingXmlFeed from '~/entities/uploading/ui/UploadingXmlFeed.vue'
+import XmlFeedPage from '~/pages/uploading/uploading-category/ui/xml-feed/XmlFeedPage.vue'
 import { useNavStore } from '~/shared/navigation'
 
 const navStore = useNavStore()
@@ -21,7 +21,7 @@ const title = computed(() => {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <UploadingXmlFeed />
+      <XmlFeedPage />
     </n-space>
   </div>
 </template>
