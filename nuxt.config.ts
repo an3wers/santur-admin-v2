@@ -90,6 +90,14 @@ export default defineNuxtConfig({
               : process.env.BASE_URL_PROXY + 'apiadmin/**'
         }
       },
+      '/apiTmp/**': {
+        proxy: {
+          to:
+            process.env.API_MODE === 'debugg'
+              ? 'http://10.10.10.77:64439/apiadmin/**'
+              : process.env.BASE_URL_PROXY + 'apiTmp/**'
+        }
+      },
       '/api-gateway/**': { proxy: { to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**' } }
     }
   }

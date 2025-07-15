@@ -5,11 +5,18 @@ import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import XmlFeedCatalog from './XmlFeedCatalog.vue'
 import { getCatalogQueryKey } from '~/entities/catalog'
 import type { CatalogItem } from '../../model/types'
+import { useUploadingApi } from '~/entities/uploading'
 
 const link = 'https://isantur.ru/Client/GetCatalogFeed'
 
 const currentPlatform = ref('YAND')
 const platformOptions = [{ label: 'Яндекс', value: 'YAND' }]
+
+const api = useUploadingApi()
+
+const { data: exportConstructor, status: exportConstructorStatus } = useAsyncData(() =>
+  api.getExportConstructor(currentPlatform.value)
+)
 
 const openInNewTabHandler = () => {
   window.open(link, '_blank')
@@ -51,7 +58,10 @@ function getCatalogIds(payload: CatalogItem[]): number[] {
 </script>
 
 <template>
-  <n-space vertical size="large">
+  <n-space justify="center" v-if="exportConstructorStatus === 'pending'">
+    <n-spin size="medium" />
+  </n-space>
+  <n-space v-else vertical size="large">
     <n-card>
       <n-space vertical size="medium">
         <div class="row">
@@ -75,8 +85,11 @@ function getCatalogIds(payload: CatalogItem[]): number[] {
         </div>
       </n-space>
     </n-card>
-    <div>
-      <XmlFeedCatalog :platform-key="currentPlatform" :selected-category-ids="[]" />
+    <div v-if="exportConstructorStatus === 'success' && exportConstructor">
+      <XmlFeedCatalog
+        :platform-key="currentPlatform"
+        :selected-category-ids="exportConstructor.catalog"
+      />
     </div>
   </n-space>
 </template>

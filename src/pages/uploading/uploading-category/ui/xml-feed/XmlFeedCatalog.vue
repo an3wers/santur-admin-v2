@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getCatalogQueryKey, groupCatalogItems, useCatalogApi } from '~/entities/catalog'
-import { NSpace, NCard, NCheckbox, NButton } from 'naive-ui'
-import { size } from 'zod/v4'
+import { NSpace, NCard, NCheckbox, NButton, NSpin } from 'naive-ui'
 
 const { selectedCategoryIds } = defineProps<{
   platformKey: string
@@ -26,18 +25,18 @@ const { data, status } = useAsyncData(`${getCatalogQueryKey()}-feed`, api.getCat
   lazy: true
 })
 
-function toggleCategoryChecked(parentId: number) {
-  if (!data.value) {
-    return
-  }
+// function toggleCategoryChecked(parentId: number) {
+//   if (!data.value) {
+//     return
+//   }
 
-  data.value.forEach((parent) => {
-    if (parent.id === parentId) {
-      const hasChecked = parent.child.some((child) => child.isChecked)
-      parent.child.forEach((child) => (child.isChecked = !hasChecked))
-    }
-  })
-}
+//   data.value.forEach((parent) => {
+//     if (parent.id === parentId) {
+//       const hasChecked = parent.child.some((child) => child.isChecked)
+//       parent.child.forEach((child) => (child.isChecked = !hasChecked))
+//     }
+//   })
+// }
 
 function setAllChecked(parentId: number) {
   if (!data.value) {
@@ -54,12 +53,12 @@ function setAllChecked(parentId: number) {
 
 <template>
   <n-card title="Каталог">
-    <n-space vertical>
+    <n-space justify="center" v-if="status === 'pending'">
+      <n-spin size="medium" />
+    </n-space>
+    <n-space v-if="status === 'success' && data && data.length > 0" vertical>
       <div v-for="parent in data" :key="parent.id">
         <div class="parent">
-          <!-- <n-checkbox v-model:checked="parent.isChecked"
-            ><span class="parent__item">{{ parent.name }}</span></n-checkbox
-          > -->
           <span class="parent__item">{{ parent.name }}</span>
           <n-button size="tiny" quaternary type="primary" @click="setAllChecked(parent.id)"
             >Выбрать все</n-button
