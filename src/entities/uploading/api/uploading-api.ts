@@ -1,46 +1,6 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import type { ExportConstructorDto } from './types'
 
-// apiTmp/GetExportConstructor?key=...
-
-// response
-
-// {
-//   "data": {
-//     "catalog": [],
-//     "brends": [],
-//     "znaks": [
-//       {
-//         "znak": "S",
-//         "incash": true,
-//         "price": true,
-//         "selected": true
-//       },
-//       {
-//         "znak": "Z1",
-//         "incash": true,
-//         "price": true,
-//         "selected": true
-//       },
-//       {
-//         "znak": "Z6",
-//         "incash": true,
-//         "price": true,
-//         "selected": false
-//       },
-//       {
-//         "znak": "Z7",
-//         "incash": true,
-//         "price": true,
-//         "selected": false
-//       }
-//     ]
-//   },
-//   "success": true,
-//   "errorcode": 0,
-//   "message": ""
-// }
-
 // POST
 // apiTmp/SaveExportConstructor?key=...
 // в боди:

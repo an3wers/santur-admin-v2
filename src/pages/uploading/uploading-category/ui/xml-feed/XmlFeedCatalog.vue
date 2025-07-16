@@ -7,9 +7,8 @@ const { selectedCategoryIds } = defineProps<{
   selectedCategoryIds: number[]
 }>()
 
-// const selectedIds = ref(selectedCategoryIds)
-
 const api = useCatalogApi()
+
 const { data, status } = useAsyncData(`${getCatalogQueryKey()}-feed`, api.getCatalog, {
   transform: (data) => {
     const mapped = data.map((item) => ({
@@ -22,7 +21,10 @@ const { data, status } = useAsyncData(`${getCatalogQueryKey()}-feed`, api.getCat
 
     return groupCatalogItems(mapped)
   },
-  lazy: true
+  lazy: true,
+  getCachedData(key, nuxtApp, _context) {
+    return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
+  }
 })
 
 // function toggleCategoryChecked(parentId: number) {
@@ -52,7 +54,7 @@ function setAllChecked(parentId: number) {
 </script>
 
 <template>
-  <n-card title="Каталог">
+  <div>
     <n-space justify="center" v-if="status === 'pending'">
       <n-spin size="medium" />
     </n-space>
@@ -71,7 +73,7 @@ function setAllChecked(parentId: number) {
         </div>
       </div>
     </n-space>
-  </n-card>
+  </div>
 </template>
 
 <style scoped>
