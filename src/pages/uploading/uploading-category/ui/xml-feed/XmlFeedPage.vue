@@ -14,7 +14,7 @@ import {
 import { Copy, ExternalLink } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import XmlFeedCatalog from './XmlFeedCatalog.vue'
-import { getCatalogQueryKey } from '~/entities/catalog'
+import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
 import type { CatalogItem } from '../../model/types'
 import { useSaveConstructor, useUploadingApi } from '~/entities/uploading'
 import XmlFeedZnaks from './XmlFeedZnaks.vue'
@@ -24,13 +24,48 @@ const link = 'https://isantur.ru/Client/GetCatalogFeed'
 const currentPlatform = ref('YAND')
 const platformOptions = [{ label: 'Яндекс', value: 'YAND' }]
 
+const tabs = ['Каталог', 'Бренды'] as const
+const activeTab = ref<(typeof tabs)[number]>('Каталог')
+
 const api = useUploadingApi()
+const { getCatalog } = useCatalogApi()
 
 const {
   data: exportConstructor,
   status: exportConstructorStatus,
   refresh: refreshExportConstructor
-} = useAsyncData(() => api.getExportConstructor(currentPlatform.value))
+} = useAsyncData('export-constructor', () => api.getExportConstructor(currentPlatform.value), {
+  lazy: true
+})
+
+const {
+  data: catalogData,
+  status: catalogDataStatus,
+  execute: catalogDataExecute
+} = useAsyncData('catalog-struct', getCatalog, {
+  transform: (data) => {
+    const mapped = data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      parent_id: item.parent_id,
+      vid: item.vid,
+      isChecked: !exportConstructor.value?.excludedCategories?.includes(item.id) || true
+    }))
+
+    return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
+  },
+  immediate: false
+})
+
+watchEffect(() => {
+  if (
+    activeTab.value === 'Каталог' &&
+    catalogDataStatus.value === 'idle' &&
+    exportConstructorStatus.value === 'success'
+  ) {
+    catalogDataExecute()
+  }
+})
 
 const openInNewTabHandler = () => {
   window.open(link, '_blank')
@@ -40,11 +75,12 @@ const copyHandler = async () => {
   await copyToClipboard(link)
 }
 
-const { data: catalogData } = useNuxtData<CatalogItem[]>(`${getCatalogQueryKey()}-feed`)
 const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor()
+
 const message = useMessage()
+
 async function updateHandler() {
-  if (!catalogData.value) {
+  if (!catalogData.value?.data) {
     return
   }
 
@@ -52,12 +88,18 @@ async function updateHandler() {
     return
   }
 
-  const catalog = getCatalogIds(catalogData.value)
-  const brends = getBrandsNames()
+  const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
+  const excludedBrends = getExcludedBrandsNames()
+
+  // console.log('@', {
+  //   excludedCategories,
+  //   excludedBrends,
+  //   znaks: exportConstructor.value.znaks
+  // })
 
   await saveConstructor(currentPlatform.value, {
-    catalog,
-    brends,
+    excludedCategories,
+    excludedBrends,
     znaks: exportConstructor.value.znaks
   })
 
@@ -67,31 +109,31 @@ async function updateHandler() {
     message.error('Произошла ошибка при сохранении')
   }
 
-  refreshExportConstructor()
+  await refreshExportConstructor()
+  clearNuxtData(['catalog-struct'])
 }
 
-function getCatalogIds(payload: CatalogItem[]): number[] {
-  const ids: number[] = []
-
+function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
   if (!payload.length) {
-    return ids
+    return []
   }
 
+  const result: number[] = []
   payload.forEach((item) => {
     if (item.child) {
       item.child.forEach((c) => {
-        if (c.isChecked) {
-          ids.push(c.id)
+        if (!c.isChecked) {
+          result.push(c.id)
         }
       })
     }
   })
 
-  return ids
+  return result
 }
 
-function getBrandsNames() {
-  return exportConstructor.value?.brends ?? []
+function getExcludedBrandsNames() {
+  return exportConstructor.value?.excludedBrends || []
 }
 
 // function getZnaksOptions() {
@@ -130,19 +172,19 @@ function getBrandsNames() {
       <div class="constructor-grid">
         <div class="constructor-grid__item">
           <n-card>
-            <n-tabs type="line" size="large" animated>
-              <n-tab-pane name="catalog" tab="Каталог">
-                <XmlFeedCatalog
-                  :platform-key="currentPlatform"
-                  :selected-category-ids="exportConstructor.catalog"
-                />
+            <n-tabs v-model:value="activeTab" type="line" size="large">
+              <n-tab-pane :name="tabs[0]" :tab="tabs[0]">
+                <n-space justify="center" v-if="catalogDataStatus === 'pending'">
+                  <n-spin size="small" />
+                </n-space>
+                <XmlFeedCatalog v-if="catalogData?.data" v-model:state="catalogData.data" />
               </n-tab-pane>
-              <n-tab-pane name="brands" tab="Бренды"> Бренды </n-tab-pane>
+              <n-tab-pane :name="tabs[1]" :tab="tabs[1]"> В разработке </n-tab-pane>
             </n-tabs>
           </n-card>
         </div>
         <div class="constructor-grid__item">
-          <XmlFeedZnaks :state="exportConstructor.znaks" />
+          <XmlFeedZnaks v-model:state="exportConstructor.znaks" />
         </div>
       </div>
     </div>

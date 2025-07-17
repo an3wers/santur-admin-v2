@@ -1,79 +1,34 @@
 <script setup lang="ts">
-import { getCatalogQueryKey, groupCatalogItems, useCatalogApi } from '~/entities/catalog'
-import { NSpace, NCard, NCheckbox, NButton, NSpin } from 'naive-ui'
+import { NSpace, NCheckbox } from 'naive-ui'
+import type { CatalogItem } from '../../model/types'
 
-const { selectedCategoryIds } = defineProps<{
-  platformKey: string
-  selectedCategoryIds: number[]
+const categories = defineModel<CatalogItem[]>('state', { required: true })
+
+defineEmits<{
+  (e: 'onSelectAllInCategory', catId: number): void
 }>()
-
-const api = useCatalogApi()
-
-const { data, status } = useAsyncData(`${getCatalogQueryKey()}-feed`, api.getCatalog, {
-  transform: (data) => {
-    const mapped = data.map((item) => ({
-      id: item.id,
-      name: item.name,
-      parent_id: item.parent_id,
-      vid: item.vid,
-      isChecked: selectedCategoryIds.includes(item.id)
-    }))
-
-    return groupCatalogItems(mapped)
-  },
-  lazy: true,
-  getCachedData(key, nuxtApp, _context) {
-    return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
-  }
-})
-
-// function toggleCategoryChecked(parentId: number) {
-//   if (!data.value) {
-//     return
-//   }
-
-//   data.value.forEach((parent) => {
-//     if (parent.id === parentId) {
-//       const hasChecked = parent.child.some((child) => child.isChecked)
-//       parent.child.forEach((child) => (child.isChecked = !hasChecked))
-//     }
-//   })
-// }
-
-function setAllChecked(parentId: number) {
-  if (!data.value) {
-    return
-  }
-
-  data.value.forEach((parent) => {
-    if (parent.id === parentId) {
-      parent.child.forEach((child) => (child.isChecked = true))
-    }
-  })
-}
 </script>
 
 <template>
-  <div>
-    <n-space justify="center" v-if="status === 'pending'">
-      <n-spin size="medium" />
-    </n-space>
-    <n-space v-if="status === 'success' && data && data.length > 0" vertical>
-      <div v-for="parent in data" :key="parent.id">
-        <div class="parent">
-          <span class="parent__item">{{ parent.name }}</span>
-          <n-button size="tiny" quaternary type="primary" @click="setAllChecked(parent.id)"
-            >Выбрать все</n-button
-          >
-        </div>
-        <div class="child" v-for="child in parent.child" :key="child.id">
-          <n-checkbox v-model:checked="child.isChecked"
-            ><span class="child__item">{{ child.name }}</span></n-checkbox
-          >
-        </div>
+  <n-space vertical>
+    <div v-for="parent in categories" :key="parent.id">
+      <div class="parent">
+        <span class="parent__item">{{ parent.name }}</span>
+        <!-- <n-button
+          size="tiny"
+          quaternary
+          type="primary"
+          @click="$emit('onSelectAllInCategory', parent.id)"
+          >Выбрать все</n-button
+        > -->
       </div>
-    </n-space>
-  </div>
+      <div class="child" v-for="child in parent.child" :key="child.id">
+        <n-checkbox v-model:checked="child.isChecked"
+          ><span class="child__item">{{ child.name }}</span></n-checkbox
+        >
+      </div>
+    </div>
+  </n-space>
 </template>
 
 <style scoped>

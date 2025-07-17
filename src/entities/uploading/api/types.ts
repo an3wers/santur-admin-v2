@@ -1,6 +1,6 @@
 export interface ExportConstructorDto {
-  catalog: number[]
-  brends: string[]
+  excludedCategories: number[]
+  excludedBrends: string[]
   znaks: {
     znak: string
     incash: boolean
