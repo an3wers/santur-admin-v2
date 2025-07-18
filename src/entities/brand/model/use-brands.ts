@@ -1,17 +1,14 @@
 import { getBrandsKey, useBrandApi, type BrandLetter } from '~/entities/brand'
 
-export const useBrands = async (
-  queryKey = getBrandsKey(),
-  options: {
-    immediate?: boolean
-    lazy?: boolean
-    transformFn?: <T extends U, U = T>(data: T) => U
-  }
-) => {
-  const { immediate = true, lazy = false, transformFn = (data) => data } = options
+interface Options {
+  immediate?: boolean
+  lazy?: boolean
+  transform?: <T extends { brends: any[]; letters: any[] }, U = T>(data: T) => U
+}
 
+export const useBrands = async (queryKey = getBrandsKey(), options?: Options) => {
   const brandsOptions = reactive({
-    letter: 'A', // default "A"
+    letter: 'A',
     search: '',
     status: '', // publish status 'Y' | 'N' | ''
     statusDescr: '', // 'Y' | 'N' | ''
@@ -40,9 +37,9 @@ export const useBrands = async (
     () => api.getBrands(brandsOptions),
     {
       watch: [brandsOptions],
-      transform: transformFn,
-      immediate,
-      lazy
+      transform: options?.transform || ((data) => data),
+      immediate: options?.immediate || true,
+      lazy: options?.lazy || false
     }
   )
 

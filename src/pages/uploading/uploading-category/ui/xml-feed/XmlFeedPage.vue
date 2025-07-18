@@ -18,6 +18,8 @@ import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
 import type { CatalogItem } from '../../model/types'
 import { useSaveConstructor, useUploadingApi } from '~/entities/uploading'
 import XmlFeedZnaks from './XmlFeedZnaks.vue'
+import { useBrands } from '~/entities/brand'
+import type { BrandsDto } from '~/entities/brand/api/brand-schemas'
 
 const link = 'https://isantur.ru/Client/GetCatalogFeed'
 
@@ -34,15 +36,19 @@ const {
   data: exportConstructor,
   status: exportConstructorStatus,
   refresh: refreshExportConstructor
-} = useAsyncData('export-constructor', () => api.getExportConstructor(currentPlatform.value), {
-  lazy: true
-})
+} = useAsyncData(
+  'export-constructor-xml-feed',
+  () => api.getExportConstructor(currentPlatform.value),
+  {
+    lazy: true
+  }
+)
 
 const {
   data: catalogData,
   status: catalogDataStatus,
   execute: catalogDataExecute
-} = useAsyncData('catalog-struct', getCatalog, {
+} = useAsyncData('catalog-xml-feed', getCatalog, {
   transform: (data) => {
     const mapped = data.map((item) => ({
       id: item.id,
@@ -57,6 +63,31 @@ const {
   immediate: false
 })
 
+type BrandsData = {
+  brends: { id: number; name: string; published: boolean; isChecked: boolean }[]
+  letters: { letter: string; qty: number; lng: string }[]
+}
+
+const {
+  data: brands,
+  status: brandsStatus,
+  execute: brandsExecute
+} = await useBrands('brands-xml-feed', {
+  transform: (data) => {
+    const brendsMapped = data.brends.map((b) => {
+      return {
+        id: b.id,
+        name: b.name,
+        published: b.published,
+        isChecked: !exportConstructor.value?.excludedBrends?.includes(b.name) || true
+      }
+    })
+
+    return { brends: brendsMapped, letters: data.letters } as any
+  },
+  immediate: false
+})
+
 watchEffect(() => {
   if (
     activeTab.value === 'Каталог' &&
@@ -64,6 +95,16 @@ watchEffect(() => {
     exportConstructorStatus.value === 'success'
   ) {
     catalogDataExecute()
+  }
+})
+
+watchEffect(() => {
+  if (
+    activeTab.value === 'Бренды' &&
+    brandsStatus.value === 'idle' &&
+    exportConstructorStatus.value === 'success'
+  ) {
+    brandsExecute()
   }
 })
 
@@ -85,7 +126,11 @@ async function updateHandler() {
   }
 
   const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
-  const excludedBrends = getExcludedBrandsNames()
+
+  // WTF TYPESCRIPT!!!
+  const excludedBrends = getExcludedBrandsNames(
+    (brands.value as unknown as BrandsData)?.brends || []
+  )
 
   await saveConstructor(currentPlatform.value, {
     excludedCategories,
@@ -110,7 +155,7 @@ function getInvalidatedKeys(catIds: number[], _brands: string[]) {
   const invalidatedKeys: string[] = []
 
   if (JSON.stringify(catIds) !== JSON.stringify(exportConstructor.value?.excludedCategories)) {
-    invalidatedKeys.push('catalog-struct')
+    invalidatedKeys.push('catalog-xml-feed')
   }
 
   // TODO: Реализовать проверку по брендам
@@ -137,9 +182,15 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
   return result
 }
 
-function getExcludedBrandsNames() {
-  // TODO: Реализовать
-  return exportConstructor.value?.excludedBrends || []
+function getExcludedBrandsNames(payload: BrandsData['brends']) {
+  const result: string[] = []
+  payload.forEach((item) => {
+    if (!item.isChecked) {
+      result.push(item.name)
+    }
+  })
+
+  return result
 }
 </script>
 

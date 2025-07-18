@@ -23,9 +23,9 @@ defineEmits<{
         > -->
       </div>
       <div class="child" v-for="child in parent.child" :key="child.id">
-        <n-checkbox v-model:checked="child.isChecked"
-          ><span class="child__item">{{ child.name }}</span></n-checkbox
-        >
+        <div class="child__item">
+          <n-checkbox v-model:checked="child.isChecked">{{ child.name }}</n-checkbox>
+        </div>
       </div>
     </div>
   </n-space>
@@ -48,5 +48,6 @@ defineEmits<{
 
 .child__item {
   font-weight: 400;
+  margin-top: 0.25rem;
 }
 </style>
