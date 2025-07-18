@@ -11,3 +11,5 @@ export {
   type BrandSaveFilesDto,
   type BrandLetter
 } from './api/brand-schemas'
+
+export { useBrands } from './model/use-brands'

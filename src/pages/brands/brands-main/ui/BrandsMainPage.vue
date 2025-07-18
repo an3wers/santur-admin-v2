@@ -14,12 +14,12 @@ import {
   NIcon,
   useMessage
 } from 'naive-ui'
-import { useBrands } from '../model/use-brands'
+import { getBrandsKey, useBrands } from '@/entities/brand'
 import { useNavStore } from '~/shared/navigation'
 import { useChangePublishBrand } from '~/entities/brand'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
-import { descriptionOptions, logoOptions, publishOptions } from '../model/filters-options'
+import { descriptionOptions, logoOptions, publishOptions } from '../utils/filters-options'
 import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
 
 const navStore = useNavStore()
@@ -37,7 +37,7 @@ const {
   updatePublishForBrandsItem,
   clearAllFilters,
   error
-} = await useBrands()
+} = await useBrands(getBrandsKey(), { lazy: true })
 
 if (status.value === 'error') {
   console.error(error.value?.message)

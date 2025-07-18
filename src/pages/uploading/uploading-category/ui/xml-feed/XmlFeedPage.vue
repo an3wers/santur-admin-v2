@@ -80,22 +80,12 @@ const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor()
 const message = useMessage()
 
 async function updateHandler() {
-  if (!catalogData.value?.data) {
-    return
-  }
-
-  if (!exportConstructor.value) {
+  if (!catalogData.value?.data || !exportConstructor.value) {
     return
   }
 
   const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
   const excludedBrends = getExcludedBrandsNames()
-
-  // console.log('@', {
-  //   excludedCategories,
-  //   excludedBrends,
-  //   znaks: exportConstructor.value.znaks
-  // })
 
   await saveConstructor(currentPlatform.value, {
     excludedCategories,
@@ -109,8 +99,23 @@ async function updateHandler() {
     message.error('Произошла ошибка при сохранении')
   }
 
+  const invalidatedKeys = getInvalidatedKeys(excludedCategories, excludedBrends)
+
   await refreshExportConstructor()
-  clearNuxtData(['catalog-struct'])
+
+  clearNuxtData(invalidatedKeys)
+}
+
+function getInvalidatedKeys(catIds: number[], _brands: string[]) {
+  const invalidatedKeys: string[] = []
+
+  if (JSON.stringify(catIds) !== JSON.stringify(exportConstructor.value?.excludedCategories)) {
+    invalidatedKeys.push('catalog-struct')
+  }
+
+  // TODO: Реализовать проверку по брендам
+
+  return invalidatedKeys
 }
 
 function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
@@ -133,12 +138,9 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
 }
 
 function getExcludedBrandsNames() {
+  // TODO: Реализовать
   return exportConstructor.value?.excludedBrends || []
 }
-
-// function getZnaksOptions() {
-//   return exportConstructor.value?.znaks
-// }
 </script>
 
 <template>
