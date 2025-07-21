@@ -18,8 +18,9 @@ import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
 import type { CatalogItem } from '../../model/types'
 import { useSaveConstructor, useUploadingApi } from '~/entities/uploading'
 import XmlFeedZnaks from './XmlFeedZnaks.vue'
-import { useBrands } from '~/entities/brand'
-import type { BrandsDto } from '~/entities/brand/api/brand-schemas'
+import XmlFeedBrands from './XmlFeedBrands.vue'
+import { BrandLatters } from '~/widgets/brand'
+import { useBrands } from '../../model/use-brands'
 
 const link = 'https://isantur.ru/Client/GetCatalogFeed'
 
@@ -55,7 +56,7 @@ const {
       name: item.name,
       parent_id: item.parent_id,
       vid: item.vid,
-      isChecked: !exportConstructor.value?.excludedCategories?.includes(item.id) || true
+      isChecked: !exportConstructor.value?.excludedCategories?.includes(item.id)
     }))
 
     return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
@@ -63,29 +64,24 @@ const {
   immediate: false
 })
 
-type BrandsData = {
-  brends: { id: number; name: string; published: boolean; isChecked: boolean }[]
-  letters: { letter: string; qty: number; lng: string }[]
-}
-
 const {
-  data: brands,
+  excludedBrands,
+  toggleExcludedBrand,
+  initExcludedBrands,
+  lettersRus,
+  lettersEng,
+  brands,
+  getBrands,
+  currentLetter,
   status: brandsStatus,
-  execute: brandsExecute
-} = await useBrands('brands-xml-feed', {
-  transform: (data) => {
-    const brendsMapped = data.brends.map((b) => {
-      return {
-        id: b.id,
-        name: b.name,
-        published: b.published,
-        isChecked: !exportConstructor.value?.excludedBrends?.includes(b.name) || true
-      }
-    })
+  setLetter,
+  resetState: resetBrandsState
+} = useBrands()
 
-    return { brends: brendsMapped, letters: data.letters } as any
-  },
-  immediate: false
+watchEffect(() => {
+  if (exportConstructorStatus.value === 'success') {
+    initExcludedBrands(exportConstructor.value?.excludedBrends || [])
+  }
 })
 
 watchEffect(() => {
@@ -104,7 +100,7 @@ watchEffect(() => {
     brandsStatus.value === 'idle' &&
     exportConstructorStatus.value === 'success'
   ) {
-    brandsExecute()
+    getBrands()
   }
 })
 
@@ -127,14 +123,9 @@ async function updateHandler() {
 
   const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
 
-  // WTF TYPESCRIPT!!!
-  const excludedBrends = getExcludedBrandsNames(
-    (brands.value as unknown as BrandsData)?.brends || []
-  )
-
   await saveConstructor(currentPlatform.value, {
     excludedCategories,
-    excludedBrends,
+    excludedBrends: excludedBrands.value,
     znaks: exportConstructor.value.znaks
   })
 
@@ -144,21 +135,19 @@ async function updateHandler() {
     message.error('Произошла ошибка при сохранении')
   }
 
-  const invalidatedKeys = getInvalidatedKeys(excludedCategories, excludedBrends)
-
+  const invalidatedKeys = getInvalidatedKeys(excludedCategories)
+  resetBrandsState()
+  
   await refreshExportConstructor()
-
   clearNuxtData(invalidatedKeys)
 }
 
-function getInvalidatedKeys(catIds: number[], _brands: string[]) {
+function getInvalidatedKeys(catIds: number[]) {
   const invalidatedKeys: string[] = []
 
   if (JSON.stringify(catIds) !== JSON.stringify(exportConstructor.value?.excludedCategories)) {
     invalidatedKeys.push('catalog-xml-feed')
   }
-
-  // TODO: Реализовать проверку по брендам
 
   return invalidatedKeys
 }
@@ -176,17 +165,6 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
           result.push(c.id)
         }
       })
-    }
-  })
-
-  return result
-}
-
-function getExcludedBrandsNames(payload: BrandsData['brends']) {
-  const result: string[] = []
-  payload.forEach((item) => {
-    if (!item.isChecked) {
-      result.push(item.name)
     }
   })
 
@@ -232,7 +210,24 @@ function getExcludedBrandsNames(payload: BrandsData['brends']) {
                 </n-space>
                 <XmlFeedCatalog v-if="catalogData?.data" v-model:state="catalogData.data" />
               </n-tab-pane>
-              <n-tab-pane :name="tabs[1]" :tab="tabs[1]"> В разработке </n-tab-pane>
+              <n-tab-pane :name="tabs[1]" :tab="tabs[1]">
+                <XmlFeedBrands
+                  :data="brands?.brends || []"
+                  :status="brandsStatus"
+                  @on-update="toggleExcludedBrand"
+                >
+                  <template #letters>
+                    <BrandLatters
+                      v-if="lettersEng.length || lettersRus.length"
+                      :letters-eng="lettersEng"
+                      :letters-rus="lettersRus"
+                      :status="brandsStatus"
+                      :current-letter="currentLetter"
+                      @on-letter-click="setLetter($event)"
+                    />
+                  </template>
+                </XmlFeedBrands>
+              </n-tab-pane>
             </n-tabs>
           </n-card>
         </div>

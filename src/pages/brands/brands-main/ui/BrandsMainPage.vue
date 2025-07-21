@@ -21,6 +21,7 @@ import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
 import { descriptionOptions, logoOptions, publishOptions } from '../utils/filters-options'
 import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
+import { BrandLatters } from '~/widgets/brand'
 
 const navStore = useNavStore()
 const title = computed(() => navStore.currentNavigationMenu?.label ?? '')
@@ -37,7 +38,7 @@ const {
   updatePublishForBrandsItem,
   clearAllFilters,
   error
-} = await useBrands(getBrandsKey(), { lazy: true })
+} = await useBrands(getBrandsKey(), { lazy: false })
 
 if (status.value === 'error') {
   console.error(error.value?.message)
@@ -48,11 +49,11 @@ if (status.value === 'error') {
   })
 }
 
-function lettersHandler(letter: string) {
-  if (brandsOptions.letter !== letter) {
-    setBrandsOptions({ letter })
-  }
-}
+// function lettersHandler(letter: string) {
+//   if (brandsOptions.letter !== letter) {
+//     setBrandsOptions({ letter })
+//   }
+// }
 
 const message = useMessage()
 
@@ -93,31 +94,14 @@ watch(searchValue, (val) => setBrandsOptions({ search: val, letter: val ? '' : '
           <n-button attr-type="button" disabled type="primary">Новый</n-button>
         </template> -->
       </page-title>
-
-      <div v-if="lettersEng.length || lettersRus.length" class="letters-container">
-        <div class="letters-row">
-          <n-button
-            v-for="item in lettersEng"
-            size="small"
-            :disabled="status === 'pending'"
-            :type="brandsOptions.letter === item.letter ? 'primary' : 'default'"
-            :key="item.letter"
-            @click="lettersHandler(item.letter)"
-            >{{ item.letter }}</n-button
-          >
-        </div>
-        <div class="letters-row">
-          <n-button
-            v-for="item in lettersRus"
-            size="small"
-            :disabled="status === 'pending'"
-            :type="brandsOptions.letter === item.letter ? 'primary' : 'default'"
-            :key="item.letter"
-            @click="lettersHandler(item.letter)"
-            >{{ item.letter }}</n-button
-          >
-        </div>
-      </div>
+      <BrandLatters
+        v-if="lettersEng.length || lettersRus.length"
+        :letters-eng="lettersEng"
+        :letters-rus="lettersRus"
+        :status="status"
+        :current-letter="brandsOptions.letter"
+        @on-letter-click="setBrandsOptions({ letter: $event })"
+      />
 
       <n-spin :show="status === 'pending'">
         <div class="layout">
@@ -241,18 +225,6 @@ watch(searchValue, (val) => setBrandsOptions({ search: val, letter: val ? '' : '
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.letters-container {
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.letters-row {
-  display: flex;
-  gap: 0.25rem;
 }
 
 .item-row {

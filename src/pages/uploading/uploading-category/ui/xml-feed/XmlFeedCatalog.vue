@@ -14,13 +14,6 @@ defineEmits<{
     <div v-for="parent in categories" :key="parent.id">
       <div class="parent">
         <span class="parent__item">{{ parent.name }}</span>
-        <!-- <n-button
-          size="tiny"
-          quaternary
-          type="primary"
-          @click="$emit('onSelectAllInCategory', parent.id)"
-          >Выбрать все</n-button
-        > -->
       </div>
       <div class="child" v-for="child in parent.child" :key="child.id">
         <div class="child__item">

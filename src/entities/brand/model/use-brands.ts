@@ -16,6 +16,7 @@ export const useBrands = async (queryKey = getBrandsKey(), options?: Options) =>
   })
 
   type OptionsType = typeof brandsOptions
+  type OptionsTypeKeys = keyof OptionsType
 
   const isFiltered = computed(() => {
     return Boolean(brandsOptions.status || brandsOptions.statusDescr || brandsOptions.statusImg)
@@ -23,8 +24,12 @@ export const useBrands = async (queryKey = getBrandsKey(), options?: Options) =>
 
   function setBrandsOptions(options: Partial<OptionsType>) {
     Object.keys(options).forEach((key) => {
-      const val = options[key as keyof OptionsType]
+      const val = options[key as OptionsTypeKeys]
       if (val !== undefined) {
+        if (key === 'letter' && val === brandsOptions[key]) {
+          return
+        }
+
         brandsOptions[key as keyof OptionsType] = val
       }
     })
@@ -32,14 +37,15 @@ export const useBrands = async (queryKey = getBrandsKey(), options?: Options) =>
 
   const api = useBrandApi()
 
+
   const { data, status, execute, error } = await useAsyncData(
     queryKey,
     () => api.getBrands(brandsOptions),
     {
       watch: [brandsOptions],
       transform: options?.transform || ((data) => data),
-      immediate: options?.immediate || true,
-      lazy: options?.lazy || false
+      immediate: options && 'immediate' in options ? options.immediate : true,
+      lazy: options && 'lazy' in options ? options.lazy : false
     }
   )
 

@@ -1,0 +1,1 @@
+export { default as BrandLatters } from './ui/BrandLatters.vue'
