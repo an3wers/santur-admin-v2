@@ -22,10 +22,10 @@ import XmlFeedBrands from './XmlFeedBrands.vue'
 import { BrandLatters } from '~/widgets/brand'
 import { useBrands } from '../../model/use-brands'
 
-const link = 'https://isantur.ru/Client/GetCatalogFeed'
-
 const currentPlatform = ref('YAND')
 const platformOptions = [{ label: 'Яндекс', value: 'YAND' }]
+
+const link = computed(() => `https://isantur.ru/Client/GetCatalogFeed?key=${currentPlatform.value}`)
 
 const tabs = ['Каталог', 'Бренды'] as const
 const activeTab = ref<(typeof tabs)[number]>('Каталог')
@@ -105,11 +105,11 @@ watchEffect(() => {
 })
 
 const openInNewTabHandler = () => {
-  window.open(link, '_blank')
+  window.open(link.value, '_blank')
 }
 const copyToClipboard = useCopyToClipboard()
 const copyHandler = async () => {
-  await copyToClipboard(link)
+  await copyToClipboard(link.value)
 }
 
 const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor()
@@ -137,7 +137,7 @@ async function updateHandler() {
 
   const invalidatedKeys = getInvalidatedKeys(excludedCategories)
   resetBrandsState()
-  
+
   await refreshExportConstructor()
   clearNuxtData(invalidatedKeys)
 }
