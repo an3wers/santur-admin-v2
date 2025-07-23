@@ -39,6 +39,7 @@
     "nuxt": "^3.17.3",
     "nuxtjs-naive-ui": "^1.0.2",
     "pinia": "^3.0.2",
+    "tiptap-extension-resize-image": "^1.2.3",
     "vue": "latest",
     "vue-router": "latest",
     "zod": "^3.25.7"

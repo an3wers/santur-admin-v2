@@ -12,6 +12,7 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
+import ImageResize from 'tiptap-extension-resize-image'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
 import {
@@ -70,7 +71,8 @@ const editor = useEditor({
     Underline,
     TextAlign.configure({
       types: ['paragraph', 'heading', 'image']
-    })
+    }),
+    ImageResize
     // Youtube.configure({
     //   nocookie: true,
     //   controls: false,
