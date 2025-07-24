@@ -17,7 +17,8 @@ export const pvzSchema = z.object({
   isActive: z.boolean(),
   name: z.string(),
   ownerid: z.number(),
-  payVariants: z.string(),
+  payVariants: z.string().optional(),
+  payvariants: z.string().optional(),
   phones: z.string(),
   times: z.string()
 })
