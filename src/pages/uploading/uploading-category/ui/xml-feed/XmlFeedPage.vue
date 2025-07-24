@@ -170,6 +170,24 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
 
   return result
 }
+
+function toggleCheckedAllInCategory(catId: number) {
+  catalogData.value?.data?.forEach((item) => {
+    if (item.id === catId) {
+      const isCheckedAll = item.child?.every((c) => c.isChecked)
+
+      if (isCheckedAll) {
+        item.child?.forEach((c) => {
+          c.isChecked = false
+        })
+      } else {
+        item.child?.forEach((c) => {
+          c.isChecked = true
+        })
+      }
+    }
+  })
+}
 </script>
 
 <template>
@@ -208,7 +226,11 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
                 <n-space justify="center" v-if="catalogDataStatus === 'pending'">
                   <n-spin size="small" />
                 </n-space>
-                <XmlFeedCatalog v-if="catalogData?.data" v-model:state="catalogData.data" />
+                <XmlFeedCatalog
+                  v-if="catalogData?.data"
+                  v-model:state="catalogData.data"
+                  @on-toggle-check-all-in-category="toggleCheckedAllInCategory"
+                />
               </n-tab-pane>
               <n-tab-pane :name="tabs[1]" :tab="tabs[1]">
                 <XmlFeedBrands

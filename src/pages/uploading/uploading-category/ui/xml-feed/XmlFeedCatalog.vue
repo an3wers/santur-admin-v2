@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { NSpace, NCheckbox } from 'naive-ui'
+import { NSpace, NCheckbox, NButton } from 'naive-ui'
 import type { CatalogItem } from '../../model/types'
 
 const categories = defineModel<CatalogItem[]>('state', { required: true })
 
 defineEmits<{
-  (e: 'onSelectAllInCategory', catId: number): void
+  (e: 'onToggleCheckAllInCategory', catId: number): void
 }>()
 </script>
 
@@ -14,6 +14,13 @@ defineEmits<{
     <div v-for="parent in categories" :key="parent.id">
       <div class="parent">
         <span class="parent__item">{{ parent.name }}</span>
+        <n-button
+          size="tiny"
+          secondary
+          type="primary"
+          @click="$emit('onToggleCheckAllInCategory', parent.id)"
+          >{{ parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все' }}</n-button
+        >
       </div>
       <div class="child" v-for="child in parent.child" :key="child.id">
         <div class="child__item">
