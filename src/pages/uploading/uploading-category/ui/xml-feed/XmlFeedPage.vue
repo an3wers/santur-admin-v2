@@ -23,7 +23,11 @@ import { BrandLatters } from '~/widgets/brand'
 import { useBrands } from '../../model/use-brands'
 
 const currentPlatform = ref('YAND')
-const platformOptions = [{ label: 'Яндекс', value: 'YAND' }]
+
+const platformOptions = [
+  { label: 'Яндекс', value: 'YAND' },
+  { label: 'По умолчанию', value: 'default' }
+]
 
 const link = computed(() => `https://isantur.ru/Client/GetCatalogFeed?key=${currentPlatform.value}`)
 
@@ -41,7 +45,8 @@ const {
   'export-constructor-xml-feed',
   () => api.getExportConstructor(currentPlatform.value),
   {
-    lazy: true
+    lazy: true,
+    watch: [currentPlatform]
   }
 )
 
@@ -78,9 +83,16 @@ const {
   resetState: resetBrandsState
 } = useBrands()
 
+// watch(currentPlatform, () => {
+//   catalogDataStatus.value = 'idle'
+//   brandsStatus.value = 'idle'
+// })
+
 watchEffect(() => {
   if (exportConstructorStatus.value === 'success') {
     initExcludedBrands(exportConstructor.value?.excludedBrends || [])
+    catalogDataStatus.value = 'idle'
+    brandsStatus.value = 'idle'
   }
 })
 
@@ -123,11 +135,17 @@ async function updateHandler() {
 
   const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
 
-  await saveConstructor(currentPlatform.value, {
+  await saveConstructor('santur:ur', {
     excludedCategories,
     excludedBrends: excludedBrands.value,
     znaks: exportConstructor.value.znaks
   })
+
+  // await saveConstructor(currentPlatform.value, {
+  //   excludedCategories,
+  //   excludedBrends: excludedBrands.value,
+  //   znaks: exportConstructor.value.znaks
+  // })
 
   if (saveConstructorStatus.value === 'success') {
     message.success('Данные успешно сохранены')
@@ -273,7 +291,7 @@ function toggleCheckedAllInCategory(catId: number) {
 }
 
 .row__input {
-  max-width: 320px;
+  max-width: 400px;
   flex-shrink: 1;
 }
 
