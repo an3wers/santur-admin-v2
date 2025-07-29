@@ -55,6 +55,14 @@ export const useNavStore = defineStore('navigation', () => {
     return mapNavigation.value?.[firstLevelName.value]
   })
 
+  const currentSubmenuItem = computed(() => {
+    if (currentNavigationMenu.value) {
+      return currentNavigationMenu.value.items.find((item) => item.id === secondLevelId.value)
+    } else {
+      return null
+    }
+  })
+
   async function loadMenu(recource: string): Promise<void> {
     const data = await api.getNavigation(recource)
     const dataWithSomeOtherData = [...data, createUploadingMenuItem()]
@@ -142,7 +150,16 @@ export const useNavStore = defineStore('navigation', () => {
           categoryId: 0,
           id: 1,
           items: [],
-          label: 'XML feed',
+          label: 'XML-фиды',
+          modelName: 'uploading',
+          needSubmenu: false
+        },
+        {
+          app: 'santur',
+          categoryId: 0,
+          id: 2,
+          items: [],
+          label: 'santur.ru',
           modelName: 'uploading',
           needSubmenu: false
         }
@@ -166,6 +183,7 @@ export const useNavStore = defineStore('navigation', () => {
     navNameList,
     currentSubmenu,
     currentNavigationMenu,
+    currentSubmenuItem,
     loadMenu,
     loadResurces,
     $reset,

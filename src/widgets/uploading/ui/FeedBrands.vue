@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from '#app'
-import type { BrandsData } from '../../model/types'
+import type { BrandsData } from '../model/types'
 import { NCheckbox, NSpin } from 'naive-ui'
 
 defineProps<{

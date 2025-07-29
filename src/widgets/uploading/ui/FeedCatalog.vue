@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NSpace, NCheckbox, NButton } from 'naive-ui'
-import type { CatalogItem } from '../../model/types'
+import type { CatalogItem } from '../model/types'
 
 const categories = defineModel<CatalogItem[]>('state', { required: true })
 

@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import {
-  NCard,
-  NInput,
-  NButton,
-  NIcon,
-  NSelect,
-  NSpace,
-  NSpin,
-  useMessage,
-  NTabs,
-  NTabPane
-} from 'naive-ui'
-import { Copy, ExternalLink } from '@vicons/tabler'
-import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
-import XmlFeedCatalog from './XmlFeedCatalog.vue'
-import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
-import type { CatalogItem } from '../../model/types'
-import { useSaveConstructor, useUploadingApi } from '~/entities/uploading'
-import XmlFeedZnaks from './XmlFeedZnaks.vue'
-import XmlFeedBrands from './XmlFeedBrands.vue'
-import { BrandLatters } from '~/widgets/brand'
-import { useBrands } from '../../model/use-brands'
+import { NCard, NSpace, NSpin, useMessage, NTabs, NTabPane } from 'naive-ui'
+import { groupCatalogItems, useCatalogApi } from '@/entities/catalog'
+import type { CatalogItem } from '@/widgets/uploading'
+import { useUploadingApi } from '@/entities/uploading'
+import { BrandLatters } from '@/widgets/brand'
+import { useBrands, useSaveConstructor } from '@/widgets/uploading'
+import FeedZnaks from '@/widgets/uploading/ui/FeedZnaks.vue'
+import FeedBrands from '@/widgets/uploading/ui/FeedBrands.vue'
+import FeedCatalog from '@/widgets/uploading/ui/FeedCatalog.vue'
+import FeedSelector from '@/widgets/uploading/ui/FeedSelector.vue'
+import { useFeed } from '@/widgets/uploading/model/use-feed'
+import { transformPlatformOptions } from '../utlils/transform-platform-options'
 
-const currentPlatform = ref('YAND')
+const { ctx } = defineProps<{ ctx: string }>()
 
-const platformOptions = [
-  { label: 'Яндекс', value: 'YAND' },
-  { label: 'По умолчанию', value: 'default' }
-]
+const { activeTab, currentPlatform, tabs, selectPlatform } = useFeed()
 
-const link = computed(() => `https://isantur.ru/Client/GetCatalogFeed?key=${currentPlatform.value}`)
+function init() {
+  if (ctx === '1') selectPlatform('YAND')
+  if (ctx === '2') selectPlatform('santur:ur')
+}
 
-const tabs = ['Каталог', 'Бренды'] as const
-const activeTab = ref<(typeof tabs)[number]>('Каталог')
+init()
 
 const api = useUploadingApi()
 const { getCatalog } = useCatalogApi()
+
+const {
+  data: platformOptionsData,
+  status: platformOptionsStatus,
+  execute: platformOptionsExecute
+} = useAsyncData(`catalog-filter-keys-${ctx}`, () => api.getCatalogFilterKeys(), {
+  transform: (data) => {
+    return transformPlatformOptions(ctx, data)
+  },
+  lazy: true
+})
 
 const {
   data: exportConstructor,
   status: exportConstructorStatus,
   refresh: refreshExportConstructor
 } = useAsyncData(
-  'export-constructor-xml-feed',
+  `export-constructor-xml-feed-${ctx}`,
   () => api.getExportConstructor(currentPlatform.value),
   {
     lazy: true,
@@ -54,7 +54,7 @@ const {
   data: catalogData,
   status: catalogDataStatus,
   execute: catalogDataExecute
-} = useAsyncData('catalog-xml-feed', getCatalog, {
+} = useAsyncData(`catalog-xml-feed-${ctx}`, getCatalog, {
   transform: (data) => {
     const mapped = data.map((item) => ({
       id: item.id,
@@ -82,11 +82,6 @@ const {
   setLetter,
   resetState: resetBrandsState
 } = useBrands()
-
-// watch(currentPlatform, () => {
-//   catalogDataStatus.value = 'idle'
-//   brandsStatus.value = 'idle'
-// })
 
 watchEffect(() => {
   if (exportConstructorStatus.value === 'success') {
@@ -116,36 +111,18 @@ watchEffect(() => {
   }
 })
 
-const openInNewTabHandler = () => {
-  window.open(link.value, '_blank')
-}
-const copyToClipboard = useCopyToClipboard()
-const copyHandler = async () => {
-  await copyToClipboard(link.value)
-}
-
 const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor()
 
 const message = useMessage()
 
 async function updateHandler() {
-  if (!catalogData.value?.data || !exportConstructor.value) {
-    return
-  }
+  const excludedCategories = getExcludedCategoryIds(catalogData.value!.data)
 
-  const excludedCategories = getExcludedCategoryIds(catalogData.value.data)
-
-  await saveConstructor('santur:ur', {
+  await saveConstructor(currentPlatform.value, {
     excludedCategories,
     excludedBrends: excludedBrands.value,
-    znaks: exportConstructor.value.znaks
+    znaks: exportConstructor.value!.znaks
   })
-
-  // await saveConstructor(currentPlatform.value, {
-  //   excludedCategories,
-  //   excludedBrends: excludedBrands.value,
-  //   znaks: exportConstructor.value.znaks
-  // })
 
   if (saveConstructorStatus.value === 'success') {
     message.success('Данные успешно сохранены')
@@ -153,21 +130,10 @@ async function updateHandler() {
     message.error('Произошла ошибка при сохранении')
   }
 
-  const invalidatedKeys = getInvalidatedKeys(excludedCategories)
   resetBrandsState()
+  clearNuxtData(`catalog-xml-feed-${ctx}`)
 
   await refreshExportConstructor()
-  clearNuxtData(invalidatedKeys)
-}
-
-function getInvalidatedKeys(catIds: number[]) {
-  const invalidatedKeys: string[] = []
-
-  if (JSON.stringify(catIds) !== JSON.stringify(exportConstructor.value?.excludedCategories)) {
-    invalidatedKeys.push('catalog-xml-feed')
-  }
-
-  return invalidatedKeys
 }
 
 function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
@@ -210,31 +176,12 @@ function toggleCheckedAllInCategory(catId: number) {
 
 <template>
   <n-space vertical size="large">
-    <n-spin :show="exportConstructorStatus === 'pending'">
-      <n-card>
-        <n-space vertical size="medium">
-          <div class="row">
-            <n-select
-              class="row__select"
-              v-model:value="currentPlatform"
-              :options="platformOptions"
-            />
-          </div>
-          <div class="row">
-            <n-input class="row__input" :value="link" readonly />
-            <div class="row__btns">
-              <n-button ghost @click="openInNewTabHandler">
-                <n-icon size="20px" :component="ExternalLink" />
-              </n-button>
-              <n-button ghost @click="copyHandler">
-                <n-icon size="20px" :component="Copy" />
-              </n-button>
-              <n-button type="primary" @click="updateHandler">Обновить выгрузку</n-button>
-            </div>
-          </div>
-        </n-space>
-      </n-card>
-    </n-spin>
+    <FeedSelector
+      :platform-options-data="platformOptionsData"
+      :platform-options-status="platformOptionsStatus"
+      @on-update-feed="updateHandler"
+      @on-after-success-save-key="platformOptionsExecute"
+    />
     <div v-if="exportConstructor">
       <div class="constructor-grid">
         <div class="constructor-grid__item">
@@ -244,14 +191,14 @@ function toggleCheckedAllInCategory(catId: number) {
                 <n-space justify="center" v-if="catalogDataStatus === 'pending'">
                   <n-spin size="small" />
                 </n-space>
-                <XmlFeedCatalog
+                <FeedCatalog
                   v-if="catalogData?.data"
                   v-model:state="catalogData.data"
                   @on-toggle-check-all-in-category="toggleCheckedAllInCategory"
                 />
               </n-tab-pane>
               <n-tab-pane :name="tabs[1]" :tab="tabs[1]">
-                <XmlFeedBrands
+                <FeedBrands
                   :data="brands?.brends || []"
                   :status="brandsStatus"
                   @on-update="toggleExcludedBrand"
@@ -266,13 +213,13 @@ function toggleCheckedAllInCategory(catId: number) {
                       @on-letter-click="setLetter($event)"
                     />
                   </template>
-                </XmlFeedBrands>
+                </FeedBrands>
               </n-tab-pane>
             </n-tabs>
           </n-card>
         </div>
         <div class="constructor-grid__item">
-          <XmlFeedZnaks v-model:state="exportConstructor.znaks" />
+          <FeedZnaks v-model:state="exportConstructor.znaks" />
         </div>
       </div>
     </div>
@@ -280,26 +227,6 @@ function toggleCheckedAllInCategory(catId: number) {
 </template>
 
 <style scoped>
-.row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.row__select {
-  max-width: 240px;
-  flex-shrink: 1;
-}
-
-.row__input {
-  max-width: 400px;
-  flex-shrink: 1;
-}
-
-.row__btns {
-  display: flex;
-  gap: 0.5rem;
-}
-
 .constructor-grid {
   display: grid;
   grid-template-columns: 1fr minmax(240px, 320px);

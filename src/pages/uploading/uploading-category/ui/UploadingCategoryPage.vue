@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { NSpace, NH1 } from 'naive-ui'
-import XmlFeedPage from '~/pages/uploading/uploading-category/ui/xml-feed/XmlFeedPage.vue'
 import { useNavStore } from '~/shared/navigation'
+import FeedProvider from '@/widgets/uploading/ui/FeedProvider.vue'
+import UploadingCategoryContainer from './UploadingCategoryContainer.vue'
 
 const navStore = useNavStore()
 const route = useRoute()
@@ -21,7 +22,9 @@ const title = computed(() => {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <XmlFeedPage />
+      <FeedProvider>
+        <UploadingCategoryContainer :ctx="$route.params.catId as string" />
+      </FeedProvider>
     </n-space>
   </div>
 </template>

@@ -2,10 +2,6 @@
 import { NCard, NTable, NCheckbox } from 'naive-ui'
 import type { ExportConstructorDto } from '~/entities/uploading'
 
-// defineProps<{
-//   state: ExportConstructorDto['znaks']
-// }>()
-
 const model = defineModel<ExportConstructorDto['znaks']>('state', { required: true })
 </script>
 
@@ -31,11 +27,6 @@ const model = defineModel<ExportConstructorDto['znaks']>('state', { required: tr
         </tr>
       </tbody>
     </n-table>
-    <!-- <div class="block">
-      <div class="row" v-for="item in model" :key="item.znak">
-        <span class="row__name">{{ item.znak }}</span>
-      </div>
-    </div> -->
   </n-card>
 </template>
 
