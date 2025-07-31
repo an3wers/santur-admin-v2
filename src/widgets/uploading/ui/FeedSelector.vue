@@ -10,15 +10,17 @@ import {
   NForm,
   NFormItem,
   type FormRules,
-  useMessage
+  useMessage,
+  NDropdown
 } from 'naive-ui'
-import { Copy, ExternalLink } from '@vicons/tabler'
+import { Copy, ExternalLink, Dots } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import { useFeed } from '../model/use-feed'
 import type { AsyncDataRequestStatus } from '#app'
 import { useSaveConstructorKey } from '../model/use-save-constructor-key'
+import { useRemoveFeed } from '../model/use-remove-feed'
 
-defineProps<{
+const { platformOptionsData } = defineProps<{
   platformOptionsData: { value: string; label: string }[] | null
   platformOptionsStatus: AsyncDataRequestStatus
 }>()
@@ -26,11 +28,39 @@ defineProps<{
 const emits = defineEmits<{
   (e: 'onUpdateFeed'): void
   (e: 'onAfterSuccessSaveKey'): void
+  (e: 'onRemovedKey'): void
 }>()
-
 const { platformLink, currentPlatform, selectPlatform, feedSettings } = useFeed()
 
-const isOpenAddNewKeyModal = ref(false)
+const dropdownOptions = computed(() => {
+  if (feedSettings.value.canEdit && feedSettings.value.canRemove) {
+    return [
+      { label: 'Изменить', key: 'edit' },
+      { label: 'Удалить', key: 'remove' }
+    ]
+  } else if (feedSettings.value.canEdit) {
+    return [{ label: 'Изменить', key: 'edit' }]
+  } else if (feedSettings.value.canRemove) {
+    return [{ label: 'Удалить', key: 'remove' }]
+  }
+
+  return []
+})
+
+type dropdownKeys = 'edit' | 'remove'
+
+function handleDropdown(key: dropdownKeys) {
+  switch (key) {
+    case 'edit':
+      editFeed()
+      break
+    case 'remove':
+      removeFeed()
+      break
+  }
+}
+
+const isOpenKeyModal = ref(false)
 
 const openInNewTabHandler = () => {
   window.open(platformLink.value, '_blank')
@@ -40,13 +70,52 @@ const copyHandler = async () => {
   await copyToClipboard(platformLink.value)
 }
 
-function removeFeed() {
-  message.info('Функционал еще не реализован')
+function addFeed() {
+  formMode.value = 'add'
+  isOpenKeyModal.value = true
 }
+const { removeFeedByKey, error: removeFeedError, status: removeFeedStatus } = useRemoveFeed()
+async function removeFeed() {
+  await removeFeedByKey(currentPlatform.value)
+
+  if (removeFeedStatus.value === 'success') {
+    emits('onRemovedKey')
+    message.success('Фид успешно удален')
+  } else if (removeFeedStatus.value === 'error') {
+    message.error(removeFeedError.value || 'Произошла ошибка при удалении')
+  }
+}
+
+function editFeed() {
+  formMode.value = 'edit'
+  isOpenKeyModal.value = true
+}
+
+const formMode = ref<'add' | 'edit'>('add')
+
+watch(formMode, () => {
+  if (formMode.value === 'add') {
+    keyFormValue.value = {
+      name: '',
+      key: ''
+    }
+  } else {
+    keyFormValue.value = {
+      name: platformOptionsData?.find((el) => el.value === currentPlatform.value)?.label || '',
+      key: platformOptionsData?.find((el) => el.value === currentPlatform.value)?.value || ''
+    }
+  }
+})
+
+watch(isOpenKeyModal, () => {
+  if (!isOpenKeyModal.value) {
+    formMode.value = 'add'
+  }
+})
 
 const formRef = ref()
 
-const newKeyFormValue = ref({
+const keyFormValue = ref({
   name: '',
   key: ''
 })
@@ -78,16 +147,19 @@ async function submitHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
-    // TODO: добавить параметр name в saveConstructorKey
-    // Валидация на бэкенде на уникальность name, key
-    const { name, key } = newKeyFormValue.value
+    const { name, key } = keyFormValue.value
 
-    await saveConstructorKey(key)
+    await saveConstructorKey(name, key)
 
     if (saveConstructorKeyStatus.value === 'success') {
-      newKeyFormValue.value.name = ''
-      newKeyFormValue.value.key = ''
       message.success('Фид успешно сохранен')
+
+      if (formMode.value === 'edit') {
+        isOpenKeyModal.value = false
+      }
+
+      keyFormValue.value.name = ''
+      keyFormValue.value.key = ''
       emits('onAfterSuccessSaveKey')
     } else if (saveConstructorKeyStatus.value === 'error') {
       throw new Error(saveConstructorKeyError.value)
@@ -110,11 +182,18 @@ async function submitHandler() {
           :value="currentPlatform"
           @update:value="selectPlatform"
         />
-        <div v-if="feedSettings.canAddNewKey" class="row-select__btn">
-          <n-button tertiary type="primary" @click="isOpenAddNewKeyModal = true"
-            >Добавить фид</n-button
+        <div class="row-select__btn">
+          <n-button v-if="feedSettings.canAddNewKey" @click="addFeed">Добавить фид</n-button>
+          <n-dropdown
+            v-if="feedSettings.canEdit || feedSettings.canRemove"
+            trigger="click"
+            :options="dropdownOptions"
+            @select="handleDropdown"
           >
-          <n-button tertiary type="error" @click="removeFeed">Удалить</n-button>
+            <n-button>
+              <n-icon size="20px" :component="Dots" />
+            </n-button>
+          </n-dropdown>
         </div>
       </div>
       <div class="row">
@@ -133,34 +212,38 @@ async function submitHandler() {
     <n-modal
       style="width: 100%; max-width: 480px"
       preset="dialog"
-      title="Добавить фид"
-      :show="isOpenAddNewKeyModal"
+      :title="formMode === 'add' ? 'Добавить фид' : 'Редактировать'"
+      :show="isOpenKeyModal"
       :show-icon="false"
-      @esc="isOpenAddNewKeyModal = false"
-      @close="isOpenAddNewKeyModal = false"
+      @esc="isOpenKeyModal = false"
+      @close="isOpenKeyModal = false"
     >
       <div class="form-container"></div>
       <n-form
         ref="formRef"
         label-placement="left"
         label-width="auto"
-        :model="newKeyFormValue"
+        :model="keyFormValue"
         :rules="formRules"
         :disabled="saveConstructorKeyStatus === 'pending'"
         @submit.prevent="submitHandler"
       >
         <n-form-item path="name" label="Название">
-          <n-input v-model:value="newKeyFormValue.name" placeholder="Введите название" />
+          <n-input v-model:value="keyFormValue.name" placeholder="Введите название" />
         </n-form-item>
         <n-form-item path="key" label="Ключ">
-          <n-input v-model:value="newKeyFormValue.key" placeholder="Введите ключ" />
+          <n-input
+            v-model:value="keyFormValue.key"
+            placeholder="Введите ключ"
+            :readonly="formMode === 'edit' || !feedSettings.canEditKey"
+          />
         </n-form-item>
         <div class="form-btn">
           <n-button
             :attr-type="'submit'"
             type="primary"
             :loading="saveConstructorKeyStatus === 'pending'"
-            >Добавить</n-button
+            >{{ formMode === 'add' ? 'Добавить' : 'Сохранить' }}</n-button
           >
         </div>
       </n-form>

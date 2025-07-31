@@ -1,55 +1,18 @@
+import type { FilterKeyDto } from '~/entities/uploading/api/types'
+
 export const transformPlatformOptions = (
   ctx: string,
-  options: string[]
+  options: FilterKeyDto[]
 ): { label: string; value: string }[] => {
   if (ctx === '1') {
     return options
-      .filter((el) => !el.includes('santur'))
-      .map((el) => {
-        if (el === 'YAND') {
-          return {
-            label: 'Яндекс',
-            value: 'YAND'
-          }
-        } else if (el === 'default') {
-          return {
-            label: 'По умолчанию',
-            value: 'default'
-          }
-        } else {
-          return {
-            label: el,
-            value: el
-          }
-        }
-      })
+      .filter((el) => !el.key.includes('santur'))
+      .map((el) => ({ label: el.title, value: el.key }))
   } else if (ctx === '2') {
     return options
-      .filter((el) => el.includes('santur'))
-      .map((el) => {
-        if (el === 'santur:ur') {
-          return {
-            label: 'Юр.лица',
-            value: 'santur:ur'
-          }
-        } else if (el === 'santur:phis') {
-          return {
-            label: 'Физ.лица',
-            value: 'santur:phis'
-          }
-        } else if (el === 'santur:guest') {
-          return {
-            label: 'Без авторизации',
-            value: 'santur:guest'
-          }
-        } else {
-          return {
-            label: el,
-            value: el
-          }
-        }
-      })
+      .filter((el) => el.key.includes('santur'))
+      .map((el) => ({ label: el.title, value: el.key }))
   } else {
-    return options.map((el) => ({ label: el, value: el }))
+    return options.map((el) => ({ label: el.title, value: el.key }))
   }
 }

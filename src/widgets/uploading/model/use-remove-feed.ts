@@ -1,18 +1,15 @@
 import { useUploadingApi } from '~/entities/uploading'
 
-export const useSaveConstructorKey = () => {
+export const useRemoveFeed = () => {
   const status = ref<ProcessStatus>('idle')
   const error = ref<string>('')
   const api = useUploadingApi()
-  async function saveConstructorKey(name: string, key: string) {
+
+  async function removeFeedByKey(key: string) {
     try {
       status.value = 'pending'
       error.value = ''
-      await api.saveCatalogFilterKey(key, {
-        key,
-        title: name,
-        descr: ''
-      })
+      await api.deleteCatalogFilterKey(key)
       status.value = 'success'
     } catch (e) {
       console.error(e)
@@ -20,6 +17,5 @@ export const useSaveConstructorKey = () => {
       status.value = 'error'
     }
   }
-
-  return { saveConstructorKey, status, error }
+  return { removeFeedByKey, status, error }
 }

@@ -16,9 +16,12 @@ const { ctx } = defineProps<{ ctx: string }>()
 
 const { activeTab, currentPlatform, tabs, selectPlatform } = useFeed()
 
+const DEFAULT_XML_FEED_KEY = 'YAND'
+const DEFAULT_SANTUR_FEED_KEY = 'santur:ur'
+
 function init() {
-  if (ctx === '1') selectPlatform('YAND')
-  if (ctx === '2') selectPlatform('santur:ur')
+  if (ctx === '1') selectPlatform(DEFAULT_XML_FEED_KEY) // 1 xml
+  if (ctx === '2') selectPlatform(DEFAULT_SANTUR_FEED_KEY) // 2 santur.ru
 }
 
 init()
@@ -43,7 +46,7 @@ const {
   refresh: refreshExportConstructor
 } = useAsyncData(
   `export-constructor-xml-feed-${ctx}`,
-  () => api.getExportConstructor(currentPlatform.value),
+  () => api.getCatalogFilter(currentPlatform.value),
   {
     lazy: true,
     watch: [currentPlatform]
@@ -111,7 +114,7 @@ watchEffect(() => {
   }
 })
 
-const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor()
+const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor(ctx)
 
 const message = useMessage()
 
@@ -172,13 +175,31 @@ function toggleCheckedAllInCategory(catId: number) {
     }
   })
 }
+
+async function removedFeedHandler() {
+  await platformOptionsExecute()
+
+  if (platformOptionsStatus.value === 'success') {
+    const key = ctx === '1' ? DEFAULT_XML_FEED_KEY : DEFAULT_SANTUR_FEED_KEY
+
+    const defaultKeyIsExist = platformOptionsData.value?.find((el) => el.value === key)
+
+    if (defaultKeyIsExist) {
+      selectPlatform(key)
+    } else if (platformOptionsData.value?.length) {
+      selectPlatform(platformOptionsData.value[0].value)
+    }
+  }
+}
 </script>
 
 <template>
+  <!-- TODO: Обработать пустое состояние -->
   <n-space vertical size="large">
     <FeedSelector
       :platform-options-data="platformOptionsData"
       :platform-options-status="platformOptionsStatus"
+      @on-removed-key="removedFeedHandler"
       @on-update-feed="updateHandler"
       @on-after-success-save-key="platformOptionsExecute"
     />

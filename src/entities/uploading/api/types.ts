@@ -8,3 +8,9 @@ export interface ExportConstructorDto {
     selected: boolean
   }[]
 }
+
+export interface FilterKeyDto {
+  key: string
+  title: string
+  descr: string
+}
