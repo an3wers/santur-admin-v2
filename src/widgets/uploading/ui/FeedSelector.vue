@@ -128,8 +128,19 @@ const formRules: FormRules = {
   },
   key: {
     required: true,
-    message: 'Введите ключ',
-    trigger: 'blur'
+    trigger: 'blur',
+    validator(_, value) {
+      if (!value) return Promise.reject('Введите ключ')
+
+      // Проверка на наличие только латинских символов, цифр, дефиса и двоеточия без пробелов
+      if (!/^[a-zA-Z0-9\-:]+$/.test(value)) {
+        return Promise.reject(
+          'Ключ должен содержать только латинские буквы, цифры, дефис ("-") и двоеточие (":") без пробелов'
+        )
+      }
+
+      return Promise.resolve()
+    }
   }
 }
 const message = useMessage()
