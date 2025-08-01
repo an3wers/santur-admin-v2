@@ -4,14 +4,15 @@ export const useSaveConstructorKey = () => {
   const status = ref<ProcessStatus>('idle')
   const error = ref<string>('')
   const api = useUploadingApi()
-  async function saveConstructorKey(name: string, key: string) {
+  async function saveConstructorKey(payload: { name: string; key: string; descr: string }) {
     try {
       status.value = 'pending'
       error.value = ''
+      const { descr, key, name } = payload
       await api.saveCatalogFilterKey(key, {
         key,
-        title: name,
-        descr: ''
+        descr,
+        title: name
       })
       status.value = 'success'
     } catch (e) {

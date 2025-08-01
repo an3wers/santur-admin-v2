@@ -11,7 +11,9 @@ import {
   NFormItem,
   type FormRules,
   useMessage,
-  NDropdown
+  NDropdown,
+  NP,
+  NText
 } from 'naive-ui'
 import { Copy, ExternalLink, Dots } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
@@ -21,7 +23,7 @@ import { useSaveConstructorKey } from '../model/use-save-constructor-key'
 import { useRemoveFeed } from '../model/use-remove-feed'
 
 const { platformOptionsData } = defineProps<{
-  platformOptionsData: { value: string; label: string }[] | null
+  platformOptionsData: { value: string; label: string; descr: string }[] | null
   platformOptionsStatus: AsyncDataRequestStatus
 }>()
 
@@ -31,7 +33,9 @@ const emits = defineEmits<{
   (e: 'onRemovedKey'): void
 }>()
 const { platformLink, currentPlatform, selectPlatform, feedSettings } = useFeed()
-
+const currentPlatformData = computed(() => {
+  return platformOptionsData?.find((el) => el.value === currentPlatform.value)
+})
 const dropdownOptions = computed(() => {
   if (feedSettings.value.canEdit && feedSettings.value.canRemove) {
     return [
@@ -97,12 +101,16 @@ watch(formMode, () => {
   if (formMode.value === 'add') {
     keyFormValue.value = {
       name: '',
-      key: ''
+      key: '',
+      descr: ''
     }
   } else {
+    const found = platformOptionsData?.find((el) => el.value === currentPlatform.value)
+
     keyFormValue.value = {
-      name: platformOptionsData?.find((el) => el.value === currentPlatform.value)?.label || '',
-      key: platformOptionsData?.find((el) => el.value === currentPlatform.value)?.value || ''
+      name: found?.label || '',
+      key: found?.value || '',
+      descr: found?.descr || ''
     }
   }
 })
@@ -117,7 +125,8 @@ const formRef = ref()
 
 const keyFormValue = ref({
   name: '',
-  key: ''
+  key: '',
+  descr: ''
 })
 
 const formRules: FormRules = {
@@ -141,6 +150,9 @@ const formRules: FormRules = {
 
       return Promise.resolve()
     }
+  },
+  descr: {
+    required: false
   }
 }
 const message = useMessage()
@@ -158,9 +170,9 @@ async function submitHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
-    const { name, key } = keyFormValue.value
+    const { name, key, descr } = keyFormValue.value
 
-    await saveConstructorKey(name, key)
+    await saveConstructorKey({ descr, key, name })
 
     if (saveConstructorKeyStatus.value === 'success') {
       message.success('Фид успешно сохранен')
@@ -219,6 +231,10 @@ async function submitHandler() {
           <n-button type="primary" @click="$emit('onUpdateFeed')">Обновить выгрузку</n-button>
         </div>
       </div>
+      <n-p v-if="currentPlatformData?.descr">
+        <n-text :depth="3" style="display: block">Описание</n-text>
+        {{ currentPlatformData.descr }}
+      </n-p>
     </n-space>
     <n-modal
       style="width: 100%; max-width: 480px"
@@ -248,6 +264,9 @@ async function submitHandler() {
             placeholder="Введите ключ"
             :readonly="formMode === 'edit' || !feedSettings.canEditKey"
           />
+        </n-form-item>
+        <n-form-item path="descr" label="Описание">
+          <n-input v-model:value="keyFormValue.descr" type="textarea" placeholder="" />
         </n-form-item>
         <div class="form-btn">
           <n-button
