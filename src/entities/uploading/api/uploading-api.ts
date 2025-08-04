@@ -10,7 +10,9 @@ export const useUploadingApi = () => {
   //   return _data
   // }
 
-  // Если сохраняем XML-фид
+  /**
+   * @deprecated использовать saveCatalogFilter с параметром makexmlfeed
+   */
   async function saveExportConstructor(key: string, data: ExportConstructorDto) {
     const res = await fetchWithToken<ExportConstructorDto>(
       'export/SaveExportConstructor?key=' + key,
@@ -24,11 +26,14 @@ export const useUploadingApi = () => {
     return _data
   }
 
-  async function saveCatalogFilter(key: string, data: ExportConstructorDto) {
-    const res = await fetchWithToken<ExportConstructorDto>('admin/SaveCatalogFilter?key=' + key, {
-      method: 'POST',
-      body: data
-    })
+  async function saveCatalogFilter(key: string, data: ExportConstructorDto, makexmlfeed: boolean) {
+    const res = await fetchWithToken<ExportConstructorDto>(
+      `admin/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
+      {
+        method: 'POST',
+        body: data
+      }
+    )
 
     const _data = checkError(res).data
     return _data

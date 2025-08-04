@@ -26,6 +26,8 @@ function init() {
 
 init()
 
+const makexmlfeed = computed(() => ctx === '1')
+
 const api = useUploadingApi()
 const { getCatalog } = useCatalogApi()
 
@@ -121,11 +123,17 @@ const message = useMessage()
 async function updateHandler() {
   const excludedCategories = getExcludedCategoryIds(catalogData.value!.data)
 
-  await saveConstructor(currentPlatform.value, {
-    excludedCategories,
-    excludedBrends: excludedBrands.value,
-    znaks: exportConstructor.value!.znaks
-  })
+  await saveConstructor(
+    currentPlatform.value,
+    {
+      excludedCategories,
+      excludedBrends: excludedBrands.value,
+      znaks: exportConstructor.value!.znaks,
+      title: exportConstructor.value!.title,
+      descr: exportConstructor.value!.descr
+    },
+    makexmlfeed.value
+  )
 
   if (saveConstructorStatus.value === 'success') {
     message.success('Данные успешно сохранены')
