@@ -183,6 +183,8 @@ async function submitHandler() {
 
       keyFormValue.value.name = ''
       keyFormValue.value.key = ''
+      keyFormValue.value.descr = ''
+
       emits('onAfterSuccessSaveKey')
     } else if (saveConstructorKeyStatus.value === 'error') {
       throw new Error(saveConstructorKeyError.value)
