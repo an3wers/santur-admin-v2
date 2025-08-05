@@ -1,11 +1,11 @@
 import { useNavStore } from '@/shared/navigation'
 
-const tabs = ['Каталог', 'Бренды'] as const
+const tabs = ['Каталог', 'Бренды', 'Значки'] as const
 
 interface FeedContext {
-  currentPlatform: Ref<string>
-  selectPlatform: (platformKey: string) => void
-  platformLink: ComputedRef<string>
+  currentFeed: Ref<string>
+  selectFeed: (feedKey: string) => void
+  feedLink: ComputedRef<string>
   tabs: typeof tabs
   activeTab: Ref<(typeof tabs)[number]>
   selectTab: (tab: (typeof tabs)[number]) => void
@@ -15,19 +15,20 @@ interface FeedContext {
     canEditKey: boolean
     canEditKeyName: boolean
     canRemove: boolean
+    canViewFeedLink: boolean
   }>
 }
 
 const feedKey = Symbol() as InjectionKey<Ref<number>>
 
 export function useFeedProvider() {
-  const currentPlatform = ref('YAND')
-  function selectPlatform(platformKey: string) {
-    currentPlatform.value = platformKey
+  const currentFeed = ref('YAND')
+  function selectFeed(platformKey: string) {
+    currentFeed.value = platformKey
   }
 
-  const platformLink = computed(
-    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentPlatform.value}`
+  const feedLink = computed(
+    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeed.value}`
   )
 
   const activeTab = ref<(typeof tabs)[number]>('Каталог')
@@ -36,6 +37,7 @@ export function useFeedProvider() {
     activeTab.value = tab
   }
   const navStore = useNavStore()
+
   const feedSettings = computed(() => {
     return {
       canAddNewKey: navStore.currentSubmenuItem?.id === 1, // xml-feed
@@ -43,14 +45,15 @@ export function useFeedProvider() {
       canEditKey: navStore.currentSubmenuItem?.id === 1,
       canEditKeyName:
         navStore.currentSubmenuItem?.id === 1 || navStore.currentSubmenuItem?.id === 2,
-      canRemove: navStore.currentSubmenuItem?.id === 1
+      canRemove: navStore.currentSubmenuItem?.id === 1,
+      canViewFeedLink: navStore.currentSubmenuItem?.id === 1
     }
   })
 
   provide<FeedContext>(feedKey, {
-    currentPlatform,
-    selectPlatform,
-    platformLink,
+    currentFeed,
+    selectFeed,
+    feedLink,
     tabs,
     activeTab,
     selectTab,

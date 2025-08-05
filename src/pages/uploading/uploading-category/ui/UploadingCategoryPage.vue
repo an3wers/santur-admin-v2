@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NSpace, NH1 } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
-import FeedProvider from '@/widgets/uploading/ui/FeedProvider.vue'
+import { FeedProvider } from '~/entities/uploading'
 import UploadingCategoryContainer from './UploadingCategoryContainer.vue'
 
 const navStore = useNavStore()

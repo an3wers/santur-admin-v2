@@ -16,12 +16,11 @@ import {
 } from 'naive-ui'
 import { getBrandsKey, useBrands } from '@/entities/brand'
 import { useNavStore } from '~/shared/navigation'
-import { useChangePublishBrand } from '~/entities/brand'
+import { useChangePublishBrand, BrandLatters } from '~/entities/brand'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
 import { descriptionOptions, logoOptions, publishOptions } from '../utils/filters-options'
 import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
-import { BrandLatters } from '~/widgets/brand'
 
 const navStore = useNavStore()
 const title = computed(() => navStore.currentNavigationMenu?.label ?? '')

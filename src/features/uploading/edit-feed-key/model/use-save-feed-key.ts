@@ -1,10 +1,10 @@
 import { useUploadingApi } from '~/entities/uploading'
 
-export const useSaveConstructorKey = () => {
+export const useSaveFeedKey = () => {
   const status = ref<ProcessStatus>('idle')
   const error = ref<string>('')
   const api = useUploadingApi()
-  async function saveConstructorKey(payload: { name: string; key: string; descr: string }) {
+  async function saveFeedKey(payload: { name: string; key: string; descr: string }) {
     try {
       status.value = 'pending'
       error.value = ''
@@ -22,5 +22,5 @@ export const useSaveConstructorKey = () => {
     }
   }
 
-  return { saveConstructorKey, status, error }
+  return { saveFeedKey, status, error }
 }

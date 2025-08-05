@@ -1,11 +1,11 @@
 import type { ExportConstructorDto } from '@/entities/uploading/api/types'
 import { useUploadingApi } from '@/entities/uploading/api/uploading-api'
 
-export const useSaveConstructor = (_ctx?: string) => {
+export const useSaveFeed = (_ctx?: string) => {
   const status = ref<ProcessStatus>('idle')
 
   const { saveCatalogFilter } = useUploadingApi()
-  async function saveConstructor(key: string, data: ExportConstructorDto, makexmlfeed: boolean) {
+  async function saveFeed(key: string, data: ExportConstructorDto, makexmlfeed: boolean) {
     try {
       status.value = 'pending'
       await saveCatalogFilter(key, data, makexmlfeed)
@@ -16,5 +16,5 @@ export const useSaveConstructor = (_ctx?: string) => {
     }
   }
 
-  return { saveConstructor, status }
+  return { saveFeed, status }
 }

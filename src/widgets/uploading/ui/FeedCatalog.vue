@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { NSpace, NCheckbox, NButton } from 'naive-ui'
-import type { CatalogItem } from '../model/types'
-
+import { NSpace, NCheckbox, NButton, NSpin } from 'naive-ui'
+import type { CatalogItem } from '@/entities/uploading'
+import type { AsyncDataRequestStatus } from '#app'
+defineProps<{
+  status: AsyncDataRequestStatus
+}>()
 const categories = defineModel<CatalogItem[]>('state', { required: true })
 
 defineEmits<{
@@ -11,23 +14,25 @@ defineEmits<{
 
 <template>
   <n-space vertical>
-    <div v-for="parent in categories" :key="parent.id">
-      <div class="parent">
-        <span class="parent__item">{{ parent.name }}</span>
-        <n-button
-          size="tiny"
-          secondary
-          type="primary"
-          @click="$emit('onToggleCheckAllInCategory', parent.id)"
-          >{{ parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все' }}</n-button
-        >
-      </div>
-      <div class="child" v-for="child in parent.child" :key="child.id">
-        <div class="child__item">
-          <n-checkbox v-model:checked="child.isChecked">{{ child.name }}</n-checkbox>
+    <n-spin :show="status === 'pending'" size="small">
+      <div v-for="parent in categories" :key="parent.id">
+        <div class="parent">
+          <span class="parent__item">{{ parent.name }}</span>
+          <n-button
+            size="tiny"
+            secondary
+            type="primary"
+            @click="$emit('onToggleCheckAllInCategory', parent.id)"
+            >{{ parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все' }}</n-button
+          >
+        </div>
+        <div class="child" v-for="child in parent.child" :key="child.id">
+          <div class="child__item">
+            <n-checkbox v-model:checked="child.isChecked">{{ child.name }}</n-checkbox>
+          </div>
         </div>
       </div>
-    </div>
+    </n-spin>
   </n-space>
 </template>
 

@@ -1,2 +1,6 @@
 export { useUploadingApi } from './api/uploading-api'
 export type { ExportConstructorDto } from './api/types'
+export { useFeed } from './model/use-feed'
+export { useBrands } from './model/use-brands'
+export type { BrandsData, CatalogItem } from './model/types'
+export { default as FeedProvider } from './ui/FeedProvider.vue'

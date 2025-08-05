@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from '#app'
-import type { BrandsData } from '../model/types'
+import type { BrandsData } from '@/entities/uploading'
 import { NCheckbox, NSpin } from 'naive-ui'
 
 defineProps<{
@@ -34,6 +34,7 @@ defineEmits<{
 .brands {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  min-height: 100px;
 }
 
 .brands__item {

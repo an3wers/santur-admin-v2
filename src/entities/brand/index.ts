@@ -13,3 +13,5 @@ export {
 } from './api/brand-schemas'
 
 export { useBrands } from './model/use-brands'
+
+export { default as BrandLatters } from './ui/BrandLatters.vue'

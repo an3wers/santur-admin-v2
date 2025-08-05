@@ -43,7 +43,6 @@ export default defineNuxtConfig({
   $production: {
     vite: {
       esbuild: {
-        // pure: ['console.log', 'debugger']
         pure: ['console.log']
       }
     },

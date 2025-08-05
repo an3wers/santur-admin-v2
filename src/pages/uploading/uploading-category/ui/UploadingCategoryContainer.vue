@@ -1,27 +1,26 @@
 <script setup lang="ts">
 import { NCard, NSpace, NSpin, useMessage, NTabs, NTabPane } from 'naive-ui'
 import { groupCatalogItems, useCatalogApi } from '@/entities/catalog'
-import type { CatalogItem } from '@/widgets/uploading'
-import { useUploadingApi } from '@/entities/uploading'
-import { BrandLatters } from '@/widgets/brand'
-import { useBrands, useSaveConstructor } from '@/widgets/uploading'
+import { useUploadingApi, type CatalogItem, useBrands } from '@/entities/uploading'
+import { BrandLatters } from '@/entities/brand'
 import FeedZnaks from '@/widgets/uploading/ui/FeedZnaks.vue'
 import FeedBrands from '@/widgets/uploading/ui/FeedBrands.vue'
 import FeedCatalog from '@/widgets/uploading/ui/FeedCatalog.vue'
 import FeedSelector from '@/widgets/uploading/ui/FeedSelector.vue'
-import { useFeed } from '@/widgets/uploading/model/use-feed'
+import { useFeed } from '~/entities/uploading/model/use-feed'
 import { transformPlatformOptions } from '../utlils/transform-platform-options'
+import { useSaveFeed } from '~/widgets/uploading/model/use-save-feed'
 
 const { ctx } = defineProps<{ ctx: string }>()
 
-const { activeTab, currentPlatform, tabs, selectPlatform } = useFeed()
+const { activeTab, currentFeed, tabs, selectFeed } = useFeed()
 
 const DEFAULT_XML_FEED_KEY = 'YAND'
 const DEFAULT_SANTUR_FEED_KEY = 'santur:ur'
 
 function init() {
-  if (ctx === '1') selectPlatform(DEFAULT_XML_FEED_KEY) // 1 xml
-  if (ctx === '2') selectPlatform(DEFAULT_SANTUR_FEED_KEY) // 2 santur.ru
+  if (ctx === '1') selectFeed(DEFAULT_XML_FEED_KEY) // 1 xml
+  if (ctx === '2') selectFeed(DEFAULT_SANTUR_FEED_KEY) // 2 santur.ru
 }
 
 init()
@@ -43,30 +42,26 @@ const {
 })
 
 const {
-  data: exportConstructor,
-  status: exportConstructorStatus,
-  refresh: refreshExportConstructor
-} = useAsyncData(
-  `export-constructor-xml-feed-${ctx}`,
-  () => api.getCatalogFilter(currentPlatform.value),
-  {
-    lazy: true,
-    watch: [currentPlatform]
-  }
-)
+  data: filterFeed,
+  status: filterFeedStatus,
+  refresh: refreshFilterFeed
+} = useAsyncData(`filter-feed-${ctx}`, () => api.getCatalogFilter(currentFeed.value), {
+  lazy: true,
+  watch: [currentFeed]
+})
 
 const {
   data: catalogData,
   status: catalogDataStatus,
   execute: catalogDataExecute
-} = useAsyncData(`catalog-xml-feed-${ctx}`, getCatalog, {
+} = useAsyncData(`catalog-feed-${ctx}`, getCatalog, {
   transform: (data) => {
     const mapped = data.map((item) => ({
       id: item.id,
       name: item.name,
       parent_id: item.parent_id,
       vid: item.vid,
-      isChecked: !exportConstructor.value?.excludedCategories?.includes(item.id)
+      isChecked: !filterFeed.value?.excludedCategories?.includes(item.id)
     }))
 
     return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
@@ -89,8 +84,8 @@ const {
 } = useBrands()
 
 watchEffect(() => {
-  if (exportConstructorStatus.value === 'success') {
-    initExcludedBrands(exportConstructor.value?.excludedBrends || [])
+  if (filterFeedStatus.value === 'success') {
+    initExcludedBrands(filterFeed.value?.excludedBrends || [])
     catalogDataStatus.value = 'idle'
     brandsStatus.value = 'idle'
   }
@@ -100,7 +95,7 @@ watchEffect(() => {
   if (
     activeTab.value === 'Каталог' &&
     catalogDataStatus.value === 'idle' &&
-    exportConstructorStatus.value === 'success'
+    filterFeedStatus.value === 'success'
   ) {
     catalogDataExecute()
   }
@@ -110,41 +105,41 @@ watchEffect(() => {
   if (
     activeTab.value === 'Бренды' &&
     brandsStatus.value === 'idle' &&
-    exportConstructorStatus.value === 'success'
+    filterFeedStatus.value === 'success'
   ) {
     getBrands()
   }
 })
 
-const { saveConstructor, status: saveConstructorStatus } = useSaveConstructor(ctx)
+const { saveFeed, status: saveFeedStatus } = useSaveFeed(ctx)
 
 const message = useMessage()
 
 async function updateHandler() {
   const excludedCategories = getExcludedCategoryIds(catalogData.value!.data)
 
-  await saveConstructor(
-    currentPlatform.value,
+  await saveFeed(
+    currentFeed.value,
     {
       excludedCategories,
       excludedBrends: excludedBrands.value,
-      znaks: exportConstructor.value!.znaks,
-      title: exportConstructor.value!.title,
-      descr: exportConstructor.value!.descr
+      znaks: filterFeed.value!.znaks,
+      title: filterFeed.value!.title,
+      descr: filterFeed.value!.descr
     },
     makexmlfeed.value
   )
 
-  if (saveConstructorStatus.value === 'success') {
+  if (saveFeedStatus.value === 'success') {
     message.success('Данные успешно сохранены')
   } else {
     message.error('Произошла ошибка при сохранении')
   }
 
   resetBrandsState()
-  clearNuxtData(`catalog-xml-feed-${ctx}`)
+  clearNuxtData(`catalog-feed-${ctx}`)
 
-  await refreshExportConstructor()
+  await refreshFilterFeed()
 }
 
 function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
@@ -193,9 +188,9 @@ async function removedFeedHandler() {
     const defaultKeyIsExist = platformOptionsData.value?.find((el) => el.value === key)
 
     if (defaultKeyIsExist) {
-      selectPlatform(key)
+      selectFeed(key)
     } else if (platformOptionsData.value?.length) {
-      selectPlatform(platformOptionsData.value[0].value)
+      selectFeed(platformOptionsData.value[0].value)
     }
   }
 }
@@ -211,18 +206,16 @@ async function removedFeedHandler() {
       @on-update-feed="updateHandler"
       @on-after-success-save-key="platformOptionsExecute"
     />
-    <div v-if="exportConstructor">
+    <div v-if="filterFeed">
       <div class="constructor-grid">
         <div class="constructor-grid__item">
           <n-card>
             <n-tabs v-model:value="activeTab" type="line" size="large">
               <n-tab-pane :name="tabs[0]" :tab="tabs[0]">
-                <n-space justify="center" v-if="catalogDataStatus === 'pending'">
-                  <n-spin size="small" />
-                </n-space>
                 <FeedCatalog
                   v-if="catalogData?.data"
                   v-model:state="catalogData.data"
+                  :status="catalogDataStatus"
                   @on-toggle-check-all-in-category="toggleCheckedAllInCategory"
                 />
               </n-tab-pane>
@@ -244,11 +237,11 @@ async function removedFeedHandler() {
                   </template>
                 </FeedBrands>
               </n-tab-pane>
+              <n-tab-pane :name="tabs[2]" :tab="tabs[2]">
+                <FeedZnaks v-model:state="filterFeed.znaks" />
+              </n-tab-pane>
             </n-tabs>
           </n-card>
-        </div>
-        <div class="constructor-grid__item">
-          <FeedZnaks v-model:state="exportConstructor.znaks" />
         </div>
       </div>
     </div>
@@ -258,7 +251,8 @@ async function removedFeedHandler() {
 <style scoped>
 .constructor-grid {
   display: grid;
-  grid-template-columns: 1fr minmax(240px, 320px);
+  /* grid-template-columns: 1fr minmax(240px, 320px); */
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 </style>
