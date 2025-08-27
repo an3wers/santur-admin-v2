@@ -38,7 +38,10 @@ export const useNavStore = defineStore('navigation', () => {
   })
 
   const firstLevelName = computed(() => {
-    const slug = route.name?.toString().split('-')[0] ?? ''
+    // first segment from url path
+    const slug = route.path.split('/')[1]
+    console.log('SLUG', slug)
+
     const currentName = navNameList.value.includes(slug) ? slug : ''
     return currentName
   })
@@ -65,7 +68,7 @@ export const useNavStore = defineStore('navigation', () => {
 
   async function loadMenu(recource: string): Promise<void> {
     const data = await api.getNavigation(recource)
-    const dataWithSomeOtherData = [...data, createUploadingMenuItem()]
+    const dataWithSomeOtherData = [...data, ...createUploadingMenuItem()]
     navigation.value = dataWithSomeOtherData
     mapNavigation.value = mappingNavItemsToMap(dataWithSomeOtherData)
   }
@@ -139,35 +142,46 @@ export const useNavStore = defineStore('navigation', () => {
     return mappedMenu
   }
 
-  function createUploadingMenuItem(): MenuItem {
-    return {
-      app: 'santur',
-      categoryId: 0,
-      id: 10,
-      items: [
-        {
-          app: 'santur',
-          categoryId: 0,
-          id: 1,
-          items: [],
-          label: 'XML-фиды',
-          modelName: 'uploading',
-          needSubmenu: false
-        },
-        {
-          app: 'santur',
-          categoryId: 0,
-          id: 2,
-          items: [],
-          label: 'santur.ru',
-          modelName: 'uploading',
-          needSubmenu: false
-        }
-      ],
-      label: 'Выгрузки',
-      modelName: 'uploading',
-      needSubmenu: true
-    }
+  function createUploadingMenuItem(): MenuItem[] {
+    return [
+      {
+        app: 'santur',
+        categoryId: 0,
+        id: 10,
+        items: [
+          {
+            app: 'santur',
+            categoryId: 0,
+            id: 1,
+            items: [],
+            label: 'XML-фиды',
+            modelName: 'uploading',
+            needSubmenu: false
+          },
+          {
+            app: 'santur',
+            categoryId: 0,
+            id: 2,
+            items: [],
+            label: 'santur.ru',
+            modelName: 'uploading',
+            needSubmenu: false
+          }
+        ],
+        label: 'Выгрузки',
+        modelName: 'uploading',
+        needSubmenu: true
+      },
+      {
+        app: 'santur',
+        categoryId: 0,
+        id: 11,
+        items: [],
+        label: 'Клиентские проекты',
+        modelName: 'client-projects',
+        needSubmenu: false
+      }
+    ]
   }
 
   return {
