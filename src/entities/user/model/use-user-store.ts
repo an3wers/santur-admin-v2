@@ -75,7 +75,7 @@ export const useUserStore = defineStore('user', () => {
       throw error
     }
   }
-
+  const validRoles = ['ADM', 'MRKT', 'VCNADM']
   function checkRole(payload?: User) {
     if (!payload) {
       payload = user.value ?? undefined
@@ -85,10 +85,7 @@ export const useUserStore = defineStore('user', () => {
       return false
     }
 
-    if (
-      payload.rights !== 'guest' &&
-      !(payload.rights.includes('ADM') || payload.rights.includes('MRKT'))
-    ) {
+    if (payload.rights !== 'guest' && !validRoles.some((role) => payload.rights.includes(role))) {
       return false
       throw new Error('У вас не хватает прав')
     }
