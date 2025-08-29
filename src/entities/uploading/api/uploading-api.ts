@@ -28,7 +28,7 @@ export const useUploadingApi = () => {
 
   async function saveCatalogFilter(key: string, data: ExportConstructorDto, makexmlfeed: boolean) {
     const res = await fetchWithToken<ExportConstructorDto>(
-      `admin/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
+      `AdminGoods/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
       {
         method: 'POST',
         body: data
@@ -40,13 +40,13 @@ export const useUploadingApi = () => {
   }
 
   async function getCatalogFilterKeys() {
-    const res = await fetchWithToken<FilterKeyDto[]>('admin/GetCatalogFilterKeys')
+    const res = await fetchWithToken<FilterKeyDto[]>('AdminGoods/GetCatalogFilterKeys')
     const _data = checkError(res).data
     return _data
   }
 
   async function getCatalogFilter(key: string) {
-    const res = await fetchWithToken<ExportConstructorDto>(`admin/GetCatalogFilter?key=${key}`)
+    const res = await fetchWithToken<ExportConstructorDto>(`AdminGoods/GetCatalogFilter?key=${key}`)
     const _data = checkError(res).data
     return _data
   }
@@ -63,7 +63,7 @@ export const useUploadingApi = () => {
       formData.append('descr', payload.descr)
     }
 
-    const res = await fetchWithToken('admin/SaveCatalogFilterKey', {
+    const res = await fetchWithToken('AdminGoods/SaveCatalogFilterKey', {
       method: 'POST',
       body: formData
     })
@@ -73,7 +73,7 @@ export const useUploadingApi = () => {
   }
 
   async function deleteCatalogFilterKey(key: string) {
-    const res = await fetchWithToken(`admin/DeleteCatalogFilterKey?key=${key}`)
+    const res = await fetchWithToken(`AdminGoods/DeleteCatalogFilterKey?key=${key}`)
     const _data = checkError(res).data
     return _data
   }

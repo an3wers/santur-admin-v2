@@ -24,12 +24,12 @@ export const useAnalyticsApi = () => {
       state
     })
 
-    const res = await fetchWithToken<OrdersDto>(`Admin/GetStatistics?${query.toString()}`)
+    const res = await fetchWithToken<OrdersDto>(`Reports/GetStatistics?${query.toString()}`)
     return checkError(res).data
   }
 
   async function getOrdersStatuses() {
-    const res = await fetchWithToken<GetOrderStatusesDto[]>('Admin/GetOrderStatuses')
+    const res = await fetchWithToken<GetOrderStatusesDto[]>('Reports/GetOrderStatuses')
     return checkError(res).data
   }
 
@@ -38,7 +38,7 @@ export const useAnalyticsApi = () => {
     signal?: AbortSignal
   ) {
     const query = new URLSearchParams(options)
-    const res = await fetchWithToken(`Admin/GetStatisticsAsExcel?${query.toString()}`, {
+    const res = await fetchWithToken(`Reports/GetStatisticsAsExcel?${query.toString()}`, {
       signal
     })
 

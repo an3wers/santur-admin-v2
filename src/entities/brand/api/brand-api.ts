@@ -21,18 +21,18 @@ export const useBrandApi = () => {
       letter,
       search
     })
-    const res = await fetchWithToken<BrandsDto>(`Admin/GetBrends?${query.toString()}`)
+    const res = await fetchWithToken<BrandsDto>(`AdminGoods/GetBrends?${query.toString()}`)
     const _data = checkError(res).data
     return brandsSchema.parse(_data)
   }
 
   async function changePublish(brandId: number) {
-    const res = await fetchWithToken<'Y' | 'N'>(`Admin/BrendPublishedToggle?id=${brandId}`)
+    const res = await fetchWithToken<'Y' | 'N'>(`AdminGoods/BrendPublishedToggle?id=${brandId}`)
     return checkError(res).data
   }
 
   async function getBrand(brandId: number) {
-    const res = await fetchWithToken<BrandByIdDto>(`Admin/GetBrendDetail?id=${brandId}`)
+    const res = await fetchWithToken<BrandByIdDto>(`AdminGoods/GetBrendDetail?id=${brandId}`)
     const _data = checkError(res).data
     return brandByIdSchema.parse(_data)
   }
@@ -52,7 +52,7 @@ export const useBrandApi = () => {
     }
 
     // TODO: типизировать
-    const res = await fetchWithToken<unknown>('Admin/BrendSave', {
+    const res = await fetchWithToken<unknown>('AdminGoods/BrendSave', {
       method: 'POST',
       body: formData
     })
@@ -62,13 +62,13 @@ export const useBrandApi = () => {
 
   async function removeLogo(brandId: string | number, size: 'small' | 'big' | 'both') {
     const res = await fetchWithToken<unknown>(
-      `Admin/RemoveLogoBrend?brendId=${brandId}&size=${size}`
+      `AdminGoods/RemoveLogoBrend?brendId=${brandId}&size=${size}`
     )
     return checkError(res).data
   }
 
   async function removeDocument(docId: number | string) {
-    const res = await fetchWithToken<unknown>(`Admin/DeleteFile?id=${docId}`)
+    const res = await fetchWithToken<unknown>(`AdminGoods/DeleteFile?id=${docId}`)
     return checkError(res).data
   }
 

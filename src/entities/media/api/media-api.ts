@@ -7,7 +7,7 @@ export const useMediaApi = () => {
   async function getMediaFiles(options: MediaFilesDto) {
     const query = new URLSearchParams(options as unknown as Record<string, string>)
 
-    const res = await fetchWithToken(`Admin/GetMediaFiles?${query.toString()}`)
+    const res = await fetchWithToken(`AdminContent/GetMediaFiles?${query.toString()}`)
 
     const _data = checkError(res).data
 
@@ -15,7 +15,7 @@ export const useMediaApi = () => {
   }
 
   async function uploadMediaFiles(formData: FormData) {
-    const res = await fetchWithToken('Admin/MediaFileUpload', {
+    const res = await fetchWithToken('AdminContent/MediaFileUpload', {
       method: 'POST',
       body: formData
     })
@@ -30,7 +30,7 @@ export const useMediaApi = () => {
       id
     })
 
-    const res = await fetchWithToken(`Admin/DeleteFile?${query.toString()}`)
+    const res = await fetchWithToken(`AdminContent/DeleteFile?${query.toString()}`)
 
     const _data = checkError(res).data
 
@@ -38,7 +38,7 @@ export const useMediaApi = () => {
   }
 
   async function updateFileName(id: string, name: string) {
-    const res = await fetchWithToken('Admin/UpdateName', {
+    const res = await fetchWithToken('AdminContent/UpdateName', {
       method: 'POST',
       body: {
         id,

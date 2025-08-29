@@ -16,7 +16,7 @@ export const useBannerApi = () => {
       categoryId: options.categoryId.toString()
     })
 
-    const res = await fetchWithToken<BannersDto>(`Admin/GetBanners?${query.toString()}`)
+    const res = await fetchWithToken<BannersDto>(`AdminContent/GetBanners?${query.toString()}`)
 
     const _data = checkError(res).data
     return bannersSchema.parse(_data)
@@ -26,7 +26,7 @@ export const useBannerApi = () => {
     const query = new URLSearchParams({
       id: String(id)
     })
-    const res = await fetchWithToken<BannerDto>(`Admin/GetBanner?${query.toString()}`)
+    const res = await fetchWithToken<BannerDto>(`AdminContent/GetBanner?${query.toString()}`)
     // TODO: zod валидация
     return checkError(res).data
   }
@@ -39,7 +39,7 @@ export const useBannerApi = () => {
       formData.append(key, value)
     }
 
-    const res = await fetchWithToken<{}>('Admin/SaveBannerV2', {
+    const res = await fetchWithToken<{}>('AdminContent/SaveBannerV2', {
       method: 'POST',
       body: formData
     })
@@ -52,7 +52,7 @@ export const useBannerApi = () => {
       id: String(id)
     })
 
-    const res = await fetchWithToken<unknown>(`Admin/DeleteBanner?${query.toString()}`)
+    const res = await fetchWithToken<unknown>(`AdminContent/DeleteBanner?${query.toString()}`)
     // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
@@ -63,7 +63,7 @@ export const useBannerApi = () => {
       id: String(id)
     })
 
-    const res = await fetchWithToken<unknown>(`Admin/CopyBannerV2?${query.toString()}`)
+    const res = await fetchWithToken<unknown>(`AdminContent/CopyBannerV2?${query.toString()}`)
     // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
@@ -78,7 +78,7 @@ export const useBannerApi = () => {
     })
 
     // TODO: Типизировать + zod валидация
-    const res = await fetchWithToken<unknown>(`Admin/UpdateOrder?${query.toString()}`)
+    const res = await fetchWithToken<unknown>(`AdminContent/UpdateOrder?${query.toString()}`)
     return checkError(res).data
   }
 

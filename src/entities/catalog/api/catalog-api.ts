@@ -5,12 +5,12 @@ export const useCatalogApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
 
   async function getCatalog() {
-    const res = await fetchWithToken<GetCatalogItemDto[]>('Admin/GetTntks')
+    const res = await fetchWithToken<GetCatalogItemDto[]>('AdminGoods/GetTntks')
     return checkError(res).data
   }
 
   async function uploadCategoryDescriptionFromXls(data: FormData) {
-    const res = await fetchWithToken<unknown>('Admin/UpdateDescriptionsTntk', {
+    const res = await fetchWithToken<unknown>('AdminGoods/UpdateDescriptionsTntk', {
       method: 'POST',
       body: data
     })
@@ -18,12 +18,12 @@ export const useCatalogApi = () => {
   }
 
   async function getCatalogItem(itemId: string | number) {
-    const res = await fetchWithToken<GetCatalogItemDto>(`Admin/GetTntk?id=${itemId}`)
+    const res = await fetchWithToken<GetCatalogItemDto>(`AdminGoods/GetTntk?id=${itemId}`)
     return checkError(res).data
   }
 
   async function saveCatalogItem(data: FormData) {
-    const res = await fetchWithToken<unknown>('Admin/PutTntk', {
+    const res = await fetchWithToken<unknown>('AdminGoods/PutTntk', {
       method: 'POST',
       body: data
     })
@@ -31,7 +31,9 @@ export const useCatalogApi = () => {
   }
 
   async function downloadDescriptionTemplate(tnName: string, option: DownloadTemplateOption) {
-    const res = await fetchWithToken(`Admin/GetDescriptionsTntk/?tn=${tnName}&option=${option}`)
+    const res = await fetchWithToken(
+      `AdminGoods/GetDescriptionsTntk/?tn=${tnName}&option=${option}`
+    )
     return res as unknown as Blob
   }
 
