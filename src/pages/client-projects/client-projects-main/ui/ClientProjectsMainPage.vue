@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { NButton, NSpace, NH1 } from 'naive-ui'
+import { NSpace, NH1 } from 'naive-ui'
+import { ClientProjectsList } from '~/features/client-projects'
 import { useNavStore } from '~/shared/navigation/model/use-nav-store'
 
 const navStore = useNavStore()
 </script>
 
 <template>
-  <div class="container">
+  <div class="projects-container">
     <n-space vertical size="large">
       <page-title back-label="Главная" has-back :back-path="`/`">
         <template #title>
@@ -18,6 +19,16 @@ const navStore = useNavStore()
           <!-- <n-button type="primary" @click="showUploadFileModal = true">Загрузить описание</n-button> -->
         </template>
       </page-title>
+      <ClientProjectsList />
     </n-space>
   </div>
 </template>
+
+<style scoped lang="css">
+.projects-container {
+  height: 100%;
+  margin: 0 auto;
+  padding: 1rem 1rem;
+  width: 100%;
+}
+</style>

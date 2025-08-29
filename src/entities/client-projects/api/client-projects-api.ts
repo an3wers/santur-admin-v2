@@ -5,7 +5,7 @@ export const useClientProjectsApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
 
   async function getClientProjects() {
-    const res = await fetchWithToken<ClientProjectDto[]>('AdminSubjects/GetClientProjects', {
+    const res = await fetchWithToken<ClientProjectDto>('AdminSubjects/GetClientProjects', {
       method: 'POST'
     })
 
