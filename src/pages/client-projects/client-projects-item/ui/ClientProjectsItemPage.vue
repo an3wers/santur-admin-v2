@@ -3,7 +3,10 @@ import { NSpace, NH1, useMessage, NSpin } from 'naive-ui'
 import {
   getClientProjectsDetailQueryKey,
   useClientProjectsApi,
-  ClientProjectsDetailInfo
+  ClientProjectsDetailInfo,
+  ClientProjectsDetailState,
+  ClientProjectsDetailFiles,
+  ClientProjectsDetailComments
 } from '~/entities/client-projects'
 
 const { itemId } = useRoute().params
@@ -50,7 +53,22 @@ watch(clientProjectStatus, () => {
           <n-h1>{{ clientProjectData.projectName }}</n-h1>
         </template>
       </page-title>
-      <client-projects-detail-info :projects="clientProjectData" />
+      <div class="layout">
+        <client-projects-detail-info :projects="clientProjectData" />
+        <n-space vertical>
+          <ClientProjectsDetailState />
+          <ClientProjectsDetailFiles :files="clientProjectData.files" />
+          <ClientProjectsDetailComments />
+        </n-space>
+      </div>
     </n-space>
   </div>
 </template>
+
+<style scoped>
+.layout {
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 320px);
+  gap: 1rem;
+}
+</style>

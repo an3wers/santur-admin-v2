@@ -143,7 +143,7 @@ async function downloadCatalog() {
       <div class="layout">
         <CatalogList :items="groupedCatalogItems" />
         <n-space vertical>
-          <n-card size="small">
+          <n-card>
             <n-button quaternary block @click="downloadCatalog" icon-placement="left">
               <template #icon>
                 <n-icon size="24px">

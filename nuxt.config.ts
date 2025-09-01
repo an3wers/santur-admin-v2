@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@nuxt/test-utils/module'
   ],
+
   ssr: false,
   app: { head: { link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }] } },
   srcDir: 'src/',

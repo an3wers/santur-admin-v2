@@ -372,7 +372,7 @@ async function removeLogoHandler(size: 'small' | 'big') {
 <style scoped>
 .layout {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 400px);
+  grid-template-columns: 1fr minmax(240px, 320px);
   gap: 1rem;
 }
 </style>
