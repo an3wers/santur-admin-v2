@@ -1,21 +1,60 @@
 <script setup lang="ts">
 import { NCard, NIcon, NButton, NSpace, NText } from 'naive-ui'
 import type { ClientProjectDetailDto } from '../api/types'
-import { File } from '@vicons/tabler'
+import { FileText } from '@vicons/tabler'
 
-defineProps<{
+const props = defineProps<{
   files: ClientProjectDetailDto['files']
 }>()
+const { apiBase, santurS3Url } = useRuntimeConfig().public
+
+async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
+  try {
+    const replacedPath = file.getPath.replace(new RegExp(santurS3Url, 'i'), '')
+    const blob = await $fetch<Blob>(`/s3${replacedPath}`, {
+      baseURL: apiBase
+    })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.fileName
+    a.click()
+
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+function handleFileClick(event: Event) {
+  const target = event.target as HTMLElement
+  const button = target.closest('[data-file-uid]') as HTMLElement
+  if (button) {
+    const fileUID = button.dataset.fileUid
+    const file = props.files.find((f) => f.fileUID === fileUID)
+
+    if (file) {
+      downloadFile(file)
+    }
+  }
+}
 </script>
 
 <template>
   <n-card title="Файлы">
     <n-text v-if="files.length === 0"> Файлы не добавлены </n-text>
-    <n-space v-else vertical>
-      <n-button v-for="file in files" :key="file.fileUID" type="primary" text>
+    <n-space v-else vertical @click="handleFileClick">
+      <n-button
+        v-for="file in files"
+        type="primary"
+        text
+        attr-type="button"
+        :key="file.fileUID"
+        :data-file-uid="file.fileUID"
+      >
         <template #icon>
           <n-icon size="24px">
-            <File />
+            <FileText />
           </n-icon>
         </template>
         {{ file.fileName }}

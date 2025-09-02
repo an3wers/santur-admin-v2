@@ -37,11 +37,13 @@ export interface ClientProjectDto {
 
 // TODO: Доработать
 export interface ClientProjectsFilters {
-  page: number
-  pageSize: number
-  search: string
-  status: string
-  range: [number, number]
+  page?: number
+  pageSize?: number
+  search?: string
+  subjectId?: number
+  sort?: string
+  // status?: string
+  // range?: [number, number]
 }
 
 export interface ClientProjectDetailDto {

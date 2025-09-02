@@ -7,10 +7,15 @@ import {
   NSpin,
   NTable,
   NPagination,
-  useMessage
+  useMessage,
+  NIcon,
+  NText
 } from 'naive-ui'
 import { getClientProjectsQueryKey, useClientProjectsApi } from '~/entities/client-projects'
+import { statusOptions as statusOptionsDefault } from '@/entities/client-projects'
+import { Message2, Paperclip } from '@vicons/tabler'
 
+// TODO: Вынести в composable
 // list pagination
 const page = ref(1)
 const pageSize = ref(0)
@@ -20,15 +25,27 @@ const pageCount = ref(0)
 // filters
 const search = ref('')
 const status = ref('Все статусы')
+const statusOptions = [
+  {
+    label: 'Все статусы',
+    value: ''
+  },
+  ...statusOptionsDefault
+]
+
 const range = ref<[number, number]>([Date.now(), Date.now()])
 
 const { getClientProjects } = useClientProjectsApi()
 const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
   getClientProjectsQueryKey(),
-  getClientProjects,
+  () =>
+    getClientProjects({
+      page: page.value,
+      search: search.value
+    }),
   {
     lazy: true,
-    watch: [page, pageSize, search, status, range]
+    watch: [page, search, status]
   }
 )
 
@@ -70,16 +87,9 @@ const updateDate = (value: any) => {
           <n-select v-model:value="source" :options="sourceOptions" />
         </div> -->
             <div style="width: 200px">
-              <n-select
-                v-model:value="status"
-                :options="[
-                  {
-                    label: 'Все статусы'
-                  }
-                ]"
-              />
+              <n-select v-model:value="status" :options="statusOptions" />
             </div>
-            <div style="width: 280px">
+            <!-- <div style="width: 280px">
               <n-date-picker
                 :value="range"
                 type="daterange"
@@ -87,7 +97,7 @@ const updateDate = (value: any) => {
                 :first-day-of-week="0"
                 @update:value="updateDate"
               />
-            </div>
+            </div> -->
           </n-space>
 
           <div
@@ -97,7 +107,7 @@ const updateDate = (value: any) => {
             "
             style="text-align: center; padding: 1rem"
           >
-            <n-p>Нет данных</n-p>
+            <n-text>Нет данных</n-text>
           </div>
 
           <div
@@ -123,6 +133,16 @@ const updateDate = (value: any) => {
                   <th>Дата создания</th>
                   <th>Сумма</th>
                   <th>Баллы</th>
+                  <th>
+                    <n-icon size="24">
+                      <Message2 />
+                    </n-icon>
+                  </th>
+                  <th>
+                    <n-icon size="24">
+                      <Paperclip />
+                    </n-icon>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -137,6 +157,22 @@ const updateDate = (value: any) => {
                   <td>{{ r.regdate }}, {{ r.regtime }}</td>
                   <td>-</td>
                   <td>-</td>
+                  <td>
+                    <span class="msgs-cell">
+                      <n-icon size="18">
+                        <Message2 />
+                      </n-icon>
+                      0
+                    </span>
+                  </td>
+                  <td>
+                    <span class="files-cell">
+                      <n-icon size="18">
+                        <Paperclip />
+                      </n-icon>
+                      0
+                    </span>
+                  </td>
                 </tr>
               </tbody>
             </n-table>
@@ -191,5 +227,17 @@ const updateDate = (value: any) => {
   position: sticky;
   bottom: 0px;
   font-weight: 900;
+}
+
+.msgs-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.files-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

@@ -50,7 +50,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
       public: {
         apiBase: process.env.BASE_URL_PROD ?? '',
-        apiGateway: process.env.BASE_URL_GATEWAY_PROD ?? ''
+        apiGateway: process.env.BASE_URL_GATEWAY_PROD ?? '',
+        santurS3Url: ''
       }
     }
   },
@@ -61,7 +62,8 @@ export default defineNuxtConfig({
     runtimeConfig: {
       public: {
         apiBase: process.env.BASE_URL_DEV ?? '',
-        apiGateway: process.env.BASE_URL_GATEWAY_DEV ?? ''
+        apiGateway: process.env.BASE_URL_GATEWAY_DEV ?? '',
+        santurS3Url: ''
       }
     },
 
@@ -98,7 +100,12 @@ export default defineNuxtConfig({
               : process.env.BASE_URL_PROXY + 'apiTmp/**'
         }
       },
-      '/api-gateway/**': { proxy: { to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**' } }
+      '/api-gateway/**': { proxy: { to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**' } },
+      '/s3/**': {
+        proxy: {
+          to: `${process.env.NUXT_PUBLIC_SANTUR_S3_URL}/**`
+        }
+      }
     }
   }
 })

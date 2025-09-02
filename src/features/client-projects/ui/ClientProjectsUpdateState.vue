@@ -1,26 +1,11 @@
 <script setup lang="ts">
-import { NSpace, NSelect, type SelectOption, NFormItem, NInputNumber, NButton } from 'naive-ui'
+import { NSpace, NSelect, NFormItem, NInputNumber, NButton } from 'naive-ui'
 import { useUpdateState } from '../model/use-update-state'
+import { statusOptions } from '~/entities/client-projects'
 
 const currentStatus = defineModel<string>('currentStatus')
 const currentSum = defineModel<number>('currentSum')
 const currentPoints = defineModel<number>('currentPoints')
-
-const statusOptions: SelectOption[] = [
-  { label: 'Новый', value: 'new' },
-  { label: 'Подтвержден', value: 'confirmed' },
-  { label: 'На доработке', value: 'on_revision' },
-  { label: 'Закрыт', value: 'closed' },
-  { label: 'Отменен', value: 'canceled' }
-]
-
-// const statusOptions: SelectOption[] = [
-//   { label: 'Новый' },
-//   { label: 'Подтвержден' },
-//   { label: 'На доработке' },
-//   { label: 'Закрыт' },
-//   { label: 'Отменен' }
-// ]
 
 const { updateProjectState } = useUpdateState()
 async function updateHandler() {

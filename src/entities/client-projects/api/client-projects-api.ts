@@ -1,12 +1,13 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { ClientProjectDetailDto, ClientProjectDto } from './types'
+import type { ClientProjectDetailDto, ClientProjectDto, ClientProjectsFilters } from './types'
 
 export const useClientProjectsApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
 
-  async function getClientProjects(_filters?: any) {
+  async function getClientProjects(filters: ClientProjectsFilters = {}) {
     const res = await fetchWithToken<ClientProjectDto>('AdminSubjects/GetClientProjects', {
-      method: 'POST'
+      method: 'POST',
+      body: filters
     })
 
     return checkError(res).data

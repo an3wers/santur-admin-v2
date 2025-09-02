@@ -4,3 +4,4 @@ export { default as ClientProjectsDetailInfo } from './ui/ClientProjectsDetailIn
 export { default as ClientProjectsDetailFiles } from './ui/ClientProjectsDetailFiles.vue'
 export { default as ClientProjectsDetailComments } from './ui/ClientProjectsDetailComments.vue'
 export { default as ClientProjectsDetailState } from './ui/ClientProjectsDetailState.vue'
+export { statusOptions } from './config'
