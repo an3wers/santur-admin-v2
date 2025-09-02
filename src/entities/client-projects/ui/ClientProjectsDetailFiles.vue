@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NIcon, NButton, NSpace } from 'naive-ui'
+import { NCard, NIcon, NButton, NSpace, NText } from 'naive-ui'
 import type { ClientProjectDetailDto } from '../api/types'
 import { File } from '@vicons/tabler'
 
@@ -10,15 +10,8 @@ defineProps<{
 
 <template>
   <n-card title="Файлы">
-    <n-space vertical>
-      <n-button v-for="file in files" :key="file.fileUID" type="primary" text>
-        <template #icon>
-          <n-icon size="24px">
-            <File />
-          </n-icon>
-        </template>
-        {{ file.fileName }}
-      </n-button>
+    <n-text v-if="files.length === 0"> Файлы не добавлены </n-text>
+    <n-space v-else vertical>
       <n-button v-for="file in files" :key="file.fileUID" type="primary" text>
         <template #icon>
           <n-icon size="24px">

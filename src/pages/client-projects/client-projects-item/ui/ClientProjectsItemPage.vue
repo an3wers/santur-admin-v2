@@ -8,6 +8,8 @@ import {
   ClientProjectsDetailFiles,
   ClientProjectsDetailComments
 } from '~/entities/client-projects'
+import { ClientProjectsCommentsPanel, ClientProjectsUpdateState } from '~/features/client-projects'
+import { projectItemMapper } from '../model/project-item-mapper'
 
 const { itemId } = useRoute().params
 
@@ -19,12 +21,16 @@ if (!itemId || isNaN(Number(itemId))) {
   })
 }
 
+const commentValue = ref('')
+const showCommentsPanel = ref(false)
+
 const { getClientProjectsById } = useClientProjectsApi()
 
 const { data: clientProjectData, status: clientProjectStatus } = useAsyncData(
   getClientProjectsDetailQueryKey(Number(itemId)),
   () => getClientProjectsById(Number(itemId)),
   {
+    transform: projectItemMapper,
     lazy: true
   }
 )
@@ -56,12 +62,26 @@ watch(clientProjectStatus, () => {
       <div class="layout">
         <client-projects-detail-info :projects="clientProjectData" />
         <n-space vertical>
-          <ClientProjectsDetailState />
+          <ClientProjectsDetailState>
+            <template #action>
+              <ClientProjectsUpdateState
+                v-model:current-status="clientProjectData.status"
+                v-model:current-sum="clientProjectData.price"
+                v-model:current-points="clientProjectData.point"
+              />
+            </template>
+          </ClientProjectsDetailState>
           <ClientProjectsDetailFiles :files="clientProjectData.files" />
-          <ClientProjectsDetailComments />
+          <ClientProjectsDetailComments @show-comments="showCommentsPanel = true" />
         </n-space>
       </div>
     </n-space>
+    <ClientProjectsCommentsPanel
+      v-if="clientProjectData"
+      v-model:show="showCommentsPanel"
+      :project-id="clientProjectData.id"
+      @update:show="() => {}"
+    />
   </div>
 </template>
 
