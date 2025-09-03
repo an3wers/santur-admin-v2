@@ -6,16 +6,6 @@ const navStore = useNavStore()
 
 const modalTitle = 'Добавить категорию'
 
-// const selectedKey = ref(-1)
-// selectedKey.value = navStore.secondLevelId
-
-// const computedSelectedKey = computed({
-//   get: () => navStore.secondLevelId,
-//   set: (value) => {
-//     selectedKey.value = value
-//   }
-// })
-
 const showModal = ref(false)
 
 function toogleModal() {
@@ -34,6 +24,16 @@ const hasActionBtn = computed(() => {
     navStore.firstLevelName === 'pvzs'
   )
 })
+
+const selectedKey = ref('')
+const computedSelectedKey = computed({
+  get: () => {
+    return `${navStore.firstLevelName}-${navStore.secondLevelId}`
+  },
+  set: (value) => {
+    selectedKey.value = value
+  }
+})
 </script>
 <template>
   <div class="sub-sidebar">
@@ -49,9 +49,10 @@ const hasActionBtn = computed(() => {
         >
       </div>
       <!-- v-model:value="computedSelectedKey" -->
+      <!-- :value="navStore.secondLevelId" -->
       <n-menu
-        :value="navStore.secondLevelId"
-        :builtin-theme-overrides="{ itemHeight: '32px' }"
+        v-model:value="computedSelectedKey"
+        :theme-overrides="{ itemHeight: '32px' }"
         class="sub-menu"
         :indent="20"
         :options="navStore.currentSubmenu.items"

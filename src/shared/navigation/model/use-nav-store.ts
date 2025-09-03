@@ -7,6 +7,7 @@ export const useNavStore = defineStore('navigation', () => {
   const api = useNavApi()
   const route = useRoute()
 
+  const navigationWithZeroLavel = ref<MenuItem[] | null>(null)
   const navigation = ref<MenuItem[] | null>(null)
   const mapNavigation = ref<Record<string, MenuItem> | null>(null)
 
@@ -18,6 +19,18 @@ export const useNavStore = defineStore('navigation', () => {
   )
 
   const getMenuOptions = computed(() => mappingNavItemsToMenuOptions(navigation.value ?? []))
+
+  const getMenuOptionsWithZeroLavel = computed<MenuOption[]>(() => {
+    return (
+      navigationWithZeroLavel.value?.map((zeroLavelItem) => {
+        return {
+          label: zeroLavelItem.label,
+          key: `${zeroLavelItem.modelName}-${zeroLavelItem.id}`,
+          children: mappingNavItemsToMenuOptions(zeroLavelItem.items)
+        }
+      }) || []
+    )
+  })
 
   const getSubMenuBySlug = computed(() => (slug: string) => {
     const navItem = mapNavigation.value?.[slug]
@@ -38,10 +51,7 @@ export const useNavStore = defineStore('navigation', () => {
   })
 
   const firstLevelName = computed(() => {
-    // first segment from url path
     const slug = route.path.split('/')[1]
-    console.log('SLUG', slug)
-
     const currentName = navNameList.value.includes(slug) ? slug : ''
     return currentName
   })
@@ -68,9 +78,19 @@ export const useNavStore = defineStore('navigation', () => {
 
   async function loadMenu(recource: string): Promise<void> {
     const data = await api.getNavigation(recource)
-    const dataWithSomeOtherData = [...data, ...createUploadingMenuItem()]
+    const patched = data.map((item) => {
+      if (item.modelName === 'analytics') {
+        return {
+          ...item,
+          needSubmenu: false
+        }
+      }
+      return item
+    })
+    const dataWithSomeOtherData = [...patched, ...createUploadingMenuItem()]
     navigation.value = dataWithSomeOtherData
     mapNavigation.value = mappingNavItemsToMap(dataWithSomeOtherData)
+    navigationWithZeroLavel.value = getFilledZeroLavel(createZeroLavel(), navigation.value)
   }
 
   async function loadResurces(): Promise<void> {
@@ -120,37 +140,43 @@ export const useNavStore = defineStore('navigation', () => {
     }
 
     const mappedMenu: MenuOption[] = navItems.map((item) => {
-      let path = ''
+      return {
+        label: () =>
+          h(RouterLink, { to: { path: createPath(item) } }, { default: () => item.label }),
+        key: `${item.modelName}-${item.id}`
+      }
+    })
+
+    function createPath(item: MenuItem): string {
+      let result = ''
       if (item.modelName === 'media') {
-        path = `/${item.modelName}`
+        result = `/${item.modelName}`
       } else if (
         item.modelName === 'analytics' ||
         item.modelName === 'pvzs' ||
         item.modelName === 'uploading'
       ) {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0 && item.needSubmenu
-        path = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
+        result = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
       } else {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0
-        path = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
+        result = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
       }
-      return {
-        label: () => h(RouterLink, { to: { path } }, { default: () => item.label }),
-        key: item.id
-      }
-    })
+      return result
+    }
+
     return mappedMenu
   }
 
   function createUploadingMenuItem(): MenuItem[] {
     return [
       {
-        app: 'santur',
+        app: '',
         categoryId: 0,
         id: 10,
         items: [
           {
-            app: 'santur',
+            app: '',
             categoryId: 0,
             id: 1,
             items: [],
@@ -159,7 +185,7 @@ export const useNavStore = defineStore('navigation', () => {
             needSubmenu: false
           },
           {
-            app: 'santur',
+            app: '',
             categoryId: 0,
             id: 2,
             items: [],
@@ -170,10 +196,10 @@ export const useNavStore = defineStore('navigation', () => {
         ],
         label: 'Выгрузки',
         modelName: 'uploading',
-        needSubmenu: true
+        needSubmenu: false
       },
       {
-        app: 'santur',
+        app: '',
         categoryId: 0,
         id: 11,
         items: [],
@@ -182,6 +208,103 @@ export const useNavStore = defineStore('navigation', () => {
         needSubmenu: false
       }
     ]
+  }
+
+  function createZeroLavel(): MenuItem[] {
+    return [
+      {
+        app: '',
+        categoryId: 0,
+        id: 100,
+        items: [],
+        label: 'Контент',
+        modelName: 'content',
+        needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 101,
+        items: [],
+        label: 'Аналитика',
+        modelName: 'analytics',
+        needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 103,
+        items: [],
+        label: 'Выгрузки',
+        modelName: 'uploading',
+        needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 104,
+        items: [],
+        label: 'Проектирование',
+        modelName: 'projecting',
+        needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 105,
+        items: [],
+        label: 'Клиенты и заказы',
+        modelName: 'orders-clients',
+        needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 106,
+        items: [],
+        label: 'Сервисы',
+        modelName: 'services',
+        needSubmenu: false
+      }
+    ]
+  }
+
+  function getFilledZeroLavel(zeroLavel: MenuItem[], navigation: MenuItem[]): MenuItem[] {
+    const buckets: Record<string, MenuItem> = {}
+
+    zeroLavel.forEach((item) => {
+      buckets[item.modelName] = item
+    })
+
+    navigation.forEach((item) => {
+      switch (item.modelName) {
+        case 'media':
+        case 'banners':
+        case 'posts':
+        case 'brends':
+        case 'tntks':
+        case 'pvzs':
+          buckets['content'].items.push(item)
+          break
+        case 'analytics':
+          buckets['analytics'].items.push(...item.items)
+          break
+        case 'uploading':
+          buckets['uploading'].items.push(...item.items)
+          break
+        case 'client-projects':
+          buckets['projecting'].items.push(item)
+          break
+        case 'orders-clients':
+          // buckets['orders-clients'].items.push(item)
+          break
+        case 'services':
+          // buckets['services'].items.push(item)
+          break
+      }
+    })
+
+    return zeroLavel
   }
 
   return {
@@ -198,6 +321,8 @@ export const useNavStore = defineStore('navigation', () => {
     currentSubmenu,
     currentNavigationMenu,
     currentSubmenuItem,
+    navigationWithZeroLavel,
+    getMenuOptionsWithZeroLavel,
     loadMenu,
     loadResurces,
     $reset,
