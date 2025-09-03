@@ -41,7 +41,7 @@ export interface ClientProjectsFilters {
   pageSize?: number
   search?: string
   subjectId?: number
-  sort?: string
+  sort?: 'id' | 'id desc' | 'regdate' | 'regdate desc'
   // status?: string
   // range?: [number, number]
 }

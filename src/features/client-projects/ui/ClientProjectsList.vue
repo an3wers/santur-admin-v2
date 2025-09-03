@@ -33,7 +33,7 @@ const statusOptions = [
   ...statusOptionsDefault
 ]
 
-const range = ref<[number, number]>([Date.now(), Date.now()])
+// const range = ref<[number, number]>([Date.now(), Date.now()])
 
 const { getClientProjects } = useClientProjectsApi()
 const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
@@ -41,7 +41,8 @@ const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
   () =>
     getClientProjects({
       page: page.value,
-      search: search.value
+      search: search.value,
+      sort: 'regdate desc'
     }),
   {
     lazy: true,

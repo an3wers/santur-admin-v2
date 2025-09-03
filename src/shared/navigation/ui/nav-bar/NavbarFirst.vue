@@ -46,6 +46,7 @@ const computedSelectedKey = computed({
     <div class="nav-container__menu">
       <NMenu
         v-model:value="computedSelectedKey"
+        accordion
         :options="navStore.getMenuOptionsWithZeroLavel"
         :theme-overrides="{ itemHeight: '32px' }"
         :indent="12"
