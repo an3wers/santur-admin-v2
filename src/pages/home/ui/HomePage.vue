@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { NH2, NH1, NSpace, NGrid, NGi, NCard, NIcon, useMessage } from 'naive-ui'
+import { NH1, NSpace, NGrid, NGi, NCard, useMessage } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
-import { ArrowNarrowRight } from '@vicons/tabler'
 import SubnavList from './SubnavList.vue'
 
 const navStore = useNavStore()

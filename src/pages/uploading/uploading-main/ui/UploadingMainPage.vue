@@ -10,7 +10,7 @@ const navStore = useNavStore()
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title>
+      <page-title back-label="Главная" has-back :back-path="`/`">
         <template #title>
           <n-h1>
             {{ navStore.currentNavigationMenu?.label }}

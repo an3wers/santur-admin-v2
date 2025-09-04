@@ -27,7 +27,7 @@ function getComponent(key: string) {
 
 <template>
   <div class="wrap">
-    <page-title>
+    <page-title back-label="Главная" has-back :back-path="`/`">
       <template #title>
         <n-h1>{{ currentCatItem?.label }}</n-h1>
       </template>
