@@ -9,7 +9,7 @@ import {
   ClientProjectsDetailComments
 } from '~/entities/client-projects'
 import { ClientProjectsCommentsPanel, ClientProjectsUpdateState } from '~/features/client-projects'
-import { projectItemMapper } from '../model/project-item-mapper'
+// import { projectItemMapper } from '../model/project-item-mapper'
 
 const { itemId } = useRoute().params
 
@@ -30,7 +30,6 @@ const { data: clientProjectData, status: clientProjectStatus } = useAsyncData(
   getClientProjectsDetailQueryKey(Number(itemId)),
   () => getClientProjectsById(Number(itemId)),
   {
-    transform: projectItemMapper,
     lazy: true
   }
 )
@@ -65,9 +64,10 @@ watch(clientProjectStatus, () => {
           <ClientProjectsDetailState>
             <template #action>
               <ClientProjectsUpdateState
-                v-model:current-status="clientProjectData.status"
-                v-model:current-sum="clientProjectData.price"
-                v-model:current-points="clientProjectData.point"
+                :project-id="clientProjectData.id"
+                :status="clientProjectData.status"
+                :cost="clientProjectData.cost"
+                :bonus="clientProjectData.bonus"
               />
             </template>
           </ClientProjectsDetailState>

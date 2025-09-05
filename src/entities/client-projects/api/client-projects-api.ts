@@ -1,5 +1,11 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { ClientProjectDetailDto, ClientProjectDto, ClientProjectsFilters } from './types'
+import type {
+  ClientProjectDetailDto,
+  ClientProjectDto,
+  ClientProjectsFilters,
+  ClientProjectStatusesDto,
+  UpdateProjectStateDto
+} from './types'
 
 export const useClientProjectsApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
@@ -23,8 +29,78 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
+  // Project details
+  async function getStatuses() {
+    const res = await fetchWithToken<ClientProjectStatusesDto[]>(
+      'AdminSubjects/GetClientProjectStatuses'
+    )
+    return checkError(res).data
+  }
+
+  async function updateStatus(id: number, status: string) {
+    const formData = new FormData()
+    formData.append('id', String(id))
+    formData.append('status', status)
+
+    const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateStatus', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
+  async function updateSum(id: number, sum: number) {
+    const formData = new FormData()
+    formData.append('id', String(id))
+    formData.append('cost', String(sum))
+
+    const res = await fetchWithToken('AdminSubjects_v2/ClientProjectUpdateCost', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
+  async function updatePoints(id: number, points: number) {
+    const formData = new FormData()
+    formData.append('id', String(id))
+    formData.append('bonus', String(points))
+
+    const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateBonus', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+  // ClientProjectUpdateParams([FromForm] int id, [FromForm] string status, [FromForm] int cost, [FromForm] int bonus, [FromForm] string comment = "")
+
+  async function updateProjectState(payload: UpdateProjectStateDto) {
+    const formData = new FormData()
+
+    formData.append('id', String(payload.id))
+    formData.append('status', payload.status)
+    formData.append('cost', String(payload.cost))
+    formData.append('bonus', String(payload.bonus))
+
+    if (payload.comment) {
+      formData.append('comment', payload.comment)
+    }
+
+    const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateParams', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
   return {
     getClientProjects,
-    getClientProjectsById
+    getClientProjectsById,
+    getStatuses,
+    updateProjectState
   }
 }

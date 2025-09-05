@@ -31,9 +31,9 @@ export interface ClientProjectDetail {
   brands: string[]
   status: string
   prices: string
-  price: number
   points: string
-  point: number
+  cost: number
+  bonus: number
   createdAt: string
   files: Array<{
     fileUID: string

@@ -13,6 +13,7 @@ export interface ProjectPreview {
   regtime: string
   state: string
   status: string
+  statusName: string
   subjectCode: string
   subjectId: number
   subjectName: string
@@ -35,7 +36,6 @@ export interface ClientProjectDto {
   subjects: SubjectPreview[]
 }
 
-// TODO: Доработать
 export interface ClientProjectsFilters {
   page?: number
   pageSize?: number
@@ -78,8 +78,11 @@ export interface ClientProjectDetailDto {
   buyerMobilePhone: string
   brands: string[]
   status: string
+  statusName: string
   prices: string
   points: string
+  bonus: number
+  cost: number
   createdAt: string
   files: Array<{
     fileUID: string
@@ -88,4 +91,17 @@ export interface ClientProjectDetailDto {
     getPath: string
     staticPath: string
   }>
+}
+
+export interface ClientProjectStatusesDto {
+  key: string
+  val: string
+}
+
+export interface UpdateProjectStateDto {
+  id: number
+  status: string
+  cost: number
+  bonus: number
+  comment?: string
 }

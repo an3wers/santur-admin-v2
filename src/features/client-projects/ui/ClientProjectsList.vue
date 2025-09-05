@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  NDatePicker,
   NSelect,
   NSpace,
   NCard,
@@ -9,7 +8,8 @@ import {
   NPagination,
   useMessage,
   NIcon,
-  NText
+  NText,
+  NTag
 } from 'naive-ui'
 import { getClientProjectsQueryKey, useClientProjectsApi } from '~/entities/client-projects'
 import { statusOptions as statusOptionsDefault } from '@/entities/client-projects'
@@ -25,6 +25,7 @@ const pageCount = ref(0)
 // filters
 const search = ref('')
 const status = ref('Все статусы')
+
 const statusOptions = [
   {
     label: 'Все статусы',
@@ -154,7 +155,9 @@ const updateDate = (value: any) => {
                   </td>
                   <td>{{ r.engineeringSystem }}</td>
                   <td>{{ r.subjectName }}</td>
-                  <td>{{ r.status }}</td>
+                  <td>
+                    <n-tag v-if="r.statusName">{{ r.statusName }}</n-tag>
+                  </td>
                   <td>{{ r.regdate }}, {{ r.regtime }}</td>
                   <td>-</td>
                   <td>-</td>
