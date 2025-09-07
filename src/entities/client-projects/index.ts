@@ -5,3 +5,7 @@ export { default as ClientProjectsDetailFiles } from './ui/ClientProjectsDetailF
 export { default as ClientProjectsDetailComments } from './ui/ClientProjectsDetailComments.vue'
 export { default as ClientProjectsDetailState } from './ui/ClientProjectsDetailState.vue'
 export { statusOptions } from './config'
+export { getStatusColor } from './lib/get-status-color'
+export { useStatuses } from './model/use-statuses'
+export { default as ClientProjectsStatusesSelector } from './ui/ClientProjectsStatusesSelector.vue'
+export { default as ClientProjectsStatusesTag } from './ui/ClientProjectsStatusesTag.vue'

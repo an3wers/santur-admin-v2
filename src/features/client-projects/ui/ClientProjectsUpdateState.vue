@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { NSpace, NSelect, NFormItem, NInputNumber, NButton, useMessage } from 'naive-ui'
+import { NSpace, NFormItem, NInputNumber, NButton, useMessage } from 'naive-ui'
 import { useUpdateState } from '../model/use-update-state'
-import { useClientProjectsApi } from '~/entities/client-projects'
+import { ClientProjectsStatusesSelector, useStatuses } from '~/entities/client-projects'
 
 const { projectId, status, cost, bonus } = defineProps<{
   projectId: number
@@ -13,8 +13,6 @@ const { projectId, status, cost, bonus } = defineProps<{
 const emits = defineEmits<{
   (e: 'onUpdatedState'): void
 }>()
-
-const { getStatuses } = useClientProjectsApi()
 
 const {
   updateProjectState,
@@ -31,12 +29,7 @@ const {
   bonus
 })
 
-const { data: statusOptionsData, status: statusOptionsStatus } = useAsyncData(getStatuses, {
-  transform: (data) => {
-    return data.map((el) => ({ label: el.val, value: el.key }))
-  },
-  lazy: true
-})
+const { data: statusOptionsData, status: statusOptionsStatus } = useStatuses()
 
 const message = useMessage()
 async function updateHandler() {
@@ -59,11 +52,10 @@ async function updateHandler() {
 <template>
   <n-space vertical size="large">
     <n-form-item :label-props="{ for: 'status' }" label="Статус" :show-feedback="false">
-      <n-select
-        v-model:value="statusValue"
-        :input-props="{ id: 'status' }"
-        :options="statusOptionsData || []"
-        :loading="statusOptionsStatus === 'pending'"
+      <ClientProjectsStatusesSelector
+        v-model:status="statusValue"
+        :async-status="statusOptionsStatus"
+        :status-options="statusOptionsData as any"
       />
     </n-form-item>
     <n-form-item :label-props="{ for: 'sum' }" label="Сумма" :show-feedback="false">
@@ -72,6 +64,7 @@ async function updateHandler() {
         placeholder="Введите сумму"
         clearable
         style="width: 100%"
+        :min="0"
         :input-props="{ id: 'sum' }"
         :show-button="false"
         :default-value="0"
@@ -79,11 +72,12 @@ async function updateHandler() {
     </n-form-item>
     <n-form-item :label-props="{ for: 'points' }" label="Баллы" :show-feedback="false">
       <n-input-number
-        :input-props="{ id: 'points' }"
         v-model:value="bonusValue"
         placeholder="Введите баллы"
         style="width: 100%"
         clearable
+        :min="0"
+        :input-props="{ id: 'points' }"
         :show-button="false"
         :default-value="0"
       />

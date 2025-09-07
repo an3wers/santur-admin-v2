@@ -1,19 +1,15 @@
 <script setup lang="ts">
+import { NSpace, NCard, NSpin, NTable, NPagination, useMessage, NIcon, NText, NTag } from 'naive-ui'
 import {
-  NSelect,
-  NSpace,
-  NCard,
-  NSpin,
-  NTable,
-  NPagination,
-  useMessage,
-  NIcon,
-  NText,
-  NTag
-} from 'naive-ui'
-import { getClientProjectsQueryKey, useClientProjectsApi } from '~/entities/client-projects'
-import { statusOptions as statusOptionsDefault } from '@/entities/client-projects'
+  ClientProjectsStatusesSelector,
+  ClientProjectsStatusesTag,
+  getClientProjectsQueryKey,
+  getStatusColor,
+  useClientProjectsApi,
+  useStatuses
+} from '~/entities/client-projects'
 import { Message2, Paperclip } from '@vicons/tabler'
+import { formatNumberWithDigits } from '~/shared/libs/format-number-with-digits'
 
 // TODO: Вынести в composable
 // list pagination
@@ -24,17 +20,47 @@ const pageCount = ref(0)
 
 // filters
 const search = ref('')
-const status = ref('Все статусы')
 
-const statusOptions = [
-  {
-    label: 'Все статусы',
-    value: ''
-  },
-  ...statusOptionsDefault
-]
+const status = ref('')
+
+// const statusOptions = [
+//   {
+//     label: 'Все статусы',
+//     value: ''
+//   },
+//   ...statusOptionsDefault
+// ]
 
 // const range = ref<[number, number]>([Date.now(), Date.now()])
+
+const { data: statusesData, status: statusesStatus } = useStatuses()
+
+const statusOptions = computed(() => {
+  const emptyStatus = {
+    label: 'Все статусы',
+    value: '',
+    color: {
+      light: '',
+      dark: '',
+      marker: ''
+    }
+  }
+  if (statusesData.value) {
+    return [
+      {
+        label: 'Все статусы',
+        value: '',
+        color: {
+          light: '#EEEEEE',
+          dark: '#EEEEEE',
+          marker: '#9E9E9E'
+        }
+      },
+      ...statusesData.value
+    ]
+  }
+  return [emptyStatus]
+})
 
 const { getClientProjects } = useClientProjectsApi()
 const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
@@ -46,6 +72,20 @@ const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
       sort: 'regdate desc'
     }),
   {
+    // transform: (data) => {
+    //   return {
+    //     ...data,
+    //     projects: {
+    //       ...data.projects,
+    //       recordsOfCurrentPage: data.projects.recordsOfCurrentPage.map((p) => {
+    //         return {
+    //           ...p,
+    //           statusColor: getStatusColor(p.status)
+    //         }
+    //       })
+    //     }
+    //   }
+    // },
     lazy: true,
     watch: [page, search, status]
   }
@@ -89,7 +129,12 @@ const updateDate = (value: any) => {
           <n-select v-model:value="source" :options="sourceOptions" />
         </div> -->
             <div style="width: 200px">
-              <n-select v-model:value="status" :options="statusOptions" />
+              <ClientProjectsStatusesSelector
+                v-model:status="status"
+                :async-status="statusesStatus"
+                :status-options="statusOptions as any"
+              />
+              <!-- <n-select v-model:value="status" :options="statusOptions" /> -->
             </div>
             <!-- <div style="width: 280px">
               <n-date-picker
@@ -133,8 +178,8 @@ const updateDate = (value: any) => {
                   <th>Компания/ Проектировщик</th>
                   <th>Статус</th>
                   <th>Дата создания</th>
-                  <th>Сумма</th>
-                  <th>Баллы</th>
+                  <th class="nums-cell">Сумма</th>
+                  <th class="nums-cell">Баллы</th>
                   <th>
                     <n-icon size="24">
                       <Message2 />
@@ -156,17 +201,21 @@ const updateDate = (value: any) => {
                   <td>{{ r.engineeringSystem }}</td>
                   <td>{{ r.subjectName }}</td>
                   <td>
-                    <n-tag v-if="r.statusName">{{ r.statusName }}</n-tag>
+                    <ClientProjectsStatusesTag
+                      v-if="r.statusName"
+                      :status-key="r.status"
+                      :status-label="r.statusName"
+                    />
                   </td>
                   <td>{{ r.regdate }}, {{ r.regtime }}</td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td class="nums-cell">{{ formatNumberWithDigits(r.cost) }}</td>
+                  <td class="nums-cell">{{ formatNumberWithDigits(r.bonus) }}</td>
                   <td>
                     <span class="msgs-cell">
                       <n-icon size="18">
                         <Message2 />
                       </n-icon>
-                      0
+                      {{ r.qtyComments }}
                     </span>
                   </td>
                   <td>
@@ -174,7 +223,7 @@ const updateDate = (value: any) => {
                       <n-icon size="18">
                         <Paperclip />
                       </n-icon>
-                      0
+                      {{ r.qtyFiles }}
                     </span>
                   </td>
                 </tr>
@@ -231,6 +280,10 @@ const updateDate = (value: any) => {
   position: sticky;
   bottom: 0px;
   font-weight: 900;
+}
+
+.nums-cell {
+  text-align: right;
 }
 
 .msgs-cell {

@@ -17,6 +17,11 @@ export interface ProjectPreview {
   subjectCode: string
   subjectId: number
   subjectName: string
+  bonus: number
+  cost: number
+  qtyComments: number
+  qtyFiles: number
+  qtyNotreadedComments: number
 }
 
 export interface SubjectPreview {
