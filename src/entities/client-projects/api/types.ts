@@ -96,6 +96,17 @@ export interface ClientProjectDetailDto {
     getPath: string
     staticPath: string
   }>
+  comments: Array<{
+    id: number //100058
+    comment: string // 'Ну я посмотрел, заценил. Всё норм'
+    authorId: number //100000
+    author: string // 'Журавлев Алексей'
+    iamAuthor: boolean // false
+    iamSeen: boolean // false
+    regdate: string // '05.09.2025'
+    regtime: string // '0:00'
+    regdatetime: string // '05.09.2025 в 0:00'
+  }>
 }
 
 export interface ClientProjectStatusesDto {

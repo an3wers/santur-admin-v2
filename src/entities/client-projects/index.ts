@@ -9,3 +9,12 @@ export { getStatusColor } from './lib/get-status-color'
 export { useStatuses } from './model/use-statuses'
 export { default as ClientProjectsStatusesSelector } from './ui/ClientProjectsStatusesSelector.vue'
 export { default as ClientProjectsStatusesTag } from './ui/ClientProjectsStatusesTag.vue'
+export type {
+  ClientProjectDetailDto,
+  ClientProjectDto,
+  ClientProjectStatusesDto,
+  ClientProjectsFilters,
+  ProjectPreview,
+  SubjectPreview,
+  UpdateProjectStateDto
+} from './api/types'

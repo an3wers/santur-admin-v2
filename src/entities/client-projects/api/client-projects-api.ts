@@ -97,10 +97,43 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
+  async function addComment(payload: {
+    id: number
+    entity: string
+    entityId: string
+    comment: string
+    isprivate: boolean
+  }) {
+    const formData = new FormData()
+
+    formData.append('id', String(payload.id))
+    formData.append('entity', payload.entity)
+    formData.append('entityId', payload.entityId)
+    formData.append('comment', payload.comment)
+    formData.append('isprivate', String(payload.isprivate))
+
+    const res = await fetchWithToken('common/CommentAdd', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
+  async function removeComment(id: number) {
+    const res = await fetchWithToken('common/commentDelete', {
+      method: 'GET',
+      params: { id }
+    })
+    return checkError(res).data
+  }
+
   return {
     getClientProjects,
     getClientProjectsById,
     getStatuses,
-    updateProjectState
+    updateProjectState,
+    addComment,
+    removeComment
   }
 }

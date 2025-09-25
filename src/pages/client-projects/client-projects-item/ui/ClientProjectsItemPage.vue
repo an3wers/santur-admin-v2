@@ -21,7 +21,6 @@ if (!itemId || isNaN(Number(itemId))) {
   })
 }
 
-const commentValue = ref('')
 const showCommentsPanel = ref(false)
 
 const { getClientProjectsById } = useClientProjectsApi()
@@ -41,6 +40,10 @@ watch(clientProjectStatus, () => {
     message.error('Произошла ошибка при загрузке проекта')
   }
 })
+
+function updateShowCommentsPanel(value: boolean) {
+  showCommentsPanel.value = value
+}
 </script>
 
 <template>
@@ -72,15 +75,19 @@ watch(clientProjectStatus, () => {
             </template>
           </ClientProjectsDetailState>
           <ClientProjectsDetailFiles :files="clientProjectData.files" />
-          <ClientProjectsDetailComments @show-comments="showCommentsPanel = true" />
+          <ClientProjectsDetailComments
+            :comments-count="clientProjectData.comments.length"
+            @show-comments="updateShowCommentsPanel(true)"
+          />
         </n-space>
       </div>
     </n-space>
     <ClientProjectsCommentsPanel
-      v-if="clientProjectData"
-      v-model:show="showCommentsPanel"
-      :project-id="clientProjectData.id"
-      @update:show="() => {}"
+      v-if="showCommentsPanel"
+      :show="showCommentsPanel"
+      :project-id="clientProjectData?.id || 0"
+      :comments="clientProjectData?.comments || []"
+      @update:show="updateShowCommentsPanel"
     />
   </div>
 </template>
