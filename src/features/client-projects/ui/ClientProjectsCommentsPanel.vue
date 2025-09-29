@@ -13,6 +13,7 @@ import { ArrowUp } from '@vicons/tabler'
 import type { ClientProjectDetailDto } from '~/entities/client-projects'
 import { useDeleteComment } from '../model/use-delete-comment'
 import { useSaveComment } from '../model/use-save-comment'
+import ClientProjectsCommentsItem from './ClientProjectsCommentsItem.vue'
 // import { useCommonApi } from '~/shared/api/common-api'
 
 const { projectId, show, comments } = defineProps<{
@@ -51,6 +52,7 @@ const {
   editingCommentValue,
   error: saveCommentError
 } = useSaveComment(Number(projectId))
+
 const { deleteComment } = useDeleteComment(Number(projectId))
 
 const message = useMessage()
@@ -120,26 +122,13 @@ onMounted(() => {
           <n-text tag="p" style="text-align: center">Нет комментариев</n-text>
         </div>
         <div v-else class="comments-list">
-          <div
+          <ClientProjectsCommentsItem
             v-for="item in reversedComments"
-            class="comment-item"
             :key="item.id"
-            :class="{
-              'comment-item__self comment-item__right': item.iamAuthor,
-              'comment-item__left': !item.iamAuthor
-            }"
-          >
-            <div class="comment-item__meta">{{ item.regdate }}, {{ item.author }}</div>
-            <div>{{ item.comment }}</div>
-            <div v-if="item.iamAuthor" class="comment-item__actions">
-              <n-button size="tiny" type="primary" text @click="editComment(item.id, item.comment)"
-                >Изменить</n-button
-              >
-              <n-button size="tiny" type="error" text @click="deleteComment(item.id)"
-                >Удалить</n-button
-              >
-            </div>
-          </div>
+            :comment="item"
+            @on-edit="editComment"
+            @on-delete="deleteComment"
+          />
           <div ref="commentHiddenRef" class="comment-item__hidden"></div>
         </div>
       </section>
@@ -218,35 +207,10 @@ onMounted(() => {
   gap: 1rem;
 }
 
-.comment-item {
-  max-width: 80%;
-  padding: 0.5rem;
-  border-radius: var(--border-radius);
-  background-color: var(--gray-150);
-  font-size: var(--font-size-sm);
-}
-
 .comment-item__hidden {
   display: block;
   height: 1rem;
   visibility: hidden;
-}
-
-.comment-item__meta {
-  font-size: var(--font-size-xs);
-  opacity: 0.7;
-}
-
-.comment-item__self {
-  background-color: var(--blue-200);
-}
-
-.comment-item__left {
-  align-self: flex-start;
-}
-
-.comment-item__right {
-  align-self: flex-end;
 }
 
 .comments-empty {

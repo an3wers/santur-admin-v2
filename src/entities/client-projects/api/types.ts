@@ -47,7 +47,7 @@ export interface ClientProjectsFilters {
   search?: string
   subjectId?: number
   sort?: 'id' | 'id desc' | 'regdate' | 'regdate desc'
-  // status?: string
+  status?: string
   // range?: [number, number]
 }
 

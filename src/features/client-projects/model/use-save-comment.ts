@@ -2,7 +2,7 @@ import type { AsyncDataRequestStatus } from '#app'
 import { getClientProjectsDetailQueryKey, useClientProjectsApi } from '~/entities/client-projects'
 
 export const useSaveComment = (projectId: number) => {
-  const { addComment: addCommentApi } = useClientProjectsApi()
+  const { saveComment: saveCommentApi } = useClientProjectsApi()
 
   const saveCommentId = ref(0)
   const editingCommentValue = ref('')
@@ -16,7 +16,7 @@ export const useSaveComment = (projectId: number) => {
       status.value = 'pending'
       error.value = null
 
-      await addCommentApi({
+      await saveCommentApi({
         id: saveCommentId.value,
         comment: commentValue.value,
         entity: 'ClienProject',

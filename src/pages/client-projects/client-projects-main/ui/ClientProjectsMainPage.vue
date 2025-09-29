@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { NSpace, NH1 } from 'naive-ui'
+import { NSpace, NH1, NButton, NIcon } from 'naive-ui'
 import { ClientProjectsList } from '~/features/client-projects'
 import { useNavStore } from '~/shared/navigation/model/use-nav-store'
-
+import { Settings } from '@vicons/tabler'
 const navStore = useNavStore()
+
+function openSttings() {}
 </script>
 
 <template>
@@ -16,7 +18,14 @@ const navStore = useNavStore()
           </n-h1>
         </template>
         <template #actions>
-          <!-- <n-button type="primary" @click="showUploadFileModal = true">Загрузить описание</n-button> -->
+          <n-button type="default" @click="openSttings">
+            <template #icon>
+              <n-icon size="20px">
+                <Settings />
+              </n-icon>
+            </template>
+            Настройки
+          </n-button>
         </template>
       </page-title>
       <ClientProjectsList />

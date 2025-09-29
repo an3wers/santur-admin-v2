@@ -37,44 +37,45 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
-  async function updateStatus(id: number, status: string) {
-    const formData = new FormData()
-    formData.append('id', String(id))
-    formData.append('status', status)
+  // async function updateStatus(id: number, status: string) {
+  //   const formData = new FormData()
+  //   formData.append('id', String(id))
+  //   formData.append('status', status)
 
-    const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateStatus', {
-      method: 'POST',
-      body: formData
-    })
+  //   const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateStatus', {
+  //     method: 'POST',
+  //     body: formData
+  //   })
 
-    return checkError(res).data
-  }
+  //   return checkError(res).data
+  // }
 
-  async function updateSum(id: number, sum: number) {
-    const formData = new FormData()
-    formData.append('id', String(id))
-    formData.append('cost', String(sum))
+  // async function updateSum(id: number, sum: number) {
+  //   const formData = new FormData()
+  //   formData.append('id', String(id))
+  //   formData.append('cost', String(sum))
 
-    const res = await fetchWithToken('AdminSubjects_v2/ClientProjectUpdateCost', {
-      method: 'POST',
-      body: formData
-    })
+  //   const res = await fetchWithToken('AdminSubjects_v2/ClientProjectUpdateCost', {
+  //     method: 'POST',
+  //     body: formData
+  //   })
 
-    return checkError(res).data
-  }
+  //   return checkError(res).data
+  // }
 
-  async function updatePoints(id: number, points: number) {
-    const formData = new FormData()
-    formData.append('id', String(id))
-    formData.append('bonus', String(points))
+  // async function updatePoints(id: number, points: number) {
+  //   const formData = new FormData()
+  //   formData.append('id', String(id))
+  //   formData.append('bonus', String(points))
 
-    const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateBonus', {
-      method: 'POST',
-      body: formData
-    })
+  //   const res = await fetchWithToken('AdminSubjects/ClientProjectUpdateBonus', {
+  //     method: 'POST',
+  //     body: formData
+  //   })
 
-    return checkError(res).data
-  }
+  //   return checkError(res).data
+  // }
+
   // ClientProjectUpdateParams([FromForm] int id, [FromForm] string status, [FromForm] int cost, [FromForm] int bonus, [FromForm] string comment = "")
 
   async function updateProjectState(payload: UpdateProjectStateDto) {
@@ -97,7 +98,7 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
-  async function addComment(payload: {
+  async function saveComment(payload: {
     id: number
     entity: string
     entityId: string
@@ -112,7 +113,7 @@ export const useClientProjectsApi = () => {
     formData.append('comment', payload.comment)
     formData.append('isprivate', String(payload.isprivate))
 
-    const res = await fetchWithToken('common/CommentAdd', {
+    const res = await fetchWithToken('common/CommentSave', {
       method: 'POST',
       body: formData
     })
@@ -133,7 +134,7 @@ export const useClientProjectsApi = () => {
     getClientProjectsById,
     getStatuses,
     updateProjectState,
-    addComment,
+    saveComment,
     removeComment
   }
 }

@@ -4,7 +4,6 @@ import {
   ClientProjectsStatusesSelector,
   ClientProjectsStatusesTag,
   getClientProjectsQueryKey,
-  getStatusColor,
   useClientProjectsApi,
   useStatuses
 } from '~/entities/client-projects'
@@ -22,6 +21,8 @@ const pageCount = ref(0)
 const search = ref('')
 
 const status = ref('')
+
+const sort = ref<'id' | 'id desc' | 'regdate' | 'regdate desc'>('regdate desc')
 
 // const statusOptions = [
 //   {
@@ -69,7 +70,7 @@ const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
     getClientProjects({
       page: page.value,
       search: search.value,
-      sort: 'regdate desc'
+      sort: sort.value
     }),
   {
     // transform: (data) => {
@@ -229,10 +230,9 @@ const updateDate = (value: any) => {
                 </tr>
               </tbody>
             </n-table>
-            <div class="projects-pagination">
-              <NPagination v-model:page="page" :page-count="pageCount" />
-            </div>
-            <!-- TODO: add pagination -->
+          </div>
+          <div class="projects-pagination">
+            <NPagination v-model:page="page" :page-count="pageCount" />
           </div>
         </n-space>
       </n-card>
