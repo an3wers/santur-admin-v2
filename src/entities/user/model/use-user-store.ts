@@ -17,6 +17,7 @@ export const useUserStore = defineStore('user', () => {
   async function loadUser() {
     try {
       isLoaded.value = false
+
       const userData = await api.getUser(userId.value)
       // console.log('userData', userData)
       if (!userData) {

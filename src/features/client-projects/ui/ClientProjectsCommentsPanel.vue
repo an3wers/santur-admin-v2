@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { NDrawer, NDrawerContent, NInput, NButton, NIcon, NText } from 'naive-ui'
-import { ArrowUp } from '@vicons/tabler'
 import {
-  getClientProjectsDetailQueryKey,
-  useClientProjectsApi,
-  type ClientProjectDetailDto
-} from '~/entities/client-projects'
-import type { AsyncDataRequestStatus } from '#app'
+  NDrawer,
+  NDrawerContent,
+  NInput,
+  NButton,
+  NIcon,
+  NText,
+  NAlert,
+  useMessage
+} from 'naive-ui'
+import { ArrowUp } from '@vicons/tabler'
+import type { ClientProjectDetailDto } from '~/entities/client-projects'
 import { useDeleteComment } from '../model/use-delete-comment'
-import { useAddComment } from '../model/use-add-comment'
+import { useSaveComment } from '../model/use-save-comment'
 // import { useCommonApi } from '~/shared/api/common-api'
 
 const { projectId, show, comments } = defineProps<{
@@ -35,28 +39,36 @@ function updateShowHandler(show: boolean) {
 //   getPossibleEntitiesForComment()
 // )
 
-const itemId = useRoute().params.itemId as string
+// const itemId = useRoute().params.itemId as string
 
-const { addComment, commentValue, status: addCommentStatus } = useAddComment(Number(itemId))
-const { deleteComment } = useDeleteComment(Number(itemId))
+const {
+  saveComment,
+  commentValue,
+  status: saveCommentStatus,
+  editComment,
+  cancelEdit,
+  saveCommentId,
+  editingCommentValue,
+  error: saveCommentError
+} = useSaveComment(Number(projectId))
+const { deleteComment } = useDeleteComment(Number(projectId))
 
-const saveCommentId = ref(0)
+const message = useMessage()
+
 async function saveCommentHandler() {
   const isBottom = isNearBottom()
 
-  await addComment(saveCommentId.value)
+  await saveComment()
 
-  if (isBottom) {
-    setTimeout(scrollToLatestComment, 0)
+  if (saveCommentStatus.value === 'error') {
+    message.error(saveCommentError.value?.message || 'Произошла ошибка')
   }
-}
 
-function editCommentHandler(id: number) {
-  saveCommentId.value = id
-}
-
-function closeEditHandler() {
-  saveCommentId.value = 0
+  if (saveCommentStatus.value === 'success') {
+    if (isBottom) {
+      setTimeout(scrollToLatestComment, 0)
+    }
+  }
 }
 
 const commentHiddenRef = useTemplateRef('commentHiddenRef')
@@ -120,7 +132,7 @@ onMounted(() => {
             <div class="comment-item__meta">{{ item.regdate }}, {{ item.author }}</div>
             <div>{{ item.comment }}</div>
             <div v-if="item.iamAuthor" class="comment-item__actions">
-              <n-button size="tiny" type="primary" text @click="editCommentHandler(item.id)"
+              <n-button size="tiny" type="primary" text @click="editComment(item.id, item.comment)"
                 >Изменить</n-button
               >
               <n-button size="tiny" type="error" text @click="deleteComment(item.id)"
@@ -132,42 +144,59 @@ onMounted(() => {
         </div>
       </section>
       <template #footer>
-        <section class="write-comment">
-          <n-input
-            v-model:value="commentValue"
-            type="textarea"
-            placeholder="Напишите комментарий"
-            size="small"
-            :disabled="addCommentStatus === 'pending'"
-            :autosize="{
-              minRows: 2,
-              maxRows: 5
-            }"
-            :input-props="{
-              id: 'comment-input',
-              autocomplete: 'off'
-            }"
-            :theme-overrides="{
-              border: '1px solid transparent',
-              borderFocus: '1px solid transparent',
-              borderHover: '1px solid transparent',
-              boxShadowFocus: 'none',
-              paddingSmall: '0.5rem 0'
-            }"
-          />
-          <div class="actions">
-            <n-button
-              strong
-              circle
-              type="primary"
-              size="medium"
-              :loading="addCommentStatus === 'pending'"
-              @click="saveCommentHandler"
+        <section class="save-comment">
+          <div v-if="saveCommentId > 0" class="edit-comment">
+            <n-alert
+              type="info"
+              closable
+              :show-icon="false"
+              :theme-overrides="{}"
+              @close="cancelEdit"
             >
-              <template #icon>
-                <n-icon><ArrowUp /></n-icon>
-              </template>
-            </n-button>
+              <div>
+                <n-text strong tag="p">Редактирование</n-text>
+                <n-text tag="p">{{ editingCommentValue }}</n-text>
+              </div>
+            </n-alert>
+          </div>
+
+          <div class="write-comment">
+            <n-input
+              v-model:value="commentValue"
+              type="textarea"
+              placeholder="Напишите комментарий"
+              size="small"
+              :disabled="saveCommentStatus === 'pending'"
+              :autosize="{
+                minRows: 2,
+                maxRows: 5
+              }"
+              :input-props="{
+                id: 'comment-input',
+                autocomplete: 'off'
+              }"
+              :theme-overrides="{
+                border: '1px solid transparent',
+                borderFocus: '1px solid transparent',
+                borderHover: '1px solid transparent',
+                boxShadowFocus: 'none',
+                paddingSmall: '0.5rem 0'
+              }"
+            />
+            <div class="actions">
+              <n-button
+                strong
+                circle
+                type="primary"
+                size="medium"
+                :loading="saveCommentStatus === 'pending'"
+                @click="saveCommentHandler"
+              >
+                <template #icon>
+                  <n-icon><ArrowUp /></n-icon>
+                </template>
+              </n-button>
+            </div>
           </div>
         </section>
       </template>
@@ -229,6 +258,13 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+.save-comment {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .write-comment {

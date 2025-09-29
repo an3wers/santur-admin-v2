@@ -1,20 +1,23 @@
 import type { AsyncDataRequestStatus } from '#app'
 import { getClientProjectsDetailQueryKey, useClientProjectsApi } from '~/entities/client-projects'
 
-export const useAddComment = (projectId: number) => {
+export const useSaveComment = (projectId: number) => {
   const { addComment: addCommentApi } = useClientProjectsApi()
 
+  const saveCommentId = ref(0)
+  const editingCommentValue = ref('')
   const commentValue = ref('')
+
   const status = ref<AsyncDataRequestStatus>('idle')
   const error = ref<Error | null>(null)
 
-  // Если передан id, то обновить комментарий
-  async function addComment(id: number) {
+  async function saveComment() {
     try {
       status.value = 'pending'
       error.value = null
+
       await addCommentApi({
-        id: id,
+        id: saveCommentId.value,
         comment: commentValue.value,
         entity: 'ClienProject',
         entityId: String(projectId),
@@ -23,7 +26,7 @@ export const useAddComment = (projectId: number) => {
 
       status.value = 'success'
 
-      commentValue.value = ''
+      reset()
 
       await refreshNuxtData(getClientProjectsDetailQueryKey(projectId))
     } catch (err) {
@@ -37,5 +40,30 @@ export const useAddComment = (projectId: number) => {
     }
   }
 
-  return { addComment, commentValue, status, error }
+  function editComment(commentId: number, comment: string) {
+    saveCommentId.value = commentId
+    commentValue.value = comment
+    editingCommentValue.value = comment
+  }
+
+  function cancelEdit() {
+    reset()
+  }
+
+  function reset() {
+    saveCommentId.value = 0
+    commentValue.value = ''
+    editingCommentValue.value = ''
+  }
+
+  return {
+    commentValue,
+    status,
+    error,
+    saveCommentId,
+    editingCommentValue,
+    saveComment,
+    editComment,
+    cancelEdit
+  }
 }
