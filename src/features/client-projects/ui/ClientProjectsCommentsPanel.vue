@@ -14,6 +14,7 @@ import type { ClientProjectDetailDto } from '~/entities/client-projects'
 import { useDeleteComment } from '../model/use-delete-comment'
 import { useSaveComment } from '../model/use-save-comment'
 import ClientProjectsCommentsItem from './ClientProjectsCommentsItem.vue'
+import { cropString } from '~/shared/libs/crop-string'
 // import { useCommonApi } from '~/shared/api/common-api'
 
 const { projectId, show, comments } = defineProps<{
@@ -136,7 +137,7 @@ onMounted(() => {
         <section class="save-comment">
           <div v-if="saveCommentId > 0" class="edit-comment">
             <n-alert
-              type="info"
+              type="warning"
               closable
               :show-icon="false"
               :theme-overrides="{}"
@@ -144,7 +145,7 @@ onMounted(() => {
             >
               <div>
                 <n-text strong tag="p">Редактирование</n-text>
-                <n-text tag="p">{{ editingCommentValue }}</n-text>
+                <n-text tag="p">{{ cropString(editingCommentValue, 120) }}</n-text>
               </div>
             </n-alert>
           </div>
