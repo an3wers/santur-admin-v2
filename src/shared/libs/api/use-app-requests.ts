@@ -23,7 +23,7 @@ export const useAppRequest = () => {
 
   // Fix: message
   const checkError = <DataType>(res: ResponseApi<DataType>, message?: string) => {
-    if (!res.success) {
+    if (!res.success && !res.data) {
       throw new Error(message || res.message || 'Произошла ошибка')
     }
 

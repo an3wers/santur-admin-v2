@@ -22,10 +22,15 @@ async function initLayout() {
 await initLayout()
 
 async function changeResource(value: string) {
-  navStore.setActiveResource(value)
-  await navStore.loadMenu(value)
-  navStore.saveActiveResourceToLS(value)
-  navigateTo({ name: navStore.firstLevelName })
+  try {
+    navStore.setActiveResource(value)
+    await navStore.loadMenu(value)
+    navStore.saveActiveResourceToLS(value)
+    navigateTo({ name: navStore.firstLevelName })
+  } catch (error) {
+    console.error(error)
+    throw createError({ fatal: false, statusMessage: 'Произошла ошибка при инициализации' })
+  }
 }
 </script>
 
