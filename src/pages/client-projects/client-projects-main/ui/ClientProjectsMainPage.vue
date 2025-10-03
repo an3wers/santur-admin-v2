@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { NSpace, NH1, NButton, NIcon } from 'naive-ui'
+import { Suspense } from 'vue'
+import { NSpace, NH1, NButton, NIcon, NModal, NSpin } from 'naive-ui'
 import { ClientProjectsList } from '~/features/client-projects'
 import { useNavStore } from '~/shared/navigation/model/use-nav-store'
 import { Settings } from '@vicons/tabler'
 const navStore = useNavStore()
 
-function openSttings() {}
+const isShowSettings = ref(false)
+
+function openSttings() {
+  isShowSettings.value = true
+}
+
+const ClientProjectsSettings = defineAsyncComponent(
+  () => import('~/features/client-projects/ui/ClientProjectsSettings.vue')
+)
 </script>
 
 <template>
@@ -18,7 +27,7 @@ function openSttings() {}
           </n-h1>
         </template>
         <template #actions>
-          <n-button type="default" @click="openSttings">
+          <n-button type="primary" ghost @click="openSttings">
             <template #icon>
               <n-icon size="20px">
                 <Settings />
@@ -30,6 +39,23 @@ function openSttings() {}
       </page-title>
       <ClientProjectsList />
     </n-space>
+
+    <n-modal
+      v-model:show="isShowSettings"
+      style="max-width: 1024px"
+      size="medium"
+      preset="card"
+      title="Настройки"
+    >
+      <Suspense>
+        <template #fallback>
+          <n-spin>
+            <div style="height: 100px"></div>
+          </n-spin>
+        </template>
+        <ClientProjectsSettings @on-close="isShowSettings = false" />
+      </Suspense>
+    </n-modal>
   </div>
 </template>
 

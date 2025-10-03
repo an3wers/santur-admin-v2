@@ -2,6 +2,7 @@ import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import type {
   ClientProjectDetailDto,
   ClientProjectDto,
+  ClientProjectSettingsRes,
   ClientProjectsFilters,
   ClientProjectStatusesDto,
   UpdateProjectStateDto
@@ -129,12 +130,47 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
+  async function getEngenitingSystems() {
+    const res = await fetchWithToken('adminGoods/GetInzhSystems')
+    return checkError(res).data
+  }
+
+  async function getClientProjectsSettings(subjectId: number) {
+    const res = await fetchWithToken<ClientProjectSettingsRes[]>(
+      'adminGoods/ClientProjectsGetFilter',
+      {
+        query: {
+          subjectId
+        }
+      }
+    )
+    return checkError(res).data
+  }
+
+  async function saveSettings(data: { subjectId: number; systema: string; brends: string[] }) {
+    const formData = new FormData()
+
+    formData.append('subjectId', String(data.subjectId))
+    formData.append('systema', data.systema)
+    formData.append('brends', JSON.stringify(data.brends))
+
+    const res = await fetchWithToken('adminGoods/ClientProjectsSaveFilter', {
+      method: 'POST',
+      body: formData
+    })
+
+    return checkError(res).data
+  }
+
   return {
     getClientProjects,
     getClientProjectsById,
     getStatuses,
     updateProjectState,
     saveComment,
-    removeComment
+    removeComment,
+    getEngenitingSystems,
+    getClientProjectsSettings,
+    saveSettings
   }
 }
