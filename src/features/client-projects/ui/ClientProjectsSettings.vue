@@ -61,12 +61,14 @@ const {
   lettersEng,
   lettersRus,
   setLetter,
-  selectedBrands
+  selectedBrands,
+  removeBrand
 } = useSettingsBrands({ selectedBrands: currentSettings.value?.brands || [] })
 
 const { saveSettings, status: saveSettingsStatus } = useSaveSettings()
 
 const message = useMessage()
+
 async function saveSettingsHandler() {
   const data = {
     subjectId: SUBJECTID,
@@ -156,21 +158,17 @@ const showBrandsDetail = ref(false)
 
     <n-modal
       v-model:show="showBrandsDetail"
-      style="max-width: 320px"
+      style="max-width: 720px"
       size="medium"
       preset="card"
-      title="Бренды"
+      :title="`Бренды (${selectedBrands?.length || 0})`"
     >
-      <!-- <ul>
-        <li v-for="item in selectedBrands" :key="item">{{ item }}</li>
-      </ul> -->
-
-      <n-list hoverable>
+      <n-list hoverable class="brands-modal-list">
         <n-list-item style="padding: 6px 12px" v-for="item in selectedBrands" :key="item">
           {{ item }}
           <template #suffix>
-            <n-button text>
-              <n-icon size="16px"><XIcon /></n-icon>
+            <n-button text @click="removeBrand(item)">
+              <n-icon size="14px"><XIcon /></n-icon>
             </n-button>
           </template>
         </n-list-item>
@@ -188,5 +186,23 @@ const showBrandsDetail = ref(false)
 
 .brands__item {
   margin-top: 0.25rem;
+}
+
+.brands-modal-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  list-style: none;
+  padding: 0;
+}
+
+.brands-modal-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+}
+
+.brands-modal-list__item:hover {
+  background-color: #f3f3f5;
 }
 </style>

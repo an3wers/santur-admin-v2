@@ -66,6 +66,16 @@ export const useSettingsBrands = (initState: initState) => {
     }
   }
 
+  function removeBrand(brand: string) {
+    const found = brands.value?.brends.find((b) => b.name === brand)
+
+    if (found) {
+      found.isChecked = false
+    }
+
+    toggleBrands(brand)
+  }
+
   return {
     currentLetter: readonly(currentLetter),
     brands,
@@ -74,6 +84,7 @@ export const useSettingsBrands = (initState: initState) => {
     lettersRus,
     lettersEng,
     selectedBrands,
+    removeBrand,
     setLetter,
     toggleBrands,
     refresh
