@@ -1,5 +1,17 @@
 <script setup lang="ts">
-import { NSpace, NCard, NSpin, NTable, NPagination, useMessage, NIcon, NText, NTag } from 'naive-ui'
+import {
+  NSpace,
+  NCard,
+  NSpin,
+  NTable,
+  NPagination,
+  useMessage,
+  NIcon,
+  NText,
+  NTabs,
+  NTab,
+  NButton
+} from 'naive-ui'
 import {
   ClientProjectsStatusesSelector,
   ClientProjectsStatusesTag,
@@ -7,8 +19,10 @@ import {
   useClientProjectsApi,
   useStatuses
 } from '~/entities/client-projects'
-import { Message2, Paperclip } from '@vicons/tabler'
+import { Message2, Paperclip, BellRinging } from '@vicons/tabler'
 import { formatNumberWithDigits } from '~/shared/libs/format-number-with-digits'
+
+const tableMode = ref<'projects' | 'clients'>('projects')
 
 // TODO: Вынести в composable
 // list pagination
@@ -106,41 +120,112 @@ watch(clientProjectsStatus, () => {
     <template v-else>
       <n-card size="small">
         <n-space vertical size="large">
-          <n-space>
-            <InputSearch v-model="search" placeholder="Поиск" />
-            <!-- <div style="width: 160px">
-          <n-select v-model:value="source" :options="sourceOptions" />
-        </div> -->
-            <div style="width: 200px">
-              <ClientProjectsStatusesSelector
-                v-model:status="status"
-                :async-status="statusesStatus"
-                :status-options="statusOptions as any"
-              />
-              <!-- <n-select v-model:value="status" :options="statusOptions" /> -->
-            </div>
-            <!-- <div style="width: 280px">
-              <n-date-picker
-                :value="range"
-                type="daterange"
-                format="dd-MM-yyyy"
-                :first-day-of-week="0"
-                @update:value="updateDate"
-              />
-            </div> -->
+          <n-space justify="space-between">
+            <n-space>
+              <InputSearch v-model="search" placeholder="Поиск" />
+              <div style="width: 200px">
+                <ClientProjectsStatusesSelector
+                  v-model:status="status"
+                  :async-status="statusesStatus"
+                  :status-options="statusOptions as any"
+                />
+              </div>
+            </n-space>
+            <n-tabs v-model:value="tableMode" type="segment">
+              <n-tab name="projects"> <span style="padding: 0 14px">Проекты </span></n-tab>
+              <n-tab name="clients"> <span style="padding: 0 14px">Клиенты</span> </n-tab>
+            </n-tabs>
           </n-space>
+          <template v-if="tableMode === 'projects'">
+            <div
+              v-if="
+                clientProjectsStatus === 'success' &&
+                !clientProjectsData?.projects.recordsOfCurrentPage.length
+              "
+              style="text-align: center; padding: 1rem"
+            >
+              <n-text>Нет данных</n-text>
+            </div>
 
-          <div
-            v-if="
-              clientProjectsStatus === 'success' &&
-              !clientProjectsData?.projects.recordsOfCurrentPage.length
-            "
-            style="text-align: center; padding: 1rem"
-          >
-            <n-text>Нет данных</n-text>
-          </div>
-          <div v-if="clientProjectsData?.projects.recordsOfCurrentPage.length" class="table-wrap">
-            <div class="table-container">
+            <div v-if="clientProjectsData?.projects.recordsOfCurrentPage.length" class="table-wrap">
+              <div class="table-container">
+                <n-table
+                  :bordered="false"
+                  :theme-overrides="{
+                    fontSizeSmall: '13px'
+                  }"
+                  :single-line="false"
+                  size="small"
+                  class="table-el"
+                >
+                  <thead class="table-header">
+                    <tr>
+                      <th>Номер</th>
+                      <th width="280">Проект</th>
+                      <th>Система</th>
+                      <th>Компания/ Проектировщик</th>
+                      <th>Статус</th>
+                      <th>Дата создания</th>
+                      <th class="nums-cell">Сумма</th>
+                      <th class="nums-cell">Баллы</th>
+                      <th>
+                        <n-icon size="24">
+                          <Message2 />
+                        </n-icon>
+                      </th>
+                      <th>
+                        <n-icon size="24">
+                          <Paperclip />
+                        </n-icon>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="r in clientProjectsData?.projects.recordsOfCurrentPage" :key="r.id">
+                      <td>{{ r.id }}</td>
+                      <td>
+                        <nuxt-link :to="`/client-projects/${r.id}`">{{ r.name }}</nuxt-link>
+                      </td>
+                      <td>{{ r.engineeringSystem }}</td>
+                      <td>{{ r.subjectName }}</td>
+                      <td>
+                        <ClientProjectsStatusesTag
+                          v-if="r.statusName"
+                          :status-key="r.status"
+                          :status-label="r.statusName"
+                        />
+                      </td>
+                      <td>{{ r.regdate }}, {{ r.regtime }}</td>
+                      <td class="nums-cell">{{ formatNumberWithDigits(r.cost) }}</td>
+                      <td class="nums-cell">{{ formatNumberWithDigits(r.bonus) }}</td>
+                      <td>
+                        <span class="msgs-cell">
+                          <n-icon size="18">
+                            <Message2 />
+                          </n-icon>
+                          {{ r.qtyComments }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="files-cell">
+                          <n-icon size="18">
+                            <Paperclip />
+                          </n-icon>
+                          {{ r.qtyFiles }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </n-table>
+              </div>
+            </div>
+
+            <div class="projects-pagination">
+              <NPagination v-model:page="page" :page-count="pageCount" />
+            </div>
+          </template>
+          <template v-if="tableMode === 'clients'">
+            <div class="table-contaier">
               <n-table
                 :bordered="false"
                 :theme-overrides="{
@@ -152,69 +237,33 @@ watch(clientProjectsStatus, () => {
               >
                 <thead class="table-header">
                   <tr>
-                    <th>Номер</th>
-                    <th width="280">Проект</th>
-                    <th>Система</th>
-                    <th>Компания/ Проектировщик</th>
-                    <th>Статус</th>
-                    <th>Дата создания</th>
-                    <th class="nums-cell">Сумма</th>
-                    <th class="nums-cell">Баллы</th>
-                    <th>
-                      <n-icon size="24">
-                        <Message2 />
-                      </n-icon>
-                    </th>
-                    <th>
-                      <n-icon size="24">
-                        <Paperclip />
-                      </n-icon>
-                    </th>
+                    <th>Клиент</th>
+                    <th>Количество проектов</th>
+                    <th>Баллы</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="r in clientProjectsData?.projects.recordsOfCurrentPage" :key="r.id">
-                    <td>{{ r.id }}</td>
+                  <tr v-for="r in clientProjectsData?.subjects" :key="r.id">
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.qtyProjects }}</td>
                     <td>
-                      <nuxt-link :to="`/client-projects/${r.id}`">{{ r.name }}</nuxt-link>
-                    </td>
-                    <td>{{ r.engineeringSystem }}</td>
-                    <td>{{ r.subjectName }}</td>
-                    <td>
-                      <ClientProjectsStatusesTag
-                        v-if="r.statusName"
-                        :status-key="r.status"
-                        :status-label="r.statusName"
-                      />
-                    </td>
-                    <td>{{ r.regdate }}, {{ r.regtime }}</td>
-                    <td class="nums-cell">{{ formatNumberWithDigits(r.cost) }}</td>
-                    <td class="nums-cell">{{ formatNumberWithDigits(r.bonus) }}</td>
-                    <td>
-                      <span class="msgs-cell">
-                        <n-icon size="18">
-                          <Message2 />
-                        </n-icon>
-                        {{ r.qtyComments }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="files-cell">
-                        <n-icon size="18">
-                          <Paperclip />
-                        </n-icon>
-                        {{ r.qtyFiles }}
-                      </span>
+                      <div style="display: flex; align-items: center; gap: 0.25rem">
+                        <span>0</span>
+                        <n-button size="tiny" text type="warning">
+                          <template #icon>
+                            <n-icon>
+                              <BellRinging />
+                            </n-icon>
+                          </template>
+                          Списать баллы
+                        </n-button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
               </n-table>
             </div>
-          </div>
-
-          <div class="projects-pagination">
-            <NPagination v-model:page="page" :page-count="pageCount" />
-          </div>
+          </template>
         </n-space>
       </n-card>
     </template>
