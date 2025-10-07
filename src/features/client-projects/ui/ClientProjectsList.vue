@@ -73,20 +73,6 @@ const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
       sort: sort.value
     }),
   {
-    // transform: (data) => {
-    //   return {
-    //     ...data,
-    //     projects: {
-    //       ...data.projects,
-    //       recordsOfCurrentPage: data.projects.recordsOfCurrentPage.map((p) => {
-    //         return {
-    //           ...p,
-    //           statusColor: getStatusColor(p.status)
-    //         }
-    //       })
-    //     }
-    //   }
-    // },
     lazy: true,
     watch: [page, search, status]
   }
@@ -106,10 +92,6 @@ watch(clientProjectsStatus, () => {
     message.error('Произошла ошибка при загрузке проектов')
   }
 })
-
-const updateDate = (value: any) => {
-  console.log(value)
-}
 </script>
 
 <template>
@@ -157,80 +139,79 @@ const updateDate = (value: any) => {
           >
             <n-text>Нет данных</n-text>
           </div>
-
-          <div
-            v-if="clientProjectsData?.projects.recordsOfCurrentPage.length"
-            class="table-container"
-          >
-            <n-table
-              :bordered="false"
-              :theme-overrides="{
-                fontSizeSmall: '13px'
-              }"
-              :single-line="false"
-              size="small"
-              class="table-el"
-            >
-              <thead class="table-header">
-                <tr>
-                  <th>Номер</th>
-                  <th width="280">Проект</th>
-                  <th>Система</th>
-                  <th>Компания/ Проектировщик</th>
-                  <th>Статус</th>
-                  <th>Дата создания</th>
-                  <th class="nums-cell">Сумма</th>
-                  <th class="nums-cell">Баллы</th>
-                  <th>
-                    <n-icon size="24">
-                      <Message2 />
-                    </n-icon>
-                  </th>
-                  <th>
-                    <n-icon size="24">
-                      <Paperclip />
-                    </n-icon>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="r in clientProjectsData?.projects.recordsOfCurrentPage" :key="r.id">
-                  <td>{{ r.id }}</td>
-                  <td>
-                    <nuxt-link :to="`/client-projects/${r.id}`">{{ r.name }}</nuxt-link>
-                  </td>
-                  <td>{{ r.engineeringSystem }}</td>
-                  <td>{{ r.subjectName }}</td>
-                  <td>
-                    <ClientProjectsStatusesTag
-                      v-if="r.statusName"
-                      :status-key="r.status"
-                      :status-label="r.statusName"
-                    />
-                  </td>
-                  <td>{{ r.regdate }}, {{ r.regtime }}</td>
-                  <td class="nums-cell">{{ formatNumberWithDigits(r.cost) }}</td>
-                  <td class="nums-cell">{{ formatNumberWithDigits(r.bonus) }}</td>
-                  <td>
-                    <span class="msgs-cell">
-                      <n-icon size="18">
+          <div v-if="clientProjectsData?.projects.recordsOfCurrentPage.length" class="table-wrap">
+            <div class="table-container">
+              <n-table
+                :bordered="false"
+                :theme-overrides="{
+                  fontSizeSmall: '13px'
+                }"
+                :single-line="false"
+                size="small"
+                class="table-el"
+              >
+                <thead class="table-header">
+                  <tr>
+                    <th>Номер</th>
+                    <th width="280">Проект</th>
+                    <th>Система</th>
+                    <th>Компания/ Проектировщик</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th class="nums-cell">Сумма</th>
+                    <th class="nums-cell">Баллы</th>
+                    <th>
+                      <n-icon size="24">
                         <Message2 />
                       </n-icon>
-                      {{ r.qtyComments }}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="files-cell">
-                      <n-icon size="18">
+                    </th>
+                    <th>
+                      <n-icon size="24">
                         <Paperclip />
                       </n-icon>
-                      {{ r.qtyFiles }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </n-table>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="r in clientProjectsData?.projects.recordsOfCurrentPage" :key="r.id">
+                    <td>{{ r.id }}</td>
+                    <td>
+                      <nuxt-link :to="`/client-projects/${r.id}`">{{ r.name }}</nuxt-link>
+                    </td>
+                    <td>{{ r.engineeringSystem }}</td>
+                    <td>{{ r.subjectName }}</td>
+                    <td>
+                      <ClientProjectsStatusesTag
+                        v-if="r.statusName"
+                        :status-key="r.status"
+                        :status-label="r.statusName"
+                      />
+                    </td>
+                    <td>{{ r.regdate }}, {{ r.regtime }}</td>
+                    <td class="nums-cell">{{ formatNumberWithDigits(r.cost) }}</td>
+                    <td class="nums-cell">{{ formatNumberWithDigits(r.bonus) }}</td>
+                    <td>
+                      <span class="msgs-cell">
+                        <n-icon size="18">
+                          <Message2 />
+                        </n-icon>
+                        {{ r.qtyComments }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="files-cell">
+                        <n-icon size="18">
+                          <Paperclip />
+                        </n-icon>
+                        {{ r.qtyFiles }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </n-table>
+            </div>
           </div>
+
           <div class="projects-pagination">
             <NPagination v-model:page="page" :page-count="pageCount" />
           </div>
@@ -247,8 +228,14 @@ const updateDate = (value: any) => {
   justify-content: center;
 }
 
+.table-wrap {
+  overflow-x: auto;
+}
+
 .table-container {
   /* overflow-x: auto; */
+  min-width: 1240px;
+  width: 100%;
 }
 
 .table-el {
@@ -256,7 +243,6 @@ const updateDate = (value: any) => {
   height: auto;
   border-collapse: collapse;
   overflow-y: auto;
-  /* min-width: 1024px; */
 }
 
 .table-el tr:hover td {
