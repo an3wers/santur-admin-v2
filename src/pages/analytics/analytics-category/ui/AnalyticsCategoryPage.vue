@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { NH1, NSpin } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
-import AnaliticsOrders from './AnaliticsOrders.vue'
-import AnaliticsClients from './AnaliticsClients.vue'
+// import AnaliticsOrders from './AnaliticsOrders.vue'
+// import AnaliticsClients from './AnaliticsClients.vue'
 
 const route = useRoute()
 const { catId } = route.params
@@ -12,6 +12,9 @@ const navStore = useNavStore()
 const currentCatItem = computed(() => {
   return navStore.currentNavigationMenu?.items.find((item) => item.id === parseInt(catId as string))
 })
+
+const AnaliticsOrders = defineAsyncComponent(() => import('./AnaliticsOrders.vue'))
+const AnaliticsClients = defineAsyncComponent(() => import('./AnaliticsClients.vue'))
 
 function getComponent(key: string) {
   switch (key) {

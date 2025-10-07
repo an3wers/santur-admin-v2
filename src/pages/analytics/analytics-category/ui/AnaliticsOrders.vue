@@ -33,27 +33,13 @@ const source = ref('ssz:ekb;santur:ekb')
 const page = ref(1)
 const pageSize = ref(20)
 
-// const createPeriod = (dates: [number, number]): string => {
-//   return dates
-//     .map((el) => {
-//       const curr = new Date(el)
-
-//       const y = curr.getFullYear()
-//       const m = curr.getMonth() + 1
-//       const d = curr.getDate()
-
-//       return `${d < 10 ? '0' + d : d}.${m < 10 ? '0' + m : m}.${y}`
-//     })
-//     .join(':')
-// }
-
 const api = useAnalyticsApi()
 
 const {
   data,
   status,
   refresh: refreshOrders
-} = await useAsyncData(
+} = useAsyncData(
   getAnalyticsOrdersQueryKey(),
   () =>
     api.getOrders({
@@ -65,11 +51,12 @@ const {
       state: state.value
     }),
   {
-    watch: [page, pageSize, range, source, state]
+    watch: [page, pageSize, range, source, state],
+    lazy: true
   }
 )
 
-const { data: statusesListData } = await useAsyncData(
+const { data: statusesListData } = useAsyncData(
   getAnalyticsOrdersStatusesQueryKey(),
   api.getOrdersStatuses,
   {
@@ -91,7 +78,8 @@ const { data: statusesListData } = await useAsyncData(
     },
     getCachedData(key, nuxtApp) {
       return nuxtApp.payload.data[key] ?? nuxtApp.static.data[key]
-    }
+    },
+    lazy: true
   }
 )
 
@@ -180,9 +168,9 @@ function cleanFilters() {
     </n-card>
 
     <n-spin :show="status === 'pending'">
-      <div v-if="status === 'pending'" style="height: 200px"></div>
+      <div v-if="status === 'pending' && !data" style="height: 200px"></div>
 
-      <div v-if="status === 'success'" class="table-container">
+      <div v-if="data" class="table-container">
         <n-table
           :bordered="false"
           :theme-overrides="{
@@ -230,10 +218,9 @@ function cleanFilters() {
             </tr>
           </tbody>
         </n-table>
-        <div class="orders-pagination">
-          <n-pagination v-model:page="page" :page-count="data?.totalPages" />
-        </div>
-        <!-- Пагинация -->
+      </div>
+      <div class="orders-pagination">
+        <n-pagination v-model:page="page" :page-count="data?.totalPages" />
       </div>
     </n-spin>
     <n-modal

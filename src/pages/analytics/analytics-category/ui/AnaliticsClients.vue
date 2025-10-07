@@ -266,8 +266,12 @@ async function getClientDetails(subjectId: number) {
               <td><div style="text-align: right">ИТОГО</div></td>
               <td v-if="makeOrders !== 'site'">{{ dataReposrts?.summary.qtyOrdersTa }}</td>
               <td v-if="makeOrders !== 'ta'">{{ dataReposrts?.summary.qtyOrdersSelf }}</td>
-              <td v-if="makeOrders !== 'site'">{{ dataReposrts?.summary.qtyRealizedOrdersTa }}</td>
-              <td v-if="makeOrders !== 'ta'">{{ dataReposrts?.summary.qtyRealizedOrdersSelf }}</td>
+              <td v-if="makeOrders !== 'site'">
+                {{ dataReposrts?.summary.qtyRealizedOrdersTa }}
+              </td>
+              <td v-if="makeOrders !== 'ta'">
+                {{ dataReposrts?.summary.qtyRealizedOrdersSelf }}
+              </td>
               <td v-if="makeOrders !== 'site'">
                 {{ formatCurrency(dataReposrts?.summary.sumOrdersTa ?? 0) }}
               </td>
@@ -314,7 +318,7 @@ async function getClientDetails(subjectId: number) {
 
 <style scoped>
 .table-container {
-  /* overflow-x: auto; */
+  /* overflow: auto; */
 }
 
 .table-el {
