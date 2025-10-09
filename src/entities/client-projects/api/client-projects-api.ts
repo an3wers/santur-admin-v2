@@ -94,28 +94,18 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
-  async function getClientProjectsSettings(subjectId: number) {
-    const res = await fetchWithToken<ClientProjectSettingsRes[]>(
-      'adminGoods/ClientProjectsGetFilter',
-      {
-        query: {
-          subjectId
-        }
-      }
-    )
+  async function getClientProjectsSettings() {
+    const res = await fetchWithToken<ClientProjectSettingsRes>('adminGoods/ClientProjectsGetFilter')
     return checkError(res).data
   }
 
-  async function saveSettings(data: { subjectId: number; systema: string; brends: string[] }) {
-    const formData = new FormData()
-
-    formData.append('subjectId', String(data.subjectId))
-    formData.append('systema', data.systema)
-    formData.append('brends', JSON.stringify(data.brends))
-
+  async function saveSettings(data: { systems: string[]; brends: string[] }) {
     const res = await fetchWithToken('adminGoods/ClientProjectsSaveFilter', {
       method: 'POST',
-      body: formData
+      body: {
+        systems: data.systems,
+        brends: data.brends
+      }
     })
 
     return checkError(res).data

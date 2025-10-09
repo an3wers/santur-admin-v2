@@ -122,18 +122,7 @@ export interface UpdateProjectStateDto {
   comment?: string
 }
 
-// wtf??
-// [
-// {
-//             "subjectId": 973,
-//             "brends": [
-//                 "[\"Aquasfera\",\"ПК Контур\",\"Wilo\"]"
-//             ],
-//             "systema": "Отопление, Водопровод, Канализация, Фаянс, Система пожаротушения, ИТП, Холодильный центр, Кондиционирование, Котельная, Вентиляция, НВК, Другая"
-//         }
-// ]
 export interface ClientProjectSettingsRes {
-  subjectId: number
   brends: string[]
-  systema: string
+  systems: string[]
 }

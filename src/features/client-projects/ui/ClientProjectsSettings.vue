@@ -26,18 +26,15 @@ const emits = defineEmits<{
 
 const currentTab = ref('engeniring')
 
-const SUBJECTID = 973
-
 const { getClientProjectsSettings } = useClientProjectsApi()
 
 const { data: currentSettings, refresh: currentSettingsRefresh } = await useAsyncData(
   'client-project-settings',
-  () => getClientProjectsSettings(SUBJECTID),
+  () => getClientProjectsSettings(),
   {
     transform: (data) => {
-      const { systema, brends } = data[0]
-      const systems = systema.split(', ')
-      const brands = JSON.parse(brends[0])
+      const { systems, brends } = data
+      const brands = brends
       return { systems, brands }
     }
   }
@@ -71,8 +68,7 @@ const message = useMessage()
 
 async function saveSettingsHandler() {
   const data = {
-    subjectId: SUBJECTID,
-    systema: selectedSystems.value?.join(', ') || '',
+    systems: selectedSystems.value || [],
     brends: selectedBrands.value || []
   }
   await saveSettings(data)
