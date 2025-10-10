@@ -15,10 +15,11 @@ import {
   useMessage,
   NPopover
 } from 'naive-ui'
-import { Edit, FileDownload } from '@vicons/tabler'
+import { Copy, Edit, FileDownload } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
+import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
 defineProps<{
   items: CatalogItem[]
@@ -64,6 +65,10 @@ function changeShowDownloadModal(show: boolean) {
     reset()
   }
 }
+const copyToClipboard = useCopyToClipboard()
+function copyCategoryId(id: number) {
+  copyToClipboard(id.toString())
+}
 </script>
 
 <template>
@@ -72,6 +77,12 @@ function changeShowDownloadModal(show: boolean) {
       <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
         <template #header
           ><div>
+            <div style="display: flex; gap: 0.25rem; align-items: center">
+              <n-text tag="p" :depth="3" style="font-size: 12px">{{ item.id }}</n-text>
+              <n-button text size="small" @click.stop="copyCategoryId(item.id)"
+                ><NIcon><Copy /></NIcon
+              ></n-button>
+            </div>
             <n-text tag="p">{{ item.name }}</n-text>
             <n-text tag="p" :depth="3" style="font-size: 12px"
               >Категорий: {{ item.child.length }}</n-text
@@ -113,7 +124,15 @@ function changeShowDownloadModal(show: boolean) {
           <n-list hoverable>
             <n-list-item v-for="child in item.child" :key="child.id">
               <div class="row">
-                <div class="row-name">{{ child.name }}</div>
+                <div class="row-name">
+                  <div style="display: flex; gap: 0.25rem; align-items: center">
+                    <n-text tag="p" :depth="3" style="font-size: 12px">{{ child.id }}</n-text>
+                    <n-button text size="small" @click.stop="copyCategoryId(child.id)"
+                      ><NIcon><Copy /></NIcon
+                    ></n-button>
+                  </div>
+                  {{ child.name }}
+                </div>
                 <div class="row-button">
                   <n-popover placement="bottom" trigger="hover">
                     <template #trigger>
