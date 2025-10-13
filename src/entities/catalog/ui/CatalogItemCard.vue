@@ -85,7 +85,6 @@ watchEffect(() => {
         <n-form-item-gi label="Description" path="description">
           <n-input
             v-model:value="model.shortDescr"
-            readonly
             placeholder="Введите description"
             type="textarea"
           />
