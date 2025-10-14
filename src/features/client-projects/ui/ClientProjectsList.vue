@@ -10,7 +10,8 @@ import {
   NText,
   NTabs,
   NTab,
-  NButton
+  NButton,
+  NModal
 } from 'naive-ui'
 import {
   ClientProjectsStatusesSelector,
@@ -19,8 +20,10 @@ import {
   useClientProjectsApi,
   useStatuses
 } from '~/entities/client-projects'
-import { Message2, Paperclip, BellRinging } from '@vicons/tabler'
+import { Message2, Paperclip } from '@vicons/tabler'
 import { formatNumberWithDigits } from '~/shared/libs/format-number-with-digits'
+import { useSpendBonus } from '../model/use-spend-bonus'
+import ClientProjectSpendBonusModal from './ClientProjectSpendBonusModal.vue'
 
 const tableMode = ref<'projects' | 'clients'>('projects')
 
@@ -106,6 +109,14 @@ watch(clientProjectsStatus, () => {
     message.error('Произошла ошибка при загрузке проектов')
   }
 })
+
+const { setCurrentSubject, isOpenSpendBonus, toggleSpendBonus, spendBonusData, getSpendBonus } =
+  useSpendBonus()
+
+const openSpendBonus = (subject: { id: number; name: string }) => {
+  setCurrentSubject(subject)
+  toggleSpendBonus()
+}
 </script>
 
 <template>
@@ -160,20 +171,20 @@ watch(clientProjectsStatus, () => {
                 >
                   <thead class="table-header">
                     <tr>
-                      <th>Номер</th>
+                      <th width="80">Номер</th>
                       <th width="280">Проект</th>
                       <th>Система</th>
                       <th>Компания/ Проектировщик</th>
                       <th>Статус</th>
-                      <th>Дата создания</th>
-                      <th class="nums-cell">Сумма</th>
-                      <th class="nums-cell">Баллы</th>
-                      <th>
+                      <th width="100">Дата создания</th>
+                      <th class="nums-cell" width="110">Сумма</th>
+                      <th class="nums-cell" width="90">Баллы</th>
+                      <th width="60">
                         <n-icon size="24">
                           <Message2 />
                         </n-icon>
                       </th>
-                      <th>
+                      <th width="60">
                         <n-icon size="24">
                           <Paperclip />
                         </n-icon>
@@ -238,8 +249,8 @@ watch(clientProjectsStatus, () => {
                 <thead class="table-header">
                   <tr>
                     <th>Клиент</th>
-                    <th>Количество проектов</th>
-                    <th>Баллы</th>
+                    <th width="140">Количество проектов</th>
+                    <th width="280">Баллы</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -247,14 +258,25 @@ watch(clientProjectsStatus, () => {
                     <td>{{ r.name }}</td>
                     <td>{{ r.qtyProjects }}</td>
                     <td>
-                      <div style="display: flex; align-items: center; gap: 0.25rem">
+                      <div
+                        style="
+                          display: flex;
+                          align-items: center;
+                          justify-content: space-between;
+                          gap: 0.25rem;
+                        "
+                      >
                         <span>0</span>
-                        <n-button size="tiny" text type="warning">
-                          <template #icon>
+                        <n-button
+                          size="tiny"
+                          type="warning"
+                          @click="openSpendBonus({ id: r.id, name: r.name })"
+                        >
+                          <!-- <template #icon>
                             <n-icon>
                               <BellRinging />
                             </n-icon>
-                          </template>
+                          </template> -->
                           Списать баллы
                         </n-button>
                       </div>
@@ -267,6 +289,23 @@ watch(clientProjectsStatus, () => {
         </n-space>
       </n-card>
     </template>
+
+    <n-modal
+      v-model:show="isOpenSpendBonus"
+      preset="card"
+      size="medium"
+      style="max-width: 480px"
+      title="Списать баллы"
+      :bordered="false"
+      @close="toggleSpendBonus"
+      @esc="toggleSpendBonus"
+    >
+      {{ spendBonusData }}
+      <!-- :total-bonus="0" -->
+      <!-- :request-bonus="0" -->
+      <ClientProjectSpendBonusModal @on-request-bonus="getSpendBonus" />
+      <!-- <template #footer> Footer </template> -->
+    </n-modal>
   </n-space>
 </template>
 
@@ -283,7 +322,7 @@ watch(clientProjectsStatus, () => {
 
 .table-container {
   /* overflow-x: auto; */
-  min-width: 1240px;
+  min-width: 1260px;
   width: 100%;
 }
 

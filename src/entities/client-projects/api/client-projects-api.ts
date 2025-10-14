@@ -111,6 +111,15 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
+  async function getSpendBonus(subjectId: number) {
+    const res = await fetchWithToken('adminsubjects/GetRequestsToSpendBonus', {
+      query: {
+        subjectId
+      }
+    })
+    return checkError(res).data
+  }
+
   return {
     getClientProjects,
     getClientProjectsById,
@@ -120,6 +129,7 @@ export const useClientProjectsApi = () => {
     removeComment,
     getEngenitingSystems,
     getClientProjectsSettings,
-    saveSettings
+    saveSettings,
+    getSpendBonus
   }
 }
