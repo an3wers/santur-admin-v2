@@ -34,5 +34,5 @@ export const useBannersCategory = async (
     })
   }
 
-  return { setPage, data, status, execute }
+  return { setPage, data, status, execute, page }
 }

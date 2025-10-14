@@ -16,7 +16,10 @@ const title = computed(() => {
     ?.label
 })
 
-const { data, status, execute } = await useBannersCategory(catId as string, navStore.activeResource)
+const { data, status, page, setPage, execute } = await useBannersCategory(
+  catId as string,
+  navStore.activeResource
+)
 
 function updateBannerHandler() {
   return execute()
@@ -61,9 +64,11 @@ async function updateCategoryHandler() {
         </template>
       </page-title>
       <BannersList
-        v-if="status === 'success'"
         :banners="data?.items ?? []"
         :ownert-id="navStore.secondLevelId"
+        :page="page"
+        :total-pages="data?.totalPages ?? 0"
+        @on-change-page="setPage"
         @on-update="updateBannerHandler"
       />
     </n-space>
