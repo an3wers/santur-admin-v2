@@ -5,6 +5,7 @@ import type {
   ClientProjectSettingsRes,
   ClientProjectsFilters,
   ClientProjectStatusesDto,
+  GetSpendBonusRes,
   UpdateProjectStateDto
 } from './types'
 
@@ -112,10 +113,58 @@ export const useClientProjectsApi = () => {
   }
 
   async function getSpendBonus(subjectId: number) {
-    const res = await fetchWithToken('adminsubjects/GetRequestsToSpendBonus', {
+    const res = await fetchWithToken<GetSpendBonusRes[]>('adminsubjects/GetRequestsToSpendBonus', {
       query: {
         subjectId
       }
+    })
+    return checkError(res).data
+  }
+
+  // adminsubjects/GetHistoryRequestsToSpendBonus
+  // возможные параметры: subjectId, leftDate,
+
+  async function getHistorySpendBonus(subjectId?: number, leftDate?: string, rightDate?: string) {
+    const res = await fetchWithToken<GetSpendBonusRes[]>(
+      'adminsubjects/GetHistoryRequestsToSpendBonus',
+      {
+        query: {
+          subjectId,
+          leftDate,
+          rightDate
+        }
+      }
+    )
+    return checkError(res).data
+  }
+
+  // POST:
+  // adminsubjects/AcceptToSpendBonus
+  // formdata: docId
+
+  // adminsubjects/DeclineToSpendBonus
+  // formdata: docId
+
+  async function approveToSpendBonus(docId: number) {
+    const formData = new FormData()
+
+    formData.append('docId', String(docId))
+
+    const res = await fetchWithToken('adminsubjects/AcceptToSpendBonus', {
+      method: 'POST',
+      body: formData
+    })
+    return checkError(res).data
+  }
+
+  async function cancelToSpendBonus(docId: number) {
+    const formData = new FormData()
+
+    formData.append('docId', String(docId))
+
+    const res = await fetchWithToken('adminsubjects/DeclineToSpendBonus', {
+      method: 'POST',
+      body: formData
     })
     return checkError(res).data
   }
@@ -130,6 +179,9 @@ export const useClientProjectsApi = () => {
     getEngenitingSystems,
     getClientProjectsSettings,
     saveSettings,
-    getSpendBonus
+    getSpendBonus,
+    approveToSpendBonus,
+    cancelToSpendBonus,
+    getHistorySpendBonus
   }
 }

@@ -22,8 +22,8 @@ import {
 } from '~/entities/client-projects'
 import { Message2, Paperclip } from '@vicons/tabler'
 import { formatNumberWithDigits } from '~/shared/libs/format-number-with-digits'
-import { useSpendBonus } from '../model/use-spend-bonus'
-import ClientProjectSpendBonusModal from './ClientProjectSpendBonusModal.vue'
+import { useSpendBonusModal } from '../model/use-spend-bonus-modal'
+import ClientProjectSpendBonusContainer from './ClientProjectSpendBonus/ClientProjectSpendBonusContainer.vue'
 
 const tableMode = ref<'projects' | 'clients'>('projects')
 
@@ -110,10 +110,15 @@ watch(clientProjectsStatus, () => {
   }
 })
 
-const { setCurrentSubject, isOpenSpendBonus, toggleSpendBonus, spendBonusData, getSpendBonus } =
-  useSpendBonus()
+const { setCurrentSubject, isOpenSpendBonus, toggleSpendBonus, currentSubject } =
+  useSpendBonusModal()
 
-const openSpendBonus = (subject: { id: number; name: string }) => {
+const openSpendBonus = (subject: {
+  id: number
+  name: string
+  bonusSum: number
+  requestedBonusTospend: number
+}) => {
   setCurrentSubject(subject)
   toggleSpendBonus()
 }
@@ -250,13 +255,19 @@ const openSpendBonus = (subject: { id: number; name: string }) => {
                   <tr>
                     <th>Клиент</th>
                     <th width="140">Количество проектов</th>
-                    <th width="280">Баллы</th>
+                    <th width="140">Баллы</th>
+                    <th width="280">Запрошено на списание</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="r in clientProjectsData?.subjects" :key="r.id">
                     <td>{{ r.name }}</td>
                     <td>{{ r.qtyProjects }}</td>
+                    <td>
+                      <div>
+                        {{ r.bonusSum }}
+                      </div>
+                    </td>
                     <td>
                       <div
                         style="
@@ -266,11 +277,18 @@ const openSpendBonus = (subject: { id: number; name: string }) => {
                           gap: 0.25rem;
                         "
                       >
-                        <span>0</span>
+                        <span>{{ r.requestedBonusTospend }}</span>
                         <n-button
                           size="tiny"
-                          type="warning"
-                          @click="openSpendBonus({ id: r.id, name: r.name })"
+                          type="primary"
+                          @click="
+                            openSpendBonus({
+                              id: r.id,
+                              name: r.name,
+                              bonusSum: r.bonusSum,
+                              requestedBonusTospend: r.requestedBonusTospend
+                            })
+                          "
                         >
                           <!-- <template #icon>
                             <n-icon>
@@ -294,17 +312,13 @@ const openSpendBonus = (subject: { id: number; name: string }) => {
       v-model:show="isOpenSpendBonus"
       preset="card"
       size="medium"
-      style="max-width: 480px"
-      title="Списать баллы"
+      style="max-width: 520px"
+      title="Баллы"
       :bordered="false"
       @close="toggleSpendBonus"
       @esc="toggleSpendBonus"
     >
-      {{ spendBonusData }}
-      <!-- :total-bonus="0" -->
-      <!-- :request-bonus="0" -->
-      <ClientProjectSpendBonusModal @on-request-bonus="getSpendBonus" />
-      <!-- <template #footer> Footer </template> -->
+      <ClientProjectSpendBonusContainer :subject="currentSubject" />
     </n-modal>
   </n-space>
 </template>

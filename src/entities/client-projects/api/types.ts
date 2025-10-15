@@ -28,6 +28,8 @@ export interface SubjectPreview {
   id: number
   name: string
   qtyProjects: number
+  bonusSum: number
+  requestedBonusTospend: number
 }
 
 export interface ClientProjectDto {
@@ -125,4 +127,23 @@ export interface UpdateProjectStateDto {
 export interface ClientProjectSettingsRes {
   brends: string[]
   systems: string[]
+}
+
+export interface GetSpendBonusRes {
+  acceptor: string //''
+  acceptorId: number // 0
+  author: string //'Артем Журавлев'
+  authorId: number //  142427
+  bonusAll: number //1110
+  docId: number //100000
+  isAccepted: boolean // false
+  isRequest: boolean // true
+  payedBonus: number // 0
+  payedDate: string // ''
+  regdate: string // '10.10.2025 в 15:36'
+  requestBonus: number // 100
+  state: string // 'ожидание подтверждения'
+  stateCode: string // 'N'
+  subject: string // 'САНГО'
+  subjectId: number // 100001
 }
