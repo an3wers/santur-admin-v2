@@ -136,7 +136,7 @@ const openSpendBonus = (subject: {
     <template v-else>
       <n-card size="small">
         <n-space vertical size="large">
-          <n-space justify="space-between">
+          <n-space>
             <n-space>
               <InputSearch v-model="search" placeholder="Поиск" />
               <div style="width: 200px">

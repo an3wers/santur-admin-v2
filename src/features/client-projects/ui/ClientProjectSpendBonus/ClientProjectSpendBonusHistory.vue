@@ -16,7 +16,7 @@ const { data: spendHistoryBonusData, status: spendHistoryBonusStatus } = useAsyn
     lazy: true,
     transform(data) {
       return {
-        data,
+        data: data.toSorted((a, b) => b.docId - a.docId),
         fetchedAt: new Date()
       }
     },
