@@ -11,9 +11,27 @@ const { apiBase, santurS3Url } = useRuntimeConfig().public
 async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
   try {
     const replacedPath = file.getPath.replace(new RegExp(santurS3Url, 'i'), '')
-    const blob = await $fetch<Blob>(`/s3${replacedPath}`, {
+
+    const res = await $fetch<unknown>(`/s3${replacedPath}`, {
       baseURL: apiBase
     })
+
+    let blob: Blob | undefined
+
+    if (res instanceof Blob) {
+      blob = res
+    } else if (res instanceof ArrayBuffer) {
+      blob = new Blob([res])
+    } else if (typeof res === 'string') {
+      blob = new Blob([res])
+    } else if (res instanceof Object) {
+      blob = new Blob([JSON.stringify(res)])
+    }
+
+    if (!blob) {
+      throw new Error('Не удалось получить файл')
+    }
+
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
