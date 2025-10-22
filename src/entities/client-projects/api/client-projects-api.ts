@@ -121,9 +121,6 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
-  // adminsubjects/GetHistoryRequestsToSpendBonus
-  // возможные параметры: subjectId, leftDate,
-
   async function getHistorySpendBonus(subjectId?: number, leftDate?: string, rightDate?: string) {
     const res = await fetchWithToken<GetSpendBonusRes[]>(
       'adminsubjects/GetHistoryRequestsToSpendBonus',
@@ -137,13 +134,6 @@ export const useClientProjectsApi = () => {
     )
     return checkError(res).data
   }
-
-  // POST:
-  // adminsubjects/AcceptToSpendBonus
-  // formdata: docId
-
-  // adminsubjects/DeclineToSpendBonus
-  // formdata: docId
 
   async function approveToSpendBonus(docId: number) {
     const formData = new FormData()

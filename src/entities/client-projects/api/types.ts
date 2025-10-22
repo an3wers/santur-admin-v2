@@ -56,6 +56,7 @@ export interface ClientProjectsFilters {
 export interface ClientProjectDetailDto {
   id: number
   projectName: string
+  projectOrganization: string
   engineeringSystem: string
   region: string
   city: string

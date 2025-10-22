@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NCard, NList, NListItem, NText, NThing, NH6 } from 'naive-ui'
+import { NSpace, NCard, NList, NListItem, NText, NThing } from 'naive-ui'
 import type { ClientProjectDetailDto } from '../api/types'
 
 defineProps<{
@@ -25,6 +25,19 @@ defineProps<{
               <n-text depth="3">Наименование проекта</n-text>
             </span>
             <span v-if="projects.projectName" class="item-value">{{ projects.projectName }}</span>
+            <span v-else class="item-value">
+              <n-text depth="3" italic>не заполнено</n-text>
+            </span>
+          </div>
+        </n-list-item>
+        <n-list-item>
+          <div class="n-list-item-row">
+            <span class="item-label">
+              <n-text depth="3">Наименование проектной организации</n-text>
+            </span>
+            <span v-if="projects.projectOrganization" class="item-value">{{
+              projects.projectOrganization
+            }}</span>
             <span v-else class="item-value">
               <n-text depth="3" italic>не заполнено</n-text>
             </span>

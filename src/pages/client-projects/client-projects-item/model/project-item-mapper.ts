@@ -3,8 +3,6 @@ import type { ClientProjectDetail } from './types'
 
 export function projectItemMapper(project: ClientProjectDetailDto): ClientProjectDetail {
   return {
-    ...project,
-    price: Number(project.prices),
-    point: Number(project.points)
+    ...project
   }
 }
