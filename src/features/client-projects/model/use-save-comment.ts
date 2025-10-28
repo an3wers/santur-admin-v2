@@ -9,7 +9,7 @@ export const useSaveComment = (projectId: number) => {
   const commentValue = ref('')
 
   const status = ref<AsyncDataRequestStatus>('idle')
-  const error = ref<Error | null>(null)
+  const error = shallowRef<Error | null>(null)
 
   async function saveComment() {
     try {

@@ -94,6 +94,10 @@ function useCancelSpendBonus() {
       bordered
       :theme-overrides="{ borderColorModal: '#d9d9d9' }"
     >
+      <div style="margin: 2rem 0; text-align: center" v-if="spendBonusData?.data.length === 0">
+        <n-text :depth="3">Запросы на списание баллов отсутствуют</n-text>
+      </div>
+
       <n-list-item v-for="request in spendBonusData?.data" :key="request.docId">
         <n-space align="center">
           <n-text :depth="3">{{ request.regdate }}</n-text>

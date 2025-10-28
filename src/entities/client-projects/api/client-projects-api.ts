@@ -59,6 +59,15 @@ export const useClientProjectsApi = () => {
     return checkError(res).data
   }
 
+  async function deleteProject(projectId: number) {
+    const res = await fetchWithToken('AdminSubjects/ClientProjectDelete', {
+      method: 'GET',
+      params: { id: projectId }
+    })
+
+    return checkError(res).data
+  }
+
   async function saveComment(payload: {
     id: number
     entity: string
@@ -172,6 +181,7 @@ export const useClientProjectsApi = () => {
     getSpendBonus,
     approveToSpendBonus,
     cancelToSpendBonus,
-    getHistorySpendBonus
+    getHistorySpendBonus,
+    deleteProject
   }
 }

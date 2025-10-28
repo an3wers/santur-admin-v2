@@ -20,10 +20,11 @@ import {
   useClientProjectsApi,
   useStatuses
 } from '~/entities/client-projects'
-import { Message2, Paperclip } from '@vicons/tabler'
+import { Message2, Paperclip, Trash } from '@vicons/tabler'
 import { formatNumberWithDigits } from '~/shared/libs/format-number-with-digits'
 import { useSpendBonusModal } from '../model/use-spend-bonus-modal'
 import ClientProjectSpendBonusContainer from './ClientProjectSpendBonus/ClientProjectSpendBonusContainer.vue'
+import { useDeleteProject } from '../model/use-delete-project'
 
 const tableMode = ref<'projects' | 'clients'>('projects')
 
@@ -81,7 +82,11 @@ const statusOptions = computed(() => {
 })
 
 const { getClientProjects } = useClientProjectsApi()
-const { data: clientProjectsData, status: clientProjectsStatus } = useAsyncData(
+const {
+  data: clientProjectsData,
+  status: clientProjectsStatus,
+  refresh: clientProjectsRefresh
+} = useAsyncData(
   getClientProjectsQueryKey(),
   () =>
     getClientProjects({
@@ -121,6 +126,18 @@ const openSpendBonus = (subject: {
 }) => {
   setCurrentSubject(subject)
   toggleSpendBonus()
+}
+
+const { deleteProject, status: deleteProjectStatus, error: deleteProjectError } = useDeleteProject()
+async function deleteProjectHandler(projectId: number) {
+  await deleteProject(projectId)
+
+  if (deleteProjectStatus.value === 'success') {
+    message.success('Проект успешно удален')
+    clientProjectsRefresh()
+  } else if (deleteProjectStatus.value === 'error') {
+    message.error(deleteProjectError.value?.message || 'Произошла ошибка при удалении проекта')
+  }
 }
 </script>
 
@@ -178,9 +195,9 @@ const openSpendBonus = (subject: {
                     <tr>
                       <th width="80">Номер</th>
                       <th width="280">Проект</th>
-                      <th>Система</th>
-                      <th>Компания/ Проектировщик</th>
-                      <th>Статус</th>
+                      <th width="180">Система</th>
+                      <th width="180">Компания/ Проектировщик</th>
+                      <th width="140">Статус</th>
                       <th width="100">Дата создания</th>
                       <th class="nums-cell" width="110">Сумма</th>
                       <th class="nums-cell" width="90">Баллы</th>
@@ -194,6 +211,7 @@ const openSpendBonus = (subject: {
                           <Paperclip />
                         </n-icon>
                       </th>
+                      <th width="40"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -229,6 +247,18 @@ const openSpendBonus = (subject: {
                           </n-icon>
                           {{ r.qtyFiles }}
                         </span>
+                      </td>
+                      <td>
+                        <n-button
+                          secondary
+                          size="tiny"
+                          type="error"
+                          @click="deleteProjectHandler(r.id)"
+                        >
+                          <template #icon>
+                            <n-icon size="18"><Trash /></n-icon>
+                          </template>
+                        </n-button>
                       </td>
                     </tr>
                   </tbody>

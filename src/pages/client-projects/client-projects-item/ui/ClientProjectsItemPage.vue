@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSpace, NH1, useMessage, NSpin } from 'naive-ui'
+import { NSpace, NH1, useMessage, NSpin, NButton } from 'naive-ui'
 import {
   getClientProjectsDetailQueryKey,
   useClientProjectsApi,
@@ -9,6 +9,7 @@ import {
   ClientProjectsDetailComments
 } from '~/entities/client-projects'
 import { ClientProjectsCommentsPanel, ClientProjectsUpdateState } from '~/features/client-projects'
+import { useDeleteProject } from '~/features/client-projects/model/use-delete-project'
 // import { projectItemMapper } from '../model/project-item-mapper'
 
 const { itemId } = useRoute().params
@@ -44,6 +45,18 @@ watch(clientProjectStatus, () => {
 function updateShowCommentsPanel(value: boolean) {
   showCommentsPanel.value = value
 }
+
+const { deleteProject, status: deleteProjectStatus, error: deleteProjectError } = useDeleteProject()
+async function deleteProjectHandler(projectId: number) {
+  await deleteProject(projectId)
+
+  if (deleteProjectStatus.value === 'success') {
+    message.success('Проект успешно удален')
+    return navigateTo('/client-projects')
+  } else if (deleteProjectStatus.value === 'error') {
+    message.error(deleteProjectError.value?.message || 'Произошла ошибка при удалении проекта')
+  }
+}
 </script>
 
 <template>
@@ -59,6 +72,16 @@ function updateShowCommentsPanel(value: boolean) {
       <page-title back-label="Проекты" has-back :back-path="`/client-projects`">
         <template #title>
           <n-h1>{{ clientProjectData.projectName }}</n-h1>
+        </template>
+        <template #actions>
+          <n-button
+            secondary
+            type="error"
+            :loading="deleteProjectStatus === 'pending'"
+            @click="deleteProjectHandler(clientProjectData.id)"
+          >
+            Удалить проект
+          </n-button>
         </template>
       </page-title>
       <div class="layout">
