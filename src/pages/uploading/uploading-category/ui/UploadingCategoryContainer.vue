@@ -30,6 +30,7 @@ const makexmlfeed = computed(() => ctx === '1')
 const api = useUploadingApi()
 const { getCatalog } = useCatalogApi()
 
+// Полученние данных ключей фидов
 const {
   data: platformOptionsData,
   status: platformOptionsStatus,
@@ -41,6 +42,7 @@ const {
   lazy: true
 })
 
+// Получение состояние конкретного фида
 const {
   data: filterFeed,
   status: filterFeedStatus,
@@ -50,6 +52,7 @@ const {
   watch: [currentFeed]
 })
 
+// Получение структуры каталога
 const {
   data: catalogData,
   status: catalogDataStatus,
@@ -82,6 +85,8 @@ const {
   setLetter,
   resetState: resetBrandsState
 } = useBrands()
+
+// TODO: Рефакторинг логики на вотчеэффектах
 
 watchEffect(() => {
   if (filterFeedStatus.value === 'success') {
@@ -147,7 +152,8 @@ function getExcludedCategoryIds(payload: CatalogItem[]): number[] {
     return []
   }
 
-  const result: number[] = []
+  const result: number[] = [] // список id неотмеченных категорий
+
   payload.forEach((item) => {
     if (item.child) {
       item.child.forEach((c) => {

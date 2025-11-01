@@ -23,6 +23,7 @@ const feedKey = Symbol() as InjectionKey<Ref<number>>
 
 export function useFeedProvider() {
   const currentFeed = ref('YAND')
+
   function selectFeed(platformKey: string) {
     currentFeed.value = platformKey
   }

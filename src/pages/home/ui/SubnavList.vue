@@ -16,7 +16,11 @@ const items = computed(() => {
 })
 
 const itemsWithPath = computed(() => {
-  if (parentModelName == 'analytics' || parentModelName == 'uploading') {
+  if (
+    parentModelName == 'analytics' ||
+    parentModelName == 'uploading' ||
+    parentModelName == 'feeds'
+  ) {
     return items.value.map((item) => {
       return {
         ...item,

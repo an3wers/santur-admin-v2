@@ -87,7 +87,7 @@ export const useNavStore = defineStore('navigation', () => {
       }
       return item
     })
-    const dataWithSomeOtherData = [...patched, ...createUploadingMenuItem()]
+    const dataWithSomeOtherData = [...patched, ...createMenuItemExtend()]
     navigation.value = dataWithSomeOtherData
     mapNavigation.value = mappingNavItemsToMap(dataWithSomeOtherData)
     navigationWithZeroLavel.value = getFilledZeroLavel(createZeroLavel(), navigation.value)
@@ -154,7 +154,8 @@ export const useNavStore = defineStore('navigation', () => {
       } else if (
         item.modelName === 'analytics' ||
         item.modelName === 'pvzs' ||
-        item.modelName === 'uploading'
+        item.modelName === 'uploading' ||
+        item.modelName === 'feeds'
       ) {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0 && item.needSubmenu
         result = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
@@ -168,8 +169,36 @@ export const useNavStore = defineStore('navigation', () => {
     return mappedMenu
   }
 
-  function createUploadingMenuItem(): MenuItem[] {
+  function createMenuItemExtend(): MenuItem[] {
     return [
+      // {
+      //   app: '',
+      //   categoryId: 0,
+      //   id: 10,
+      //   items: [
+      //     {
+      //       app: '',
+      //       categoryId: 0,
+      //       id: 1,
+      //       items: [],
+      //       label: 'XML-фиды',
+      //       modelName: 'uploading',
+      //       needSubmenu: false
+      //     },
+      //     {
+      //       app: '',
+      //       categoryId: 0,
+      //       id: 2,
+      //       items: [],
+      //       label: 'santur.ru',
+      //       modelName: 'uploading',
+      //       needSubmenu: false
+      //     }
+      //   ],
+      //   label: 'Выгрузки',
+      //   modelName: 'uploading',
+      //   needSubmenu: false
+      // },
       {
         app: '',
         categoryId: 0,
@@ -181,7 +210,7 @@ export const useNavStore = defineStore('navigation', () => {
             id: 1,
             items: [],
             label: 'XML-фиды',
-            modelName: 'uploading',
+            modelName: 'feeds',
             needSubmenu: false
           },
           {
@@ -190,12 +219,21 @@ export const useNavStore = defineStore('navigation', () => {
             id: 2,
             items: [],
             label: 'santur.ru',
-            modelName: 'uploading',
+            modelName: 'feeds',
+            needSubmenu: false
+          },
+          {
+            app: '',
+            categoryId: 0,
+            id: 3,
+            items: [],
+            label: 'Настройка по клиентам',
+            modelName: 'feeds',
             needSubmenu: false
           }
         ],
-        label: 'Выгрузки',
-        modelName: 'uploading',
+        label: 'Настройка каталога',
+        modelName: 'feeds',
         needSubmenu: false
       },
       {
@@ -230,13 +268,22 @@ export const useNavStore = defineStore('navigation', () => {
         modelName: 'analytics',
         needSubmenu: false
       },
+      // {
+      //   app: '',
+      //   categoryId: 0,
+      //   id: 103,
+      //   items: [],
+      //   label: 'Выгрузки',
+      //   modelName: 'uploading',
+      //   needSubmenu: false
+      // },
       {
         app: '',
         categoryId: 0,
         id: 103,
         items: [],
-        label: 'Выгрузки',
-        modelName: 'uploading',
+        label: 'Настройка каталога',
+        modelName: 'feeds',
         needSubmenu: false
       },
       {
@@ -289,8 +336,11 @@ export const useNavStore = defineStore('navigation', () => {
         case 'analytics':
           buckets['analytics'].items.push(...item.items)
           break
-        case 'uploading':
-          buckets['uploading'].items.push(...item.items)
+        // case 'uploading':
+        //   buckets['uploading'].items.push(...item.items)
+        //   break
+        case 'feeds':
+          buckets['feeds'].items.push(...item.items)
           break
         case 'client-projects':
           buckets['projecting'].items.push(item)
