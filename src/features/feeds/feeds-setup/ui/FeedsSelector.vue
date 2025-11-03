@@ -14,37 +14,43 @@ import {
 } from 'naive-ui'
 import { Copy, ExternalLink, Dots } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
-// import type { FeedKeyRes } from '@/entities/feeds'
-import { useFeedsSetup } from '../model/use-feeds-setup'
 import { useRemoveFeed } from '../model/use-remove-feed'
 import EditFeedKeyForm from './EditFeedKeyForm.vue'
 
-const { ctx, feedKeys } = defineProps<{
-  ctx: string
+const { feedKeys, feedPermissions, feedLink } = defineProps<{
   feedKeys: { label: string; value: string; descr: string }[]
+  feedPermissions: {
+    canAddNewKey: boolean
+    canEdit: boolean
+    canEditKey: boolean
+    canEditKeyName: boolean
+    canRemove: boolean
+    canViewFeedLink: boolean
+  }
+  feedLink: string
 }>()
+
+const currentFeedKeyValue = defineModel<string | null>('feedKey')
 
 const emits = defineEmits<{
   (e: 'onUpdateFeed'): void
-  (e: 'onAfterSuccessSaveKey'): void
-  (e: 'onRemovedKey'): void
+  (e: 'onSavedKey', key: string): void
+  (e: 'onRemovedKey', key: string): void
 }>()
 
-const feedsSetup = useFeedsSetup()
-
 const currentFeedMeta = computed(() => {
-  return feedKeys?.find((el) => el.value === feedsSetup.currentFeedKey)
+  return feedKeys?.find((el) => el.value === currentFeedKeyValue.value)
 })
 
 const dropdownOptions = computed(() => {
-  if (feedsSetup.feedPermissions.canEdit && feedsSetup.feedPermissions.canRemove) {
+  if (feedPermissions.canEdit && feedPermissions.canRemove) {
     return [
       { label: 'Изменить', key: 'edit' },
       { label: 'Удалить', key: 'remove' }
     ]
-  } else if (feedsSetup.feedPermissions.canEdit) {
+  } else if (feedPermissions.canEdit) {
     return [{ label: 'Изменить', key: 'edit' }]
-  } else if (feedsSetup.feedPermissions.canRemove) {
+  } else if (feedPermissions.canRemove) {
     return [{ label: 'Удалить', key: 'remove' }]
   }
 
@@ -67,11 +73,11 @@ function handleDropdown(key: dropdownKeys) {
 const isOpenKeyModal = ref(false)
 
 const openInNewTabHandler = () => {
-  window.open(feedsSetup.feedLink, '_blank')
+  window.open(feedLink, '_blank')
 }
 const copyToClipboard = useCopyToClipboard()
 const copyHandler = async () => {
-  await copyToClipboard(feedsSetup.feedLink)
+  await copyToClipboard(feedLink)
 }
 
 function addFeed() {
@@ -84,15 +90,10 @@ function editFeed() {
   isOpenKeyModal.value = true
 }
 
-function savedFeedKeyhandler(key: string) {
+async function savedFeedKeyhandler(key: string) {
   isOpenKeyModal.value = false
-  feedsSetup.setFeedKey(key)
 
-  // feedsKeysExecute()
-  refreshNuxtData(`feeds-keys-${ctx}`)
-
-  //Закаментировал, потому что в useAsyncData watch: [() => feedSetup.currentFeedKey]
-  // refreshNuxtData(`feed-filter-${ctx}`)
+  emits('onSavedKey', key)
 }
 
 const message = useMessage()
@@ -100,21 +101,12 @@ const message = useMessage()
 const { removeFeedByKey, error: removeFeedError, status: removeFeedStatus } = useRemoveFeed()
 
 async function removeFeed() {
-  await removeFeedByKey(feedsSetup.currentFeedKey)
+  if (currentFeedKeyValue.value == null) return
+
+  await removeFeedByKey(currentFeedKeyValue.value)
 
   if (removeFeedStatus.value === 'success') {
-    // await feedsKeysExecute()
-    await refreshNuxtData(`feeds-keys-${ctx}`)
-
-    if (feedKeys?.length) {
-      feedsSetup.setFeedKey(feedKeys[0].value)
-    } else {
-      feedsSetup.setFeedKey('')
-    }
-
-    //Закаментировал, потому что в useAsyncData watch: [() => feedSetup.currentFeedKey]
-    // refreshNuxtData(`feed-filter-${ctx}`)
-
+    emits('onRemovedKey', currentFeedKeyValue.value)
     message.success('Фид успешно удален')
   } else if (removeFeedStatus.value === 'error') {
     message.error(removeFeedError.value || 'Произошла ошибка при удалении')
@@ -124,7 +116,7 @@ async function removeFeed() {
 const keyModalMode = ref<'add' | 'edit'>('add')
 
 const currentKeyValue = computed(() => {
-  return feedKeys?.find((el) => el.value === feedsSetup.currentFeedKey) || null
+  return feedKeys?.find((el) => el.value === currentFeedKeyValue.value) || null
 })
 
 function saveFeedHandler() {
@@ -143,18 +135,20 @@ watch(isOpenKeyModal, () => {
     <n-space justify="space-between" size="medium" align="start">
       <n-space vertical size="medium">
         <div class="row row-select">
+          <!--:value="currentFeedKey"
+            @update:value="feedsSetup.setFeedKey"
+            -->
           <n-select
+            v-model:value="currentFeedKeyValue"
             class="row-select__input"
             :options="feedKeys ?? []"
-            :value="feedsSetup.currentFeedKey"
-            @update:value="feedsSetup.setFeedKey"
           />
           <div class="row-select__btn">
-            <n-button v-if="feedsSetup.feedPermissions.canAddNewKey" @click="addFeed"
-              >Добавить фид</n-button
+            <n-button v-if="feedPermissions.canAddNewKey" @click="addFeed"
+              >Добавить настройку</n-button
             >
             <n-dropdown
-              v-if="feedsSetup.feedPermissions.canEdit || feedsSetup.feedPermissions.canRemove"
+              v-if="feedPermissions.canEdit || feedPermissions.canRemove"
               trigger="click"
               :options="dropdownOptions"
               @select="handleDropdown"
@@ -165,8 +159,8 @@ watch(isOpenKeyModal, () => {
             </n-dropdown>
           </div>
         </div>
-        <div v-if="feedsSetup.feedPermissions.canViewFeedLink" class="row">
-          <n-input class="row__input" :value="feedsSetup.feedLink" readonly />
+        <div v-if="feedPermissions.canViewFeedLink" class="row">
+          <n-input class="row__input" :value="feedLink" readonly />
           <div class="row__btns">
             <n-button ghost @click="openInNewTabHandler">
               <n-icon size="20px" :component="ExternalLink" />
@@ -176,12 +170,28 @@ watch(isOpenKeyModal, () => {
             </n-button>
           </div>
         </div>
+        <n-p v-if="currentKeyValue">
+          <n-text :depth="3" style="display: block">Ключ</n-text>
+          <span class="key-value"
+            >{{ currentKeyValue.value }}
+            <n-button
+              size="tiny"
+              type="primary"
+              text
+              @click="copyToClipboard(currentKeyValue.value)"
+            >
+              <template #icon>
+                <n-icon size="16px" :component="Copy" />
+              </template>
+            </n-button>
+          </span>
+        </n-p>
         <n-p v-if="currentFeedMeta?.descr">
           <n-text :depth="3" style="display: block">Описание</n-text>
           {{ currentFeedMeta.descr }}
         </n-p>
       </n-space>
-      <n-button type="primary" @click="saveFeedHandler">Обновить выгрузку</n-button>
+      <n-button type="primary" @click="saveFeedHandler">Обновить настройку</n-button>
     </n-space>
     <n-modal
       style="width: 100%; max-width: 480px"
@@ -195,7 +205,7 @@ watch(isOpenKeyModal, () => {
       <EditFeedKeyForm
         :mode="keyModalMode"
         :current-key-value="currentKeyValue"
-        :can-edit-key="feedsSetup.feedPermissions.canEditKey"
+        :can-edit-key="feedPermissions.canEditKey"
         @on-after-success-save-key="savedFeedKeyhandler"
       />
     </n-modal>
@@ -232,6 +242,12 @@ watch(isOpenKeyModal, () => {
 
 .row__btns {
   display: flex;
+  gap: 0.5rem;
+}
+
+.key-value {
+  display: inline-flex;
+  align-items: center;
   gap: 0.5rem;
 }
 </style>

@@ -1,11 +1,11 @@
 import { useBrandApi } from '~/entities/brand'
-import type { BrandsData } from './types'
+import type { FeedBrands } from './types'
 
 export const useFeedsBrands = () => {
   const currentLetter = ref('A')
   const excludedBrands = ref<string[]>([])
-  const brands = ref<BrandsData | null>(null)
 
+  const brands = ref<FeedBrands | null>(null)
   const status = ref<ProcessStatus>('idle')
 
   async function getBrands() {

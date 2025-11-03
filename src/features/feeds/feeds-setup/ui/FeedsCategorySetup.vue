@@ -8,9 +8,23 @@ defineProps<{
 
 const categories = defineModel<CatalogItem[]>('state', { required: true })
 
-defineEmits<{
-  (e: 'onToggleCheckAllInCategory', catId: number): void
-}>()
+function toggleCheckedAllInCategory(catId: number) {
+  categories.value?.forEach((item) => {
+    if (item.id === catId) {
+      const isCheckedAll = item.child?.every((c) => c.isChecked)
+
+      if (isCheckedAll) {
+        item.child?.forEach((c) => {
+          c.isChecked = false
+        })
+      } else {
+        item.child?.forEach((c) => {
+          c.isChecked = true
+        })
+      }
+    }
+  })
+}
 </script>
 
 <template>
@@ -23,7 +37,7 @@ defineEmits<{
             size="tiny"
             secondary
             type="primary"
-            @click="$emit('onToggleCheckAllInCategory', parent.id)"
+            @click="toggleCheckedAllInCategory(parent.id)"
             >{{ parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все' }}</n-button
           >
         </div>

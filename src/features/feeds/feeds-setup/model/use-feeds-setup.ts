@@ -1,7 +1,7 @@
 import { useNavStore } from '~/shared/navigation'
 
 export const useFeedsSetup = defineStore('feedsSetup', () => {
-  const currentFeedKey = ref('')
+  const currentFeedKey = ref<string | null>(null)
 
   const makexmlfeed = ref(false)
 
@@ -17,10 +17,9 @@ export const useFeedsSetup = defineStore('feedsSetup', () => {
     () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeedKey.value}`
   )
 
+  // TODO: Работу с табами вынести в компонент
   const tabs = ['Каталог', 'Бренды', 'Значки'] as const
-
   const activeTab = ref<(typeof tabs)[number]>('Каталог')
-
   const selectTab = (tab: (typeof tabs)[number]) => {
     activeTab.value = tab
   }
@@ -47,6 +46,7 @@ export const useFeedsSetup = defineStore('feedsSetup', () => {
     setFeedKey,
     setMakeXmlFeed,
     feedLink,
-    currentFeedKey
+    currentFeedKey,
+    makexmlfeed
   }
 })

@@ -1,27 +1,45 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from '#app'
-import type { BrandsData } from '@/entities/uploading'
 import { NCheckbox, NSpin } from 'naive-ui'
+import type { FeedBrands } from '../model/types'
+import { BrandLatters } from '~/entities/brand'
 
-defineProps<{
-  data: BrandsData['brends']
+const { brands, status, currentLetter } = defineProps<{
+  brands: FeedBrands | null
   status: AsyncDataRequestStatus
+  currentLetter: string
 }>()
 
 defineEmits<{
-  (e: 'onUpdate', brand: string): void
+  (e: 'onToggleBrand', brand: string): void
+  (e: 'onSetLetter', letter: string): void
 }>()
+
+const lettersRus = computed(() => {
+  return brands?.letters.filter((l) => l.lng === 'rus') || []
+})
+
+const lettersEng = computed(() => {
+  return brands?.letters.filter((l) => l.lng === 'eng') || []
+})
 </script>
 
 <template>
   <div>
-    <slot name="letters" />
+    <BrandLatters
+      v-if="lettersEng.length || lettersRus.length"
+      :letters-eng="lettersEng"
+      :letters-rus="lettersRus"
+      :status="status"
+      :current-letter="currentLetter"
+      @on-letter-click="$emit('onSetLetter', $event)"
+    />
     <n-spin :show="status === 'pending'" size="small">
       <div class="brands">
-        <div v-for="item in data" :key="item.id" class="brands__item">
+        <div v-for="item in brands?.brends" :key="item.id" class="brands__item">
           <n-checkbox
             v-model:checked="item.isChecked"
-            @update:checked="$emit('onUpdate', item.name)"
+            @update:checked="$emit('onToggleBrand', item.name)"
             >{{ item.name }}</n-checkbox
           >
         </div>
