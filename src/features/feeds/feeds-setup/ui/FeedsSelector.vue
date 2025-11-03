@@ -107,7 +107,7 @@ async function removeFeed() {
 
   if (removeFeedStatus.value === 'success') {
     emits('onRemovedKey', currentFeedKeyValue.value)
-    message.success('Фид успешно удален')
+    message.success('Настройка успешно удалена')
   } else if (removeFeedStatus.value === 'error') {
     message.error(removeFeedError.value || 'Произошла ошибка при удалении')
   }

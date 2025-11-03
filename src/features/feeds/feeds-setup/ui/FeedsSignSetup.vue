@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { NTable, NCheckbox } from 'naive-ui'
 import type { FeedFilterRes } from '~/entities/feeds'
-// import type { ExportConstructorDto } from '~/entities/uploading'
 
 const model = defineModel<FeedFilterRes['znaks']>('state', { required: true })
 </script>
 
 <template>
-  <!-- <n-card title="Значки"> -->
   <n-table :bordered="false" size="small" class="table-el">
     <thead>
       <tr>
@@ -28,7 +26,6 @@ const model = defineModel<FeedFilterRes['znaks']>('state', { required: true })
       </tr>
     </tbody>
   </n-table>
-  <!-- </n-card> -->
 </template>
 
 <style scoped>

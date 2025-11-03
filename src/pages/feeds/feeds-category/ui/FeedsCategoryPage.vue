@@ -5,7 +5,7 @@ import {
   FeedsBrandsSetup,
   FeedsCategorySetup,
   FeedsSignSetup,
-  useFeedsFeature
+  useFeedsSetup
 } from '~/features/feeds/feeds-setup'
 import { useNavStore } from '~/shared/navigation'
 
@@ -40,7 +40,7 @@ const {
   toggleExcludedBrand,
   savedKeyHandler,
   removedKeyHandler
-} = useFeedsFeature(catId)
+} = useFeedsSetup(catId)
 
 if (catId.value == '1') {
   setMakeXmlFeed(true)

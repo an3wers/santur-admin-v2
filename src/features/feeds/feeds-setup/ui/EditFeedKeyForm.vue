@@ -83,7 +83,7 @@ async function submitHandler() {
     await saveFeedKey({ descr, key, name })
 
     if (saveFeedKeyStatus.value === 'success') {
-      message.success('Фид успешно сохранен')
+      message.success('Настройка успешно сохранена')
 
       emits('onAfterSuccessSaveKey', key)
 

@@ -4,7 +4,7 @@ export const transformPlatformOptions = (
   ctx: string,
   options: FeedKeyRes[]
 ): { label: string; value: string; descr: string }[] => {
-  if (ctx === '1') {
+  if (ctx === '1' || ctx === '3') {
     return options
       .filter((el) => !el.key.includes('santur'))
       .map((el) => ({ label: el.title, value: el.key, descr: el.descr }))

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { NSpace, NCheckbox, NButton, NSpin } from 'naive-ui'
-import type { CatalogItem } from '@/entities/uploading'
 import type { AsyncDataRequestStatus } from '#app'
+import type { FeedCategoryItem } from '../model/types'
 defineProps<{
   status: AsyncDataRequestStatus
 }>()
 
-const categories = defineModel<CatalogItem[]>('state', { required: true })
+const categories = defineModel<FeedCategoryItem[]>('state', { required: true })
 
 function toggleCheckedAllInCategory(catId: number) {
   categories.value?.forEach((item) => {
