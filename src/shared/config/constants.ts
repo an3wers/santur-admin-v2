@@ -7,10 +7,13 @@ export const ROLES = {
   VCNADM: 'VCNADM',
   CLPADM: 'CLPADM',
   MRKT: 'MRKT',
-  EXTRMRKT: 'EXTRMRKT'
+  EXTRMRKT: 'EXTRMRKT',
+  ISTA: 'ISTA',
+  TA: 'TA',
+  TP: 'TP'
 } as const
 
-// export type RolesValues = ('SADM' | 'ADM')[]
+export type RolesValues = (typeof ROLES)[keyof typeof ROLES]
 
 export const PERMISSIONS = {
   // Страницы
@@ -22,15 +25,4 @@ export const PERMISSIONS = {
   SERVICES: 'services'
 } as const
 
-// TODO: Определить тип для значений объекта
-
-// export type Permissions = [typeof PERMISSIONS]
-
-// type PermissionsTuple = [
-//   'content',
-//   'analytics',
-//   'catalog-settings',
-//   'client-projects',
-//   'client-orders',
-//   'services'
-// ];
+export type PermissionValues = (typeof PERMISSIONS)[keyof typeof PERMISSIONS]

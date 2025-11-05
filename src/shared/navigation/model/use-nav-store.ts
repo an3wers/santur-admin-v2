@@ -1,3 +1,4 @@
+import type { RolesValues } from '~/shared/config/constants'
 import { useNavApi } from '../api/nav-api'
 import type { MenuItem, Resource } from './nav-types'
 import type { MenuOption } from 'naive-ui'
@@ -20,16 +21,27 @@ export const useNavStore = defineStore('navigation', () => {
 
   const getMenuOptions = computed(() => mappingNavItemsToMenuOptions(navigation.value ?? []))
 
-  const getMenuOptionsWithZeroLavel = computed<MenuOption[]>(() => {
-    return (
-      navigationWithZeroLavel.value?.map((zeroLavelItem) => {
-        return {
-          label: zeroLavelItem.label,
-          key: `${zeroLavelItem.modelName}-${zeroLavelItem.id}`,
-          children: mappingNavItemsToMenuOptions(zeroLavelItem.items)
-        }
-      }) || []
-    )
+  // const getMenuOptionsWithZeroLavel = computed<MenuOption[]>(() => {
+  //   return (
+  //     navigationWithZeroLavel.value?.map((zeroLavelItem) => {
+  //       return {
+  //         label: zeroLavelItem.label,
+  //         key: `${zeroLavelItem.modelName}-${zeroLavelItem.id}`,
+  //         children: mappingNavItemsToMenuOptions(zeroLavelItem.items)
+  //       }
+  //     }) || []
+  //   )
+  // })
+
+  const getMenuOptionsWithZeroLavel = computed(() => (roles: RolesValues[]) => {
+    const navs = applyPermissionsFilter(navigationWithZeroLavel.value ?? [], roles)
+    return navs.map((zeroLavelItem) => {
+      return {
+        label: zeroLavelItem.label,
+        key: `${zeroLavelItem.modelName}-${zeroLavelItem.id}`,
+        children: mappingNavItemsToMenuOptions(zeroLavelItem.items)
+      }
+    })
   })
 
   const getSubMenuBySlug = computed(() => (slug: string) => {
@@ -357,6 +369,59 @@ export const useNavStore = defineStore('navigation', () => {
     return zeroLavel
   }
 
+  function applyPermissionsFilter(items: MenuItem[], roles: RolesValues[]): MenuItem[] {
+    // let result: MenuItem[] = []
+    const result = new Set<MenuItem>()
+
+    roles.forEach((r) => {
+      switch (r) {
+        case 'SADM':
+        case 'ADM':
+        case 'DEVLP':
+          // result = items
+          items.forEach((item) => {
+            result.add(item)
+          })
+          break
+        case 'CLPADM':
+          items.forEach((item) => {
+            if (item.modelName === 'projecting') {
+              result.add(item)
+            }
+          })
+          break
+        case 'MRKT':
+          items.forEach((item) => {
+            if (
+              item.modelName === 'analytics' ||
+              item.modelName === 'feeds' ||
+              item.modelName === 'content'
+            ) {
+              result.add(item)
+            }
+          })
+
+          break
+        case 'VCNADM':
+        case 'EXTRMRKT':
+          items.forEach((item) => {
+            if (item.modelName === 'content') {
+              result.add(item)
+            }
+          })
+
+          break
+        case 'ISTA':
+        case 'TA':
+        case 'TP':
+        default:
+          break
+      }
+    })
+
+    return Array.from(result)
+  }
+
   return {
     navigation,
     mapNavigation,
@@ -378,6 +443,7 @@ export const useNavStore = defineStore('navigation', () => {
     $reset,
     saveActiveResourceToLS,
     setActiveResource,
-    checkAndSetActiveResource
+    checkAndSetActiveResource,
+    applyPermissionsFilter
   }
 })

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { NText, NMenu } from 'naive-ui'
+import { useUserStore } from '~/entities/user'
 import { useNavStore } from '~/shared/navigation'
 
 const navStore = useNavStore()
+const userStore = useUserStore()
 
 const selectedKey = ref('')
 
@@ -47,7 +49,7 @@ const computedSelectedKey = computed({
       <NMenu
         v-model:value="computedSelectedKey"
         accordion
-        :options="navStore.getMenuOptionsWithZeroLavel"
+        :options="navStore.getMenuOptionsWithZeroLavel(userStore.roles)"
         :theme-overrides="{ itemHeight: '32px' }"
         :indent="12"
       />

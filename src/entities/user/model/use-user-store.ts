@@ -2,7 +2,12 @@ import { useUserApi } from '../api/user-api'
 import type { LoginRequest } from '../api/user-schemas'
 import type { User } from './user-types'
 import { nanoid } from 'nanoid'
-import { PERMISSIONS, ROLES } from '@/shared/config/constants'
+import {
+  PERMISSIONS,
+  ROLES,
+  type PermissionValues,
+  type RolesValues
+} from '@/shared/config/constants'
 
 export const useUserStore = defineStore('user', () => {
   const api = useUserApi()
@@ -10,12 +15,12 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const userId = ref<number | null>(null)
 
-  const roles = ref<string[]>([]) // ['SADM']
+  const roles = ref<RolesValues[]>([]) // ['SADM']
 
-  const rolePermissions = {
-    [ROLES.SADM]: [Object.values(PERMISSIONS)],
-    [ROLES.ADM]: [Object.values(PERMISSIONS)],
-    [ROLES.DEVLP]: [Object.values(PERMISSIONS)],
+  const rolePermissions: Record<RolesValues, PermissionValues[]> = {
+    [ROLES.SADM]: Object.values(PERMISSIONS),
+    [ROLES.ADM]: Object.values(PERMISSIONS),
+    [ROLES.DEVLP]: Object.values(PERMISSIONS),
     [ROLES.VCNADM]: [PERMISSIONS.CONTENT],
     [ROLES.CLPADM]: [PERMISSIONS.CLIENT_PROJECTS],
     [ROLES.MRKT]: [
@@ -24,12 +29,16 @@ export const useUserStore = defineStore('user', () => {
       PERMISSIONS.CONTENT,
       PERMISSIONS.CLIENT_ORDERS
     ],
-    [ROLES.EXTRMRKT]: [PERMISSIONS.CONTENT]
+    [ROLES.EXTRMRKT]: [PERMISSIONS.CONTENT],
+    [ROLES.ISTA]: [],
+    [ROLES.TA]: [],
+    [ROLES.TP]: []
   }
 
-  function checkPermissions(page: string) {
+  function checkPermissions(ctx: string) {
     for (const role of roles.value) {
-      const has = rolePermissions[role].some((p) => p === page)
+      const permissions = rolePermissions[role as RolesValues]
+      const has = permissions?.some((p) => p === ctx)
       if (has) {
         return true
       }
@@ -55,7 +64,7 @@ export const useUserStore = defineStore('user', () => {
 
       user.value = userData
 
-      roles.value = userData.rights.split(' ')
+      roles.value = userData.rights.split(' ') as RolesValues[]
 
       isLoaded.value = true
       return userData

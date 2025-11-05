@@ -1,8 +1,12 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware: () => {
-    return navigateTo('/analytics/1')
-  }
+  middleware: [
+    'check-permission',
+    () => {
+      return navigateTo('/analytics/1')
+    }
+  ],
+  ctx: 'analytics'
 })
 </script>
 <template>

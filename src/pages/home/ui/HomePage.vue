@@ -2,8 +2,17 @@
 import { NH1, NSpace, NGrid, NGi, NCard, useMessage } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import SubnavList from './SubnavList.vue'
+import { useUserStore } from '~/entities/user'
 
 const navStore = useNavStore()
+const userStore = useUserStore()
+
+const navItems = computed(() => {
+  if (!navStore.navigationWithZeroLavel) {
+    return []
+  }
+  return navStore.applyPermissionsFilter(navStore.navigationWithZeroLavel, userStore.roles)
+})
 
 const route = useRoute()
 const message = useMessage()
@@ -20,7 +29,7 @@ watchEffect(() => {
     <n-space vertical size="large">
       <n-h1>Управление сервисами</n-h1>
       <n-grid x-gap="12" y-gap="12" cols="s:2 m:3 l:4" responsive="screen">
-        <n-gi v-for="item in navStore.navigationWithZeroLavel" :key="item.id">
+        <n-gi v-for="item in navItems" :key="item.id">
           <n-card class="n-card-item" size="small">
             <template #header>
               {{ item.label }}

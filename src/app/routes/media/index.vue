@@ -2,7 +2,9 @@
 import { MediaMainPage } from '~/pages/media'
 
 definePageMeta({
-  isRequaredAuth: true
+  isRequaredAuth: true,
+  middleware: 'check-permission',
+  ctx: 'content'
 })
 </script>
 
