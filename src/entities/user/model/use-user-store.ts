@@ -2,12 +2,41 @@ import { useUserApi } from '../api/user-api'
 import type { LoginRequest } from '../api/user-schemas'
 import type { User } from './user-types'
 import { nanoid } from 'nanoid'
+import { PERMISSIONS, ROLES } from '@/shared/config/constants'
 
 export const useUserStore = defineStore('user', () => {
   const api = useUserApi()
 
   const user = ref<User | null>(null)
   const userId = ref<number | null>(null)
+
+  const roles = ref<string[]>([]) // ['SADM']
+
+  const rolePermissions = {
+    [ROLES.SADM]: [Object.values(PERMISSIONS)],
+    [ROLES.ADM]: [Object.values(PERMISSIONS)],
+    [ROLES.DEVLP]: [Object.values(PERMISSIONS)],
+    [ROLES.VCNADM]: [PERMISSIONS.CONTENT],
+    [ROLES.CLPADM]: [PERMISSIONS.CLIENT_PROJECTS],
+    [ROLES.MRKT]: [
+      PERMISSIONS.ANALYTICTS,
+      PERMISSIONS.CATALOG_SETTINGS,
+      PERMISSIONS.CONTENT,
+      PERMISSIONS.CLIENT_ORDERS
+    ],
+    [ROLES.EXTRMRKT]: [PERMISSIONS.CONTENT]
+  }
+
+  function checkPermissions(page: string) {
+    for (const role of roles.value) {
+      const has = rolePermissions[role].some((p) => p === page)
+      if (has) {
+        return true
+      }
+    }
+
+    return false
+  }
 
   // TODO: Заменить на статус: idle | pending | success | error
   const isLoaded = ref(false)
@@ -25,6 +54,9 @@ export const useUserStore = defineStore('user', () => {
       }
 
       user.value = userData
+
+      roles.value = userData.rights.split(' ')
+
       isLoaded.value = true
       return userData
     } catch (error) {
@@ -76,8 +108,11 @@ export const useUserStore = defineStore('user', () => {
       throw error
     }
   }
-  const validRoles = ['ADM', 'MRKT', 'VCNADM', 'CLPADM', 'DEVLP', 'SADM']
-  function checkRole(payload?: User) {
+
+  // внешний пользователь для студии - 'EXTRMRKT'
+  const validRoles = ['ADM', 'MRKT', 'VCNADM', 'CLPADM', 'DEVLP', 'SADM', 'EXTRMRKT']
+
+  function checkAllAdminRoles(payload?: User) {
     if (!payload) {
       payload = user.value ?? undefined
     }
@@ -114,5 +149,16 @@ export const useUserStore = defineStore('user', () => {
     isLoaded.value = false
   }
 
-  return { $reset, isAuthenticated, checkAuth, login, logout, user, checkRole }
+  return {
+    $reset,
+    isAuthenticated,
+    checkAuth,
+    login,
+    logout,
+    user,
+    checkAllAdminRoles,
+    rolePermissions,
+    roles,
+    checkPermissions
+  }
 })

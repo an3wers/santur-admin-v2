@@ -2,7 +2,7 @@ import { useUserStore } from '~/entities/user/model/use-user-store'
 import { publicRoutes } from '~/shared/config/config'
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { checkAuth, $reset, checkRole } = useUserStore()
+  const { checkAuth, $reset, checkAllAdminRoles } = useUserStore()
   const isAuth = await checkAuth()
 
   if (
@@ -24,9 +24,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
   ) {
     return navigateTo({ path: '/' })
   }
+
   // TODO: Сделать нормальную проверку ролей пользователя
-  if (isAuth && to.path !== '/' && !to.path.includes('analytics')) {
-    if (!checkRole()) {
+  // && !to.path.includes('analytics')
+  if (isAuth && to.path !== '/') {
+    if (!checkAllAdminRoles()) {
       return navigateTo({ path: '/', query: { error: 'checkRole' } })
     }
   }
