@@ -3,6 +3,7 @@ import { NText, NDropdown, NButton, NIcon, useMessage } from 'naive-ui'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
 import { useUserStore } from '../model/use-user-store'
+import { cropString } from '~/shared/libs/crop-string'
 
 const userStore = useUserStore()
 const message = useMessage()
@@ -42,7 +43,7 @@ async function logoutUser() {
       <div class="user__status">
         <NText depth="3"> Вы авторизованы</NText>
       </div>
-      <div class="user__info">{{ userStore.user?.email }}</div>
+      <div class="user__info">{{ cropString(userStore.user?.email || '', 18) }}</div>
     </div>
     <div class="user__dropdown">
       <n-dropdown trigger="click" :options="userMenu" @select="handleUserDropdown">
