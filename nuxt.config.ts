@@ -42,7 +42,18 @@ export default defineNuxtConfig({
   },
   css: ['~/app/assets/styles/app.css'],
   $production: {
+    sourcemap: {
+      client: false,
+      server: false
+    },
+
     vite: {
+      build: {
+        minify: 'esbuild',
+        target: ['es2016', 'edge88', 'firefox78', 'chrome87', 'safari12'],
+        sourcemap: false
+      },
+
       esbuild: {
         pure: ['console.log']
       }
