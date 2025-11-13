@@ -6,7 +6,7 @@ defineProps<{
   status: AsyncDataRequestStatus
 }>()
 
-const categories = defineModel<FeedCategoryItem[]>('state', { required: true })
+const categories = defineModel<FeedCategoryItem[]>('categories', { required: true })
 
 function toggleCheckedAllInCategory(catId: number) {
   categories.value?.forEach((item) => {
@@ -30,7 +30,7 @@ function toggleCheckedAllInCategory(catId: number) {
 <template>
   <n-space vertical>
     <n-spin :show="status === 'pending'" size="small">
-      <div v-for="parent in categories" :key="parent.id">
+      <div class="category" v-for="parent in categories" :key="parent.id">
         <div class="parent">
           <span class="parent__item">{{ parent.name }}</span>
           <n-button
@@ -52,6 +52,10 @@ function toggleCheckedAllInCategory(catId: number) {
 </template>
 
 <style scoped>
+.category {
+  margin-bottom: 1rem;
+}
+
 .parent {
   display: flex;
   align-items: center;

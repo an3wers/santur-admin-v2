@@ -8,7 +8,7 @@ import { useSaveFeed } from './use-save-feed'
 import type { FeedCategoryItem } from './types'
 
 export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
-  const ctxVal = toValue(ctx)
+  console.log('@ feature setup')
 
   // feature setup
   const currentFeedKey = ref<string | null>(null)
@@ -52,9 +52,9 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     data: feedsKeysData,
     status: feedsKeysStatus,
     execute: feedsKeysExecute
-  } = useAsyncData(`feeds-keys-${ctxVal}`, () => getFeedsKeys(), {
+  } = useAsyncData(`feeds-keys-${toValue(ctx)}`, () => getFeedsKeys(), {
     transform: (data) => {
-      return transformPlatformOptions(ctxVal, data)
+      return transformPlatformOptions(toValue(ctx), data)
     },
     lazy: true
   })
@@ -64,7 +64,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     status: feedFilterStatus,
     execute: feedFilterExecute
   } = useAsyncData<FeedFilterRes | null>(
-    `feed-filter-${ctxVal}`,
+    `feed-filter-${toValue(ctx)}`,
     () => {
       if (currentFeedKey.value == null) {
         return Promise.resolve(null)
@@ -122,14 +122,17 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     data: feedCategoryData,
     status: feedCategoryStatus,
     execute: feedCategoryExecute
-  } = useAsyncData(`feed-category-${ctxVal}`, getCatalog, {
+  } = useAsyncData(`feed-category-${toValue(ctx)}`, getCatalog, {
     transform: (data) => {
       const mapped = data.map((item) => ({
         id: item.id,
         name: item.name,
         parent_id: item.parent_id,
         vid: item.vid,
-        isChecked: !feedFilterData.value?.excludedCategories?.includes(item.id)
+        isChecked:
+          toValue(ctx) == '3'
+            ? !!feedFilterData.value?.excludedCategories?.includes(item.id)
+            : !feedFilterData.value?.excludedCategories?.includes(item.id)
       }))
 
       return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
@@ -147,7 +150,9 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     payload.forEach((item) => {
       if (item.child) {
         item.child.forEach((c) => {
-          if (!c.isChecked) {
+          if (toValue(ctx) != '3' && !c.isChecked) {
+            result.push(c.id)
+          } else if (toValue(ctx) == '3' && c.isChecked) {
             result.push(c.id)
           }
         })
@@ -190,7 +195,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     status: feedBrandsStatus,
     execute: feedBrandsExecute
   } = useAsyncData(
-    'feed-brands-setup',
+    `feed-brands-setup-${toValue(ctx)}`,
     () =>
       getBrands({
         letter: currentLetter.value,
@@ -210,7 +215,10 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
           brends: data.brends.map((b) => ({
             id: b.id,
             name: b.name,
-            isChecked: !excludedBrands.value?.includes(b.name)
+            isChecked:
+              toValue(ctx) == '3'
+                ? excludedBrands.value?.includes(b.name)
+                : !excludedBrands.value?.includes(b.name)
           }))
         }
       },
@@ -245,6 +253,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
       feedBrandsStatus.value === 'idle' &&
       feedFilterStatus.value === 'success'
     ) {
+      console.log('initExcludedBrands')
       initExcludedBrands(feedFilterData.value?.excludedBrends || [])
       await feedBrandsExecute()
     }
@@ -301,6 +310,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     feedPermissions,
     feedBrands,
     feedBrandsStatus,
+    excludedBrands,
     selectTab,
     setFeedKey,
     setMakeXmlFeed,

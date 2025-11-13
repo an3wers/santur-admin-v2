@@ -4,11 +4,14 @@ import { NCheckbox, NSpin } from 'naive-ui'
 import type { FeedBrands } from '../model/types'
 import { BrandLatters } from '~/entities/brand'
 
-const { brands, status, currentLetter } = defineProps<{
-  brands: FeedBrands | null
+const { letters, status, currentLetter } = defineProps<{
+  // brands: FeedBrands | null
+  letters: FeedBrands['letters'] | null
   status: AsyncDataRequestStatus
   currentLetter: string
 }>()
+
+const brands = defineModel<FeedBrands['brends']>('brands', { required: true })
 
 defineEmits<{
   (e: 'onToggleBrand', brand: string): void
@@ -16,12 +19,16 @@ defineEmits<{
 }>()
 
 const lettersRus = computed(() => {
-  return brands?.letters.filter((l) => l.lng === 'rus') || []
+  return letters?.filter((l) => l.lng === 'rus') || []
 })
 
 const lettersEng = computed(() => {
-  return brands?.letters.filter((l) => l.lng === 'eng') || []
+  return letters?.filter((l) => l.lng === 'eng') || []
 })
+
+function toggleAll() {
+  // TODO: implement
+}
 </script>
 
 <template>
@@ -36,7 +43,7 @@ const lettersEng = computed(() => {
     />
     <n-spin :show="status === 'pending'" size="small">
       <div class="brands">
-        <div v-for="item in brands?.brends" :key="item.id" class="brands__item">
+        <div v-for="item in brands" :key="item.id" class="brands__item">
           <n-checkbox
             v-model:checked="item.isChecked"
             @update:checked="$emit('onToggleBrand', item.name)"

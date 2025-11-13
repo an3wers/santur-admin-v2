@@ -87,13 +87,21 @@ watchEffect(() => {
 
                   <FeedsCategorySetup
                     v-if="feedCategoryData?.data"
-                    v-model:state="feedCategoryData.data"
+                    v-model:categories="feedCategoryData.data"
                     :status="feedCategoryStatus"
                   />
                 </n-tab-pane>
                 <n-tab-pane :name="tabs[1]" :tab="tabs[1]">
+                  <!-- :brands="feedBrands" -->
+
+                  <n-spin v-show="feedBrandsStatus === 'pending' && !feedBrands">
+                    <div style="height: 100px"></div>
+                  </n-spin>
+
                   <FeedsBrandsSetup
-                    :brands="feedBrands"
+                    v-if="feedBrands"
+                    v-model:brands="feedBrands.brends"
+                    :letters="feedBrands?.letters || []"
                     :status="feedBrandsStatus"
                     :current-letter="currentLetter"
                     @on-toggle-brand="toggleExcludedBrand"
