@@ -402,6 +402,14 @@ export const useNavStore = defineStore('navigation', () => {
           })
 
           break
+        case 'CTLCLADM':
+          items.forEach((item) => {
+            if (item.modelName === 'analytics' || item.modelName === 'feeds') {
+              result.add(item)
+            }
+          })
+
+          break
         case 'VCNADM':
         case 'EXTRMRKT':
           items.forEach((item) => {

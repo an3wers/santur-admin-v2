@@ -7,6 +7,7 @@ export const ROLES = {
   VCNADM: 'VCNADM',
   CLPADM: 'CLPADM',
   MRKT: 'MRKT',
+  CTLCLADM: 'CTLCLADM',
   EXTRMRKT: 'EXTRMRKT',
   ISTA: 'ISTA',
   TA: 'TA',

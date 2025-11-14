@@ -29,6 +29,7 @@ export const useUserStore = defineStore('user', () => {
       PERMISSIONS.CONTENT,
       PERMISSIONS.CLIENT_ORDERS
     ],
+    [ROLES.CTLCLADM]: [PERMISSIONS.CATALOG_SETTINGS],
     [ROLES.EXTRMRKT]: [PERMISSIONS.CONTENT],
     [ROLES.ISTA]: [],
     [ROLES.TA]: [],
