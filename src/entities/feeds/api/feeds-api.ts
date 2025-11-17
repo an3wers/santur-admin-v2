@@ -17,8 +17,12 @@ export const useFeedsApi = () => {
     return _data
   }
 
-  async function getFeedsKeys() {
-    const res = await fetchWithToken<FeedKeyRes[]>('AdminGoods/GetCatalogFilterKeys')
+  async function getFeedsKeys(prefix?: string) {
+    const res = await fetchWithToken<FeedKeyRes[]>('AdminGoods/GetCatalogFilterKeys', {
+      query: {
+        vid: prefix ?? ''
+      }
+    })
     const _data = checkError(res).data
     return _data
   }

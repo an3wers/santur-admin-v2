@@ -1,27 +1,48 @@
 import { useBrandApi } from '~/entities/brand'
 import { useFeedsApi, type FeedFilterRes } from '~/entities/feeds'
 import { useNavStore } from '~/shared/navigation'
-import { transformPlatformOptions } from '../utlils/transform-platform-options'
 import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
 import { useMessage } from 'naive-ui'
 import { useSaveFeed } from './use-save-feed'
 import type { FeedCategoryItem } from './types'
+import { prefixKeysMap } from '../utlils/prefix-keys-map'
+import { getKeyWithPrefix } from '../utlils/get-key-with-prefix'
 
 export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
-  console.log('@ feature setup')
-
   // feature setup
+
+  // key with prefix
   const currentFeedKey = ref<string | null>(null)
   const makexmlfeed = ref(false)
 
-  function setFeedKey(key: string) {
+  const currentFeedKeyWithoutPrefix = computed({
+    get: () => {
+      const key = currentFeedKey.value?.split(':')[1]
+      return key ?? null
+    },
+    set: (value) => {
+      setFeedKeyWithoutPrefix(value)
+    }
+  })
+
+  function setFeedKey(key: string | null) {
     currentFeedKey.value = key
   }
+
+  function setFeedKeyWithoutPrefix(key: string | null) {
+    if (key == null) {
+      currentFeedKey.value = null
+      return
+    }
+
+    currentFeedKey.value = getKeyWithPrefix(key, toValue(ctx))
+  }
+
   function setMakeXmlFeed(value: boolean) {
     makexmlfeed.value = value
   }
   const feedLink = computed(
-    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeedKey.value}`
+    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeedKeyWithoutPrefix.value}`
   )
 
   // tabs state
@@ -37,11 +58,11 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   const feedPermissions = computed(() => {
     return {
-      canAddNewKey: [1, 3].includes(navStore.currentSubmenuItem?.id || 0), //|| navStore.currentSubmenuItem?.id, // xml-feed
-      canEdit: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0), // navStore.currentSubmenuItem?.id === 1 || navStore.currentSubmenuItem?.id === 2,
+      canAddNewKey: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
+      canEdit: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0),
       canEditKey: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
-      canEditKeyName: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0), // navStore.currentSubmenuItem?.id === 1 || navStore.currentSubmenuItem?.id === 2,
-      canRemove: [1, 3].includes(navStore.currentSubmenuItem?.id || 0), // navStore.currentSubmenuItem?.id === 1,
+      canEditKeyName: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0),
+      canRemove: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
       canViewFeedLink: navStore.currentSubmenuItem?.id === 1
     }
   })
@@ -52,12 +73,23 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     data: feedsKeysData,
     status: feedsKeysStatus,
     execute: feedsKeysExecute
-  } = useAsyncData(`feeds-keys-${toValue(ctx)}`, () => getFeedsKeys(), {
-    transform: (data) => {
-      return transformPlatformOptions(toValue(ctx), data)
-    },
-    lazy: true
-  })
+  } = useAsyncData(
+    `feeds-keys-${toValue(ctx)}`,
+    () => getFeedsKeys(prefixKeysMap[toValue(ctx) as keyof typeof prefixKeysMap]),
+    {
+      transform: (data) => {
+        return data.map((el) => {
+          const key = el.key.split(':')[1]
+          return {
+            label: el.title,
+            value: key, // key without prefix
+            descr: el.descr
+          }
+        })
+      },
+      lazy: true
+    }
+  )
 
   const {
     data: feedFilterData,
@@ -69,7 +101,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
       if (currentFeedKey.value == null) {
         return Promise.resolve(null)
       }
-      return getFeedFilter(currentFeedKey.value)
+      return getFeedFilter(currentFeedKey.value) // key with prefix
     },
     {
       immediate: currentFeedKey.value != null,
@@ -81,9 +113,9 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     feedsKeysData,
     () => {
       if (feedsKeysData.value?.length) {
-        setFeedKey(feedsKeysData.value[0].value)
+        setFeedKeyWithoutPrefix(feedsKeysData.value[0].value)
       } else {
-        setFeedKey('')
+        setFeedKey(null)
       }
     },
     {
@@ -97,19 +129,19 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   async function savedKeyHandler(key: string) {
     // if (key === currentFeedKey.value) {
-
     // }
-
-    setFeedKey(key)
+    // setFeedKey(key)
+    setFeedKeyWithoutPrefix(key)
     await feedsKeysExecute()
   }
 
-  async function removedKeyHandler(_key: string) {
+  async function removedKeyHandler() {
     await feedsKeysExecute()
     if (feedsKeysData.value?.length) {
-      setFeedKey(feedsKeysData.value[0].value)
+      // setFeedKey(feedsKeysData.value[0].value)
+      setFeedKeyWithoutPrefix(feedsKeysData.value[0].value)
     } else {
-      setFeedKey('')
+      setFeedKey(null)
     }
   }
 
@@ -253,7 +285,6 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
       feedBrandsStatus.value === 'idle' &&
       feedFilterStatus.value === 'success'
     ) {
-      console.log('initExcludedBrands')
       initExcludedBrands(feedFilterData.value?.excludedBrends || [])
       await feedBrandsExecute()
     }
@@ -271,7 +302,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     const excludedCategories = getExcludedCategoryIds(feedCategoryData.value!.data)
 
     await saveFeed(
-      currentFeedKey.value,
+      currentFeedKey.value, // key with prefix
       {
         excludedCategories,
         excludedBrends: excludedBrands.value,
@@ -311,6 +342,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     feedBrands,
     feedBrandsStatus,
     excludedBrands,
+    currentFeedKeyWithoutPrefix,
     selectTab,
     setFeedKey,
     setMakeXmlFeed,

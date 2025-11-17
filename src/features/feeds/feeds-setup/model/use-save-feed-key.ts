@@ -1,6 +1,7 @@
 import { useFeedsApi } from '~/entities/feeds'
+import { getKeyWithPrefix } from '../utlils/get-key-with-prefix'
 
-export const useSaveFeedKey = () => {
+export const useSaveFeedKey = (ctx: MaybeRefOrGetter<string>) => {
   const status = ref<ProcessStatus>('idle')
   const error = ref<string>('')
 
@@ -10,8 +11,9 @@ export const useSaveFeedKey = () => {
       status.value = 'pending'
       error.value = ''
       const { descr, key, name } = payload
-      await saveFeedKeyApi(key, {
-        key,
+      const keyWithPrefix = getKeyWithPrefix(key, toValue(ctx))
+      await saveFeedKeyApi(keyWithPrefix, {
+        key: keyWithPrefix,
         descr,
         title: name
       })

@@ -34,6 +34,7 @@ const {
   feedPermissions,
   feedBrands,
   feedBrandsStatus,
+  currentFeedKeyWithoutPrefix,
   setMakeXmlFeed,
   setLetter,
   saveFeedHandler,
@@ -68,7 +69,9 @@ watchEffect(() => {
       </n-space>
       <n-space vertical size="large">
         <FeedsSelector
-          v-model:feed-key="currentFeedKey"
+          v-model:feed-key="currentFeedKeyWithoutPrefix"
+          :current-feed-key-with-prefix="currentFeedKey"
+          :ctx="catId"
           :feed-keys="feedsKeysData || []"
           :feed-link="feedLink"
           :feed-permissions="feedPermissions"

@@ -17,7 +17,9 @@ import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import { useRemoveFeed } from '../model/use-remove-feed'
 import EditFeedKeyForm from './EditFeedKeyForm.vue'
 
-const { feedKeys, feedPermissions, feedLink } = defineProps<{
+const { ctx, currentFeedKeyWithPrefix, feedKeys, feedPermissions, feedLink } = defineProps<{
+  ctx: string
+  currentFeedKeyWithPrefix: string | null
   feedKeys: { label: string; value: string; descr: string }[]
   feedPermissions: {
     canAddNewKey: boolean
@@ -30,7 +32,7 @@ const { feedKeys, feedPermissions, feedLink } = defineProps<{
   feedLink: string
 }>()
 
-const currentFeedKeyValue = defineModel<string | null>('feedKey')
+const currentFeedKeyWithoutPrefixValue = defineModel<string | null>('feedKey')
 
 const emits = defineEmits<{
   (e: 'onUpdateFeed'): void
@@ -39,7 +41,7 @@ const emits = defineEmits<{
 }>()
 
 const currentFeedMeta = computed(() => {
-  return feedKeys?.find((el) => el.value === currentFeedKeyValue.value)
+  return feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value)
 })
 
 const dropdownOptions = computed(() => {
@@ -93,6 +95,7 @@ function editFeed() {
 async function savedFeedKeyhandler(key: string) {
   isOpenKeyModal.value = false
 
+  // key without prefix
   emits('onSavedKey', key)
 }
 
@@ -101,12 +104,12 @@ const message = useMessage()
 const { removeFeedByKey, error: removeFeedError, status: removeFeedStatus } = useRemoveFeed()
 
 async function removeFeed() {
-  if (currentFeedKeyValue.value == null) return
+  if (currentFeedKeyWithPrefix == null) return
 
-  await removeFeedByKey(currentFeedKeyValue.value)
+  await removeFeedByKey(currentFeedKeyWithPrefix)
 
   if (removeFeedStatus.value === 'success') {
-    emits('onRemovedKey', currentFeedKeyValue.value)
+    emits('onRemovedKey', currentFeedKeyWithPrefix)
     message.success('Настройка успешно удалена')
   } else if (removeFeedStatus.value === 'error') {
     message.error(removeFeedError.value || 'Произошла ошибка при удалении')
@@ -116,7 +119,7 @@ async function removeFeed() {
 const keyModalMode = ref<'add' | 'edit'>('add')
 
 const currentKeyValue = computed(() => {
-  return feedKeys?.find((el) => el.value === currentFeedKeyValue.value) || null
+  return feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value) || null
 })
 
 function saveFeedHandler() {
@@ -139,7 +142,7 @@ watch(isOpenKeyModal, () => {
             @update:value="feedsSetup.setFeedKey"
             -->
           <n-select
-            v-model:value="currentFeedKeyValue"
+            v-model:value="currentFeedKeyWithoutPrefixValue"
             class="row-select__input"
             :options="feedKeys ?? []"
           />
@@ -203,6 +206,7 @@ watch(isOpenKeyModal, () => {
       @close="isOpenKeyModal = false"
     >
       <EditFeedKeyForm
+        :ctx="ctx"
         :mode="keyModalMode"
         :current-key-value="currentKeyValue"
         :can-edit-key="feedPermissions.canEditKey"

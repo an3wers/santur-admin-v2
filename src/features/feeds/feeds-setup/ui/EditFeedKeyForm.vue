@@ -11,7 +11,8 @@ import {
 } from 'naive-ui'
 import { useSaveFeedKey } from '../model/use-save-feed-key'
 
-const { mode, currentKeyValue } = defineProps<{
+const { ctx, mode, currentKeyValue } = defineProps<{
+  ctx: string
   mode: 'add' | 'edit'
   currentKeyValue: { value: string; label: string; descr: string } | null
   canEditKey: boolean
@@ -53,10 +54,7 @@ const formRules: FormRules = {
 
       // Проверка на наличие только латинских символов, цифр, дефиса и двоеточия без пробелов
       if (!/^[a-zA-Z0-9\-:]+$/.test(value)) {
-        return Promise.reject(
-          'Введите корректный ключ'
-          // 'Ключ должен содержать только латинские буквы, цифры, дефис ("-") и двоеточие (":") без пробелов'
-        )
+        return Promise.reject('Введите корректный ключ')
       }
 
       return Promise.resolve()
@@ -68,7 +66,7 @@ const formRules: FormRules = {
 }
 const message = useMessage()
 
-const { status: saveFeedKeyStatus, saveFeedKey, error: saveFeedKeyError } = useSaveFeedKey()
+const { status: saveFeedKeyStatus, saveFeedKey, error: saveFeedKeyError } = useSaveFeedKey(ctx)
 
 async function submitHandler() {
   try {
@@ -78,6 +76,7 @@ async function submitHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
+    // key without prefix
     const { name, key, descr } = keyFormValue.value
 
     await saveFeedKey({ descr, key, name })
@@ -122,6 +121,7 @@ function resetForm() {
         v-model:value="keyFormValue.key"
         placeholder="Введите ключ"
         :readonly="mode === 'edit' || !canEditKey"
+        :disabled="mode === 'edit' || !canEditKey"
       />
     </n-form-item>
     <div class="key-hint-message">
