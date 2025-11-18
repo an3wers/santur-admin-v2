@@ -12,7 +12,7 @@ export const useSaveFeedKey = (ctx: MaybeRefOrGetter<string>) => {
       error.value = ''
       const { descr, key, name } = payload
       const keyWithPrefix = getKeyWithPrefix(key, toValue(ctx))
-      await saveFeedKeyApi(keyWithPrefix, {
+      await saveFeedKeyApi({
         key: keyWithPrefix,
         descr,
         title: name

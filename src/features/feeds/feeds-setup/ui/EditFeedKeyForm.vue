@@ -5,6 +5,7 @@ import {
   NInput,
   NButton,
   NText,
+  NCheckbox,
   type FormRules,
   useMessage,
   type FormInst
@@ -27,7 +28,8 @@ const formRef = ref<FormInst | null>(null)
 const keyFormValue = ref({
   name: '',
   key: '',
-  descr: ''
+  descr: '',
+  isLimitedCatalog: false
 })
 
 watchEffect(() => {
@@ -35,6 +37,7 @@ watchEffect(() => {
     keyFormValue.value.name = currentKeyValue.label
     keyFormValue.value.key = currentKeyValue.value
     keyFormValue.value.descr = currentKeyValue.descr
+    // TODO: get isLimitedCatalog from currentKeyValue and set it to keyFormValue.value.isLimitedCatalog
   } else {
     resetForm()
   }
@@ -100,6 +103,7 @@ function resetForm() {
   keyFormValue.value.name = ''
   keyFormValue.value.key = ''
   keyFormValue.value.descr = ''
+  keyFormValue.value.isLimitedCatalog = false
 }
 </script>
 
@@ -124,12 +128,25 @@ function resetForm() {
         :disabled="mode === 'edit' || !canEditKey"
       />
     </n-form-item>
-    <div class="key-hint-message">
+    <div class="hint-message">
       <n-text tag="p" :depth="3"
         >Ключ может содержать только латинские буквы, цифры, дефис ("-") и двоеточие (":") без
         пробелов</n-text
       >
     </div>
+    <template v-if="ctx == '3'">
+      <n-form-item style="margin-left: 6rem; margin-bottom: -1rem" path="isLimitedCatalog">
+        <n-checkbox v-model:checked="keyFormValue.isLimitedCatalog">
+          Ограничить каталог клиента
+        </n-checkbox>
+      </n-form-item>
+      <div class="hint-message">
+        <n-text tag="p" :depth="3"
+          >При включении этой опции, каталог клиента будет ограничен только теми категориями,
+          которые выбраны в настройке и общий каталог будет недоступен.</n-text
+        >
+      </div>
+    </template>
 
     <n-form-item path="descr" label="Описание">
       <n-input v-model:value="keyFormValue.descr" type="textarea" placeholder="" />
@@ -148,7 +165,7 @@ function resetForm() {
   justify-content: flex-end;
 }
 
-.key-hint-message {
+.hint-message {
   margin-bottom: 2rem;
   margin-left: 6rem;
 }
