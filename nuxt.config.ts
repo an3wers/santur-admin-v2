@@ -50,7 +50,7 @@ export default defineNuxtConfig({
     vite: {
       build: {
         minify: 'esbuild',
-        target: ['es2016', 'edge88', 'firefox78', 'chrome87', 'safari12'],
+        target: ['es2018'],
         sourcemap: false
       },
 
@@ -68,7 +68,7 @@ export default defineNuxtConfig({
   },
 
   $development: {
-    sourcemap: { client: true, server: true },
+    sourcemap: false,
 
     runtimeConfig: {
       public: {

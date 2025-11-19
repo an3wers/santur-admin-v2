@@ -128,9 +128,6 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
   })
 
   async function savedKeyHandler(key: string) {
-    // if (key === currentFeedKey.value) {
-    // }
-    // setFeedKey(key)
     setFeedKeyWithoutPrefix(key)
     await feedsKeysExecute()
   }
@@ -138,7 +135,6 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
   async function removedKeyHandler() {
     await feedsKeysExecute()
     if (feedsKeysData.value?.length) {
-      // setFeedKey(feedsKeysData.value[0].value)
       setFeedKeyWithoutPrefix(feedsKeysData.value[0].value)
     } else {
       setFeedKey(null)
@@ -198,27 +194,44 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   //#region Brands
   const currentLetter = ref('A')
-  const excludedBrands = ref<string[]>([])
+
+  const excludedBrandsSet = ref<Set<string>>(new Set())
 
   function setLetter(letter: string) {
     currentLetter.value = letter
   }
 
   function toggleExcludedBrand(brand: string) {
-    if (excludedBrands.value.includes(brand)) {
-      excludedBrands.value = excludedBrands.value.filter((b) => b !== brand)
+    if (excludedBrandsSet.value.has(brand)) {
+      excludedBrandsSet.value.delete(brand)
     } else {
-      excludedBrands.value.push(brand)
+      excludedBrandsSet.value.add(brand)
+    }
+  }
+
+  function addExcludedBrands(brand: string) {
+    if (toValue(ctx) == '3') {
+      excludedBrandsSet.value.delete(brand)
+    } else {
+      excludedBrandsSet.value.add(brand)
+    }
+  }
+
+  function removeExcludedBrands(brand: string) {
+    if (toValue(ctx) == '3') {
+      excludedBrandsSet.value.add(brand)
+    } else {
+      excludedBrandsSet.value.delete(brand)
     }
   }
 
   function initExcludedBrands(brands: string[]) {
-    excludedBrands.value = brands
+    excludedBrandsSet.value = new Set(brands)
   }
 
   function resetBrandsState() {
     currentLetter.value = 'A'
-    excludedBrands.value = []
+    excludedBrandsSet.value = new Set()
   }
 
   const { getBrands } = useBrandApi()
@@ -249,8 +262,8 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
             name: b.name,
             isChecked:
               toValue(ctx) == '3'
-                ? excludedBrands.value?.includes(b.name)
-                : !excludedBrands.value?.includes(b.name)
+                ? excludedBrandsSet.value.has(b.name)
+                : !excludedBrandsSet.value.has(b.name)
           }))
         }
       },
@@ -305,7 +318,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
       currentFeedKey.value, // key with prefix
       {
         excludedCategories,
-        excludedBrends: excludedBrands.value,
+        excludedBrends: Array.from(excludedBrandsSet.value), // excludedBrands.value,
         znaks: feedFilterData.value!.znaks,
         title: feedFilterData.value!.title,
         descr: feedFilterData.value!.descr
@@ -341,8 +354,10 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     feedPermissions,
     feedBrands,
     feedBrandsStatus,
-    excludedBrands,
+    excludedBrandsSet,
     currentFeedKeyWithoutPrefix,
+    addExcludedBrands,
+    removeExcludedBrands,
     selectTab,
     setFeedKey,
     setMakeXmlFeed,

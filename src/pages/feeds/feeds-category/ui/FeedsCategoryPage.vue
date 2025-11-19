@@ -35,6 +35,8 @@ const {
   feedBrands,
   feedBrandsStatus,
   currentFeedKeyWithoutPrefix,
+  addExcludedBrands,
+  removeExcludedBrands,
   setMakeXmlFeed,
   setLetter,
   saveFeedHandler,
@@ -109,6 +111,8 @@ watchEffect(() => {
                     :current-letter="currentLetter"
                     @on-toggle-brand="toggleExcludedBrand"
                     @on-set-letter="setLetter"
+                    @on-add-excluded-brand="addExcludedBrands"
+                    @on-remove-excluded-brand="removeExcludedBrands"
                   />
                 </n-tab-pane>
                 <n-tab-pane :name="tabs[2]" :tab="tabs[2]">

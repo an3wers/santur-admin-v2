@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus } from '#app'
-import { NCheckbox, NSpin } from 'naive-ui'
+import { NCheckbox, NSpin, NButton } from 'naive-ui'
 import type { FeedBrands } from '../model/types'
 import { BrandLatters } from '~/entities/brand'
 
@@ -13,9 +13,11 @@ const { letters, status, currentLetter } = defineProps<{
 
 const brands = defineModel<FeedBrands['brends']>('brands', { required: true })
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'onToggleBrand', brand: string): void
   (e: 'onSetLetter', letter: string): void
+  (e: 'onAddExcludedBrand', brand: string): void
+  (e: 'onRemoveExcludedBrand', brand: string): void
 }>()
 
 const lettersRus = computed(() => {
@@ -26,8 +28,22 @@ const lettersEng = computed(() => {
   return letters?.filter((l) => l.lng === 'eng') || []
 })
 
+const isCheckedAll = computed(() => {
+  return brands.value?.every((b) => b.isChecked)
+})
+
 function toggleAll() {
-  // TODO: implement
+  if (isCheckedAll.value) {
+    brands.value?.forEach((b) => {
+      b.isChecked = false
+      emits('onAddExcludedBrand', b.name)
+    })
+  } else {
+    brands.value?.forEach((b) => {
+      b.isChecked = true
+      emits('onRemoveExcludedBrand', b.name)
+    })
+  }
 }
 </script>
 
@@ -42,6 +58,11 @@ function toggleAll() {
       @on-letter-click="$emit('onSetLetter', $event)"
     />
     <n-spin :show="status === 'pending'" size="small">
+      <div class="brands-toggle-all">
+        <n-button size="small" secondary type="primary" @click="toggleAll">{{
+          isCheckedAll ? 'Снять все' : 'Выбрать все'
+        }}</n-button>
+      </div>
       <div class="brands">
         <div v-for="item in brands" :key="item.id" class="brands__item">
           <n-checkbox
@@ -64,5 +85,8 @@ function toggleAll() {
 
 .brands__item {
   margin-top: 0.25rem;
+}
+.brands-toggle-all {
+  margin-bottom: 1rem;
 }
 </style>
