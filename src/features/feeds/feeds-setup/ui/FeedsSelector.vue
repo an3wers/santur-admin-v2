@@ -138,9 +138,6 @@ watch(isOpenKeyModal, () => {
     <n-space justify="space-between" size="medium" align="start">
       <n-space vertical size="medium">
         <div class="row row-select">
-          <!--:value="currentFeedKey"
-            @update:value="feedsSetup.setFeedKey"
-            -->
           <n-select
             v-model:value="currentFeedKeyWithoutPrefixValue"
             class="row-select__input"
@@ -229,7 +226,7 @@ watch(isOpenKeyModal, () => {
 }
 
 .row-select__input {
-  width: 220px;
+  width: 280px;
   flex-shrink: 1;
 }
 
