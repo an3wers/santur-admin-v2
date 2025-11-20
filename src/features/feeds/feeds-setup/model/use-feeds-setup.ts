@@ -130,6 +130,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
   async function savedKeyHandler(key: string) {
     setFeedKeyWithoutPrefix(key)
     await feedsKeysExecute()
+    await feedFilterExecute()
   }
 
   async function removedKeyHandler() {

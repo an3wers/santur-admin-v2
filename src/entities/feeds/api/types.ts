@@ -16,6 +16,7 @@ export interface FeedFilterRes {
   excludedBrends: string[]
   title: string
   descr: string
+  isStrong: boolean
   znaks: {
     znak: string
     incash: boolean

@@ -46,7 +46,7 @@ export const useFeedsApi = () => {
     formData.append('descr', payload.descr)
 
     if ('strong' in payload) {
-      formData.append('strong', String(payload.strong))
+      formData.append('isStrong', String(payload.strong))
     }
 
     const res = await fetchWithToken('AdminGoods/SaveCatalogFilterKey', {

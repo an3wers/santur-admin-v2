@@ -6,15 +6,21 @@ export const useSaveFeedKey = (ctx: MaybeRefOrGetter<string>) => {
   const error = ref<string>('')
 
   const { saveFeedKey: saveFeedKeyApi } = useFeedsApi()
-  async function saveFeedKey(payload: { name: string; key: string; descr: string }) {
+  async function saveFeedKey(payload: {
+    name: string
+    key: string
+    descr: string
+    strong: boolean
+  }) {
     try {
       status.value = 'pending'
       error.value = ''
-      const { descr, key, name } = payload
+      const { descr, key, name, strong } = payload
       const keyWithPrefix = getKeyWithPrefix(key, toValue(ctx))
       await saveFeedKeyApi({
         key: keyWithPrefix,
         descr,
+        strong,
         title: name
       })
       status.value = 'success'

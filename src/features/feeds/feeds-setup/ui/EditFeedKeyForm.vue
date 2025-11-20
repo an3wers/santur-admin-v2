@@ -15,7 +15,7 @@ import { useSaveFeedKey } from '../model/use-save-feed-key'
 const { ctx, mode, currentKeyValue } = defineProps<{
   ctx: string
   mode: 'add' | 'edit'
-  currentKeyValue: { value: string; label: string; descr: string } | null
+  currentKeyValue: { value: string; label: string; descr: string; isStrong: boolean } | null
   canEditKey: boolean
 }>()
 
@@ -37,7 +37,7 @@ watchEffect(() => {
     keyFormValue.value.name = currentKeyValue.label
     keyFormValue.value.key = currentKeyValue.value
     keyFormValue.value.descr = currentKeyValue.descr
-    // TODO: get isLimitedCatalog from currentKeyValue and set it to keyFormValue.value.isLimitedCatalog
+    keyFormValue.value.isLimitedCatalog = currentKeyValue.isStrong
   } else {
     resetForm()
   }
@@ -80,9 +80,9 @@ async function submitHandler() {
     }
 
     // key without prefix
-    const { name, key, descr } = keyFormValue.value
+    const { name, key, descr, isLimitedCatalog } = keyFormValue.value
 
-    await saveFeedKey({ descr, key, name })
+    await saveFeedKey({ descr, key, name, strong: isLimitedCatalog })
 
     if (saveFeedKeyStatus.value === 'success') {
       message.success('Настройка успешно сохранена')

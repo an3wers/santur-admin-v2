@@ -40,8 +40,14 @@ const emits = defineEmits<{
   (e: 'onRemovedKey', key: string): void
 }>()
 
+const { data: feedFilterData } = useNuxtData(`feed-filter-${ctx}`)
+
 const currentFeedMeta = computed(() => {
-  return feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value)
+  const found = feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value)
+  if (found) {
+    return { ...found, isStrong: feedFilterData.value?.isStrong ?? false }
+  }
+  return null
 })
 
 const dropdownOptions = computed(() => {
@@ -118,9 +124,9 @@ async function removeFeed() {
 
 const keyModalMode = ref<'add' | 'edit'>('add')
 
-const currentKeyValue = computed(() => {
-  return feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value) || null
-})
+// const currentKeyValue = computed(() => {
+//   return feedKeys?.find((el) => el.value === currentFeedKeyWithoutPrefixValue.value) || null
+// })
 
 function saveFeedHandler() {
   emits('onUpdateFeed')
@@ -170,15 +176,15 @@ watch(isOpenKeyModal, () => {
             </n-button>
           </div>
         </div>
-        <n-p v-if="currentKeyValue">
+        <n-p v-if="currentFeedMeta">
           <n-text :depth="3" style="display: block">Ключ</n-text>
           <span class="key-value"
-            >{{ currentKeyValue.value }}
+            >{{ currentFeedMeta.value }}
             <n-button
               size="tiny"
               type="primary"
               text
-              @click="copyToClipboard(currentKeyValue.value)"
+              @click="copyToClipboard(currentFeedMeta.value)"
             >
               <template #icon>
                 <n-icon size="16px" :component="Copy" />
@@ -205,7 +211,7 @@ watch(isOpenKeyModal, () => {
       <EditFeedKeyForm
         :ctx="ctx"
         :mode="keyModalMode"
-        :current-key-value="currentKeyValue"
+        :current-key-value="currentFeedMeta"
         :can-edit-key="feedPermissions.canEditKey"
         @on-after-success-save-key="savedFeedKeyhandler"
       />
