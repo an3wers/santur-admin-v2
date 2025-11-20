@@ -42,7 +42,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     makexmlfeed.value = value
   }
   const feedLink = computed(
-    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeedKeyWithoutPrefix.value}`
+    () => `https://isantur.ru/Client/GetCatalogFeed?key=${currentFeedKey.value}`
   )
 
   // tabs state
