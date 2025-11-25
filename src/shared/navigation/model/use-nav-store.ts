@@ -183,34 +183,6 @@ export const useNavStore = defineStore('navigation', () => {
 
   function createMenuItemExtend(): MenuItem[] {
     return [
-      // {
-      //   app: '',
-      //   categoryId: 0,
-      //   id: 10,
-      //   items: [
-      //     {
-      //       app: '',
-      //       categoryId: 0,
-      //       id: 1,
-      //       items: [],
-      //       label: 'XML-фиды',
-      //       modelName: 'uploading',
-      //       needSubmenu: false
-      //     },
-      //     {
-      //       app: '',
-      //       categoryId: 0,
-      //       id: 2,
-      //       items: [],
-      //       label: 'santur.ru',
-      //       modelName: 'uploading',
-      //       needSubmenu: false
-      //     }
-      //   ],
-      //   label: 'Выгрузки',
-      //   modelName: 'uploading',
-      //   needSubmenu: false
-      // },
       {
         app: '',
         categoryId: 0,

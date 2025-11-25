@@ -30,3 +30,11 @@ export interface FeedKeyRes {
   title: string
   descr: string
 }
+
+export interface SearchSubjectRes {
+  id: number
+  name: string
+  code: string
+  inn: string
+  taemail: string
+}

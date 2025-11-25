@@ -58,11 +58,11 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   const feedPermissions = computed(() => {
     return {
-      canAddNewKey: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
-      canEdit: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0),
-      canEditKey: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
-      canEditKeyName: [1, 2, 3].includes(navStore.currentSubmenuItem?.id || 0),
-      canRemove: [1, 3].includes(navStore.currentSubmenuItem?.id || 0),
+      canAddNewKey: [1].includes(navStore.currentSubmenuItem?.id || 0),
+      canEdit: [1, 2].includes(navStore.currentSubmenuItem?.id || 0),
+      canEditKey: [1].includes(navStore.currentSubmenuItem?.id || 0),
+      canEditKeyName: [1, 2].includes(navStore.currentSubmenuItem?.id || 0),
+      canRemove: [1].includes(navStore.currentSubmenuItem?.id || 0),
       canViewFeedLink: navStore.currentSubmenuItem?.id === 1
     }
   })
@@ -158,10 +158,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
         name: item.name,
         parent_id: item.parent_id,
         vid: item.vid,
-        isChecked:
-          toValue(ctx) == '3'
-            ? !!feedFilterData.value?.excludedCategories?.includes(item.id)
-            : !feedFilterData.value?.excludedCategories?.includes(item.id)
+        isChecked: !feedFilterData.value?.excludedCategories?.includes(item.id)
       }))
 
       return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
@@ -179,9 +176,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     payload.forEach((item) => {
       if (item.child) {
         item.child.forEach((c) => {
-          if (toValue(ctx) != '3' && !c.isChecked) {
-            result.push(c.id)
-          } else if (toValue(ctx) == '3' && c.isChecked) {
+          if (!c.isChecked) {
             result.push(c.id)
           }
         })
@@ -211,19 +206,11 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
   }
 
   function addExcludedBrands(brand: string) {
-    if (toValue(ctx) == '3') {
-      excludedBrandsSet.value.delete(brand)
-    } else {
-      excludedBrandsSet.value.add(brand)
-    }
+    excludedBrandsSet.value.add(brand)
   }
 
   function removeExcludedBrands(brand: string) {
-    if (toValue(ctx) == '3') {
-      excludedBrandsSet.value.add(brand)
-    } else {
-      excludedBrandsSet.value.delete(brand)
-    }
+    excludedBrandsSet.value.delete(brand)
   }
 
   function initExcludedBrands(brands: string[]) {
@@ -261,10 +248,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
           brends: data.brends.map((b) => ({
             id: b.id,
             name: b.name,
-            isChecked:
-              toValue(ctx) == '3'
-                ? excludedBrandsSet.value.has(b.name)
-                : !excludedBrandsSet.value.has(b.name)
+            isChecked: !excludedBrandsSet.value.has(b.name)
           }))
         }
       },

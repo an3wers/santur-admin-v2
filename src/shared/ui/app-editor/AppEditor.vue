@@ -599,7 +599,7 @@ onUnmounted(() => {
 <style lang="scss">
 .editor {
   background-color: #fff;
-  border: 1px solid #e3e3e3;
+  border: 1px solid #c1c0c0;
   border-radius: 0.75rem;
   color: #0d0d0d;
   display: flex;

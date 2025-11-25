@@ -8,7 +8,7 @@ const themeOverrides: GlobalThemeOverrides = {
     primaryColorPressed: '#1257A6',
     primaryColorSuppl: '#1976d2',
     borderRadius: '0.5rem',
-    borderColor: '#e2e8f0',
+    borderColor: '#c1c0c0', //'#e2e8f0',
     bodyColor: '#0f172a',
     textColorBase: '#0f172a'
   },
@@ -39,7 +39,8 @@ const themeOverrides: GlobalThemeOverrides = {
   },
   DataTable: {
     borderColor: '#e2e8f0'
-  }
+  },
+  Input: {}
 }
 </script>
 
