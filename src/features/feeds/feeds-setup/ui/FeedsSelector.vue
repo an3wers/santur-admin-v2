@@ -150,9 +150,6 @@ watch(isOpenKeyModal, () => {
             :options="feedKeys ?? []"
           />
           <div class="row-select__btn">
-            <n-button v-if="feedPermissions.canAddNewKey" @click="addFeed"
-              >Добавить настройку</n-button
-            >
             <n-dropdown
               v-if="feedPermissions.canEdit || feedPermissions.canRemove"
               trigger="click"
@@ -163,6 +160,8 @@ watch(isOpenKeyModal, () => {
                 <n-icon size="20px" :component="Dots" />
               </n-button>
             </n-dropdown>
+
+            <n-button type="primary" @click="saveFeedHandler">Обновить настройку</n-button>
           </div>
         </div>
         <div v-if="feedPermissions.canViewFeedLink" class="row">
@@ -197,7 +196,9 @@ watch(isOpenKeyModal, () => {
           {{ currentFeedMeta.descr }}
         </n-p>
       </n-space>
-      <n-button type="primary" @click="saveFeedHandler">Обновить настройку</n-button>
+      <n-button v-if="feedPermissions.canAddNewKey" type="primary" @click="addFeed"
+        >Добавить настройку</n-button
+      >
     </n-space>
     <n-modal
       style="width: 100%; max-width: 480px"

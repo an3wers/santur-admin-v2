@@ -33,13 +33,9 @@ function toggleCheckedAllInCategory(catId: number) {
       <div class="category" v-for="parent in categories" :key="parent.id">
         <div class="parent">
           <span class="parent__item">{{ parent.name }}</span>
-          <n-button
-            size="tiny"
-            secondary
-            type="primary"
-            @click="toggleCheckedAllInCategory(parent.id)"
-            >{{ parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все' }}</n-button
-          >
+          <n-button size="tiny" @click="toggleCheckedAllInCategory(parent.id)">{{
+            parent.child?.every((c) => c.isChecked) ? 'Снять все' : 'Выбрать все'
+          }}</n-button>
         </div>
         <div class="child" v-for="child in parent.child" :key="child.id">
           <div class="child__item">

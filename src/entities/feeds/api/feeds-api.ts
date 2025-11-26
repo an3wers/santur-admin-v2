@@ -6,7 +6,8 @@ export const useFeedsApi = () => {
 
   async function saveFeedFilter(key: string, data: FeedFilterReq, makexmlfeed: boolean) {
     const res = await fetchWithToken<FeedFilterRes>(
-      `AdminGoods/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
+      // `AdminGoods/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
+      `admin/catalog/SaveFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
       {
         method: 'POST',
         body: data
@@ -18,7 +19,8 @@ export const useFeedsApi = () => {
   }
 
   async function getFeedsKeys(prefix?: string) {
-    const res = await fetchWithToken<FeedKeyRes[]>('AdminGoods/GetCatalogFilterKeys', {
+    // const res = await fetchWithToken<FeedKeyRes[]>('AdminGoods/GetCatalogFilterKeys', {
+    const res = await fetchWithToken<FeedKeyRes[]>('admin/catalog/GetFilterKeys', {
       query: {
         vid: prefix ?? ''
       }
@@ -28,11 +30,12 @@ export const useFeedsApi = () => {
   }
 
   async function getFeedFilter(key: string) {
-    const res = await fetchWithToken<FeedFilterRes>(`AdminGoods/GetCatalogFilter?key=${key}`)
+    // const res = await fetchWithToken<FeedFilterRes>(`AdminGoods/GetCatalogFilter?key=${key}`)
+    const res = await fetchWithToken<FeedFilterRes>(`admin/catalog/GetFilter?key=${key}`)
     const _data = checkError(res).data
     return _data
   }
-  // TODO: add param "strong"
+
   async function saveFeedKey(payload: {
     key: string
     title: string
@@ -49,7 +52,8 @@ export const useFeedsApi = () => {
       formData.append('isStrong', String(payload.strong))
     }
 
-    const res = await fetchWithToken('AdminGoods/SaveCatalogFilterKey', {
+    // const res = await fetchWithToken('AdminGoods/SaveCatalogFilterKey', {
+    const res = await fetchWithToken('admin/catalog/SaveFilterKey', {
       method: 'POST',
       body: formData
     })
@@ -59,7 +63,8 @@ export const useFeedsApi = () => {
   }
 
   async function deleteFeedKey(key: string) {
-    const res = await fetchWithToken(`AdminGoods/DeleteCatalogFilterKey?key=${key}`)
+    // const res = await fetchWithToken(`AdminGoods/DeleteCatalogFilterKey?key=${key}`)
+    const res = await fetchWithToken(`admin/catalog/DeleteFilter?key=${key}`)
     const _data = checkError(res).data
     return _data
   }

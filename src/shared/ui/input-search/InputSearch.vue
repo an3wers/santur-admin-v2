@@ -57,7 +57,7 @@ watch(_search, (value) => emitValueWitchDebounce(value))
   >
     <template #prefix>
       <n-icon size="20px">
-        <Search color="#94a3b8" />
+        <Search color="#1976d2" />
       </n-icon>
     </template>
   </n-input>

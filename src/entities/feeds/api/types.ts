@@ -38,3 +38,37 @@ export interface SearchSubjectRes {
   inn: string
   taemail: string
 }
+
+export interface FilterSubjectRes {
+  subjectId: 100001
+  title: 'каталог для 100001'
+  descr: ''
+  finishData: ''
+  startData: ''
+  categories: {
+    id: number
+    title: string
+    brends: {
+      brend: string
+      priceType: string
+      discount: number
+    }[]
+  }[]
+}
+
+export interface SaveFilterSubjectReq {
+  subjectId: number
+  title: string
+  descr: string
+  startData: string
+  finishData: string
+  categories: {
+    id: number
+    title: string
+    brends: {
+      brend: string
+      priceType: string
+      discount: number
+    }[]
+  }[]
+}

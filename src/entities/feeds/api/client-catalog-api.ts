@@ -1,11 +1,8 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { SearchSubjectRes } from './types'
+import type { FilterSubjectRes, SaveFilterSubjectReq, SearchSubjectRes } from './types'
 
 export const useClientCatalogApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
-
-  // api/admin/subjects/Find?search=... - свободный поиск клиентов
-  // search - это либо часть наименования, либо код либо инн
 
   async function searchSubject(value: string, abortController: AbortController) {
     const query = new URLSearchParams({
@@ -29,14 +26,35 @@ export const useClientCatalogApi = () => {
 
   async function getFilterSubject(subjId: number) {
     const query = new URLSearchParams({
-      key: String(subjId) // `SUBJ:${subjId}`
+      key: String(subjId)
     }).toString()
 
-    const res = await fetchWithToken<unknown>(`admin/catalog/GetFilterSubj?${query}`)
+    const res = await fetchWithToken<FilterSubjectRes>(`admin/catalog/GetFilterSubj?${query}`)
 
     const _data = checkError(res).data
     return _data
   }
 
-  return { searchSubject, getFilterSubject }
+  async function getBrandsByTk(tkId: number) {
+    const query = new URLSearchParams({
+      tks: String(tkId)
+    }).toString()
+
+    const res = await fetchWithToken<unknown>(`admin/catalog/GetBrendsByTKs?${query}`)
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  async function saveFilterSubject(data: SaveFilterSubjectReq) {
+    const res = await fetchWithToken<unknown>('admin/catalog/SaveFilterSubj', {
+      method: 'POST',
+      body: data
+    })
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  return { searchSubject, getFilterSubject, getBrandsByTk, saveFilterSubject }
 }

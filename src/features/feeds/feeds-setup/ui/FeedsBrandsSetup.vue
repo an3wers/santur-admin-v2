@@ -59,7 +59,7 @@ function toggleAll() {
     />
     <n-spin :show="status === 'pending'" size="small">
       <div class="brands-toggle-all">
-        <n-button size="small" secondary type="primary" @click="toggleAll">{{
+        <n-button size="small" @click="toggleAll">{{
           isCheckedAll ? 'Снять все' : 'Выбрать все'
         }}</n-button>
       </div>

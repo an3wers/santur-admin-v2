@@ -49,18 +49,18 @@ function selectSubjectHandler(subj: SubjectItem) {
         >
           <template #trigger>
             <n-space vertical>
-              <n-text as="h4">Поиск клиента по названию, коду или ИНН</n-text>
+              <n-text strong>Поиск клиента по названию, коду 1С или ИНН</n-text>
               <n-input
                 v-model:value="searchValue"
                 size="large"
                 type="text"
-                placeholder="Найти контрагента"
+                placeholder="Найти..."
                 :loading="searchStatus === 'pending'"
                 @focus="focusHandler"
               >
                 <template #prefix>
-                  <n-icon size="24">
-                    <Search color="#94a3b8" />
+                  <n-icon size="20">
+                    <Search color="#1976d2" />
                   </n-icon>
                 </template>
               </n-input>
@@ -75,7 +75,7 @@ function selectSubjectHandler(subj: SubjectItem) {
               {{ item.name }}
             </n-list-item>
           </n-list>
-          <n-text as="p" style="text-align: center" v-else>Ничего не найдено</n-text>
+          <n-text tag="p" style="text-align: center" v-else>Ничего не найдено</n-text>
         </n-popover>
       </div>
     </n-space>
