@@ -1,27 +1,46 @@
 import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
-import type { BrandItem, BrandsFilter, CategoryId, SubjectItem } from './types'
+import type { BrandItem, BrandsFilter, CategoryId, CategoryItem, SubjectItem } from './types'
 import { useClientCatalogApi } from '~/entities/feeds'
 import type { AsyncDataRequestStatus } from '#app'
 
-export const useCatalogSetup = () => {
-  const currentSubject = ref<SubjectItem | null>()
-
+export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
   const brandsFilter = ref(new Map<CategoryId, BrandItem[]>())
 
-  function setCurrentSubject(subject: SubjectItem) {
-    currentSubject.value = subject
+  function setupBrandsFilter() {
+    brandsFilter.value.clear()
+
+    filterData.value?.data.categories.forEach((el) => {
+      if (el.brends.length) {
+        brandsFilter.value.set(el.id, el.brends)
+      }
+    })
   }
 
-  function clearSubject() {
-    currentSubject.value = null
+  function updateBrandsFilter(categoryId: CategoryId, brands: BrandItem[]) {
+    if (!brands.length) {
+      brandsFilter.value.delete(categoryId)
+    } else {
+      brandsFilter.value.set(categoryId, brands)
+    }
   }
+
+  // function toggleBrand(categoryId: CategoryId, brand: BrandItem) {
+  //   if (!brandsFilter.value.has(categoryId)) {
+  //     brandsFilter.value.set(categoryId, [brand])
+  //   } else {
+  //     const brands = brandsFilter.value.get(categoryId)
+  //     const foundIndex = brands?.findIndex((b) => b.brend === brand.brend)
+  //     if (foundIndex !== undefined && foundIndex !== -1) {
+  //       brands?.splice(foundIndex, 1)
+  //     } else {
+  //       brands?.push(brand)
+  //     }
+  //     // brandsFilter.value.set(categoryId, brands)
+  //   }
+  // }
 
   const subjectId = computed(() => {
-    return currentSubject.value?.id ?? 0
-  })
-
-  const clientCatalogFilterKey = computed(() => {
-    return `client-catalog-filter-${subjectId.value}`
+    return toValue(subject)?.id ?? 0
   })
 
   const { getFilterSubject, saveFilterSubject: saveFilterSubjectApi } = useClientCatalogApi()
@@ -30,25 +49,25 @@ export const useCatalogSetup = () => {
     data: filterData,
     status: filterStatus,
     execute: filterExecute
-  } = useAsyncData(clientCatalogFilterKey, () => getFilterSubject(subjectId.value), {
-    transform: (data) => {
-      return { data, fetchedAt: new Date() }
-    },
-    immediate: false
-  })
+  } = useAsyncData(
+    `client-catalog-filter-${subjectId.value}`,
+    () => getFilterSubject(subjectId.value),
+    {
+      transform: (data) => {
+        return { data, fetchedAt: new Date() }
+      },
+      immediate: false
+    }
+  )
 
   const { getCatalog } = useCatalogApi()
-
-  const clientCatalogCategoriesKey = computed(() => {
-    return `client-catalog-categories-${subjectId.value}`
-  })
 
   const {
     data: categoriesData,
     status: categoriesStatus,
     execute: categoriesExecute
   } = useAsyncData(
-    clientCatalogCategoriesKey,
+    `client-catalog-categories-${subjectId.value}`,
     () => {
       if (!filterData.value) {
         return Promise.resolve(null)
@@ -75,14 +94,8 @@ export const useCatalogSetup = () => {
     }
   )
 
-  watch(currentSubject, (newVal, oldValue) => {
-    if (oldValue !== null || newVal == null) {
-      // TODO: reset brandsFilter
-    }
-  })
-
   watchEffect(() => {
-    if (currentSubject.value) {
+    if (toValue(subject)) {
       filterExecute()
     }
   })
@@ -90,7 +103,7 @@ export const useCatalogSetup = () => {
   watchEffect(() => {
     if (filterData.value) {
       categoriesExecute()
-      // TODO: обновить brandsFilter
+      setupBrandsFilter()
     }
   })
 
@@ -101,38 +114,34 @@ export const useCatalogSetup = () => {
   const saveFilterSubjectStatus = ref<AsyncDataRequestStatus>('idle')
 
   async function saveFilterSubject() {
-    if (!currentSubject.value) {
+    if (!toValue(subject)) {
       return
     }
 
     try {
       saveFilterSubjectStatus.value = 'pending'
-      console.log('@', {
-        subjectId: currentSubject.value.id,
-        title: currentSubject.value.name,
+
+      await saveFilterSubjectApi({
+        subjectId: toValue(subject).id,
+        title: toValue(subject).name,
         descr: '',
         startData: '',
         finishData: '',
-        categories: getCheckedCategories()
+        categories: getCheckedCategories(categoriesData.value?.data || [])
       })
 
-      // await saveFilterSubjectApi({
-      //   subjectId: currentSubject.value.id,
-      //   title: currentSubject.value.name,
-      //   descr: '',
-      //   startData: '',
-      //   finishData: '',
-      //   categories: getCheckedCategories()
-      // })
       saveFilterSubjectStatus.value = 'success'
+
+      // refetch
+      filterExecute()
     } catch (error) {
       console.error(error)
       saveFilterSubjectStatus.value = 'error'
     }
   }
 
-  function getCheckedCategories() {
-    if (!categoriesData.value) {
+  function getCheckedCategories(categories: CategoryItem[]) {
+    if (!categories.length) {
       return []
     }
 
@@ -142,7 +151,7 @@ export const useCatalogSetup = () => {
       brends: BrandItem[]
     }[] = []
 
-    categoriesData.value.data.forEach((parent) => {
+    categories.forEach((parent) => {
       parent.child.forEach((item) => {
         if (item.isChecked) {
           result.push({
@@ -158,13 +167,12 @@ export const useCatalogSetup = () => {
   }
 
   return {
-    currentSubject,
-    setCurrentSubject,
-    clearSubject,
+    brandsFilter,
     loading,
     categoriesData,
     filterData,
     saveFilterSubject,
-    saveFilterSubjectStatus
+    saveFilterSubjectStatus,
+    updateBrandsFilter
   }
 }

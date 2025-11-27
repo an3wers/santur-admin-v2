@@ -40,13 +40,15 @@ export const useClientCatalogApi = () => {
       tks: String(tkId)
     }).toString()
 
-    const res = await fetchWithToken<unknown>(`admin/catalog/GetBrendsByTKs?${query}`)
+    const res = await fetchWithToken<{ name: string }[]>(`admin/catalog/GetBrendsByTKs?${query}`)
 
     const _data = checkError(res).data
     return _data
   }
 
   async function saveFilterSubject(data: SaveFilterSubjectReq) {
+    console.log('@', data)
+
     const res = await fetchWithToken<unknown>('admin/catalog/SaveFilterSubj', {
       method: 'POST',
       body: data
@@ -56,5 +58,17 @@ export const useClientCatalogApi = () => {
     return _data
   }
 
-  return { searchSubject, getFilterSubject, getBrandsByTk, saveFilterSubject }
+  async function getPriceTypes() {
+    const res = await fetchWithToken<
+      {
+        code: string
+        title: string
+      }[]
+    >('good/GetPriceTypes')
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  return { searchSubject, getFilterSubject, getBrandsByTk, saveFilterSubject, getPriceTypes }
 }

@@ -1,41 +1,96 @@
 <script setup lang="ts">
-import { NCard, NSpace, NText, NButton, NCheckbox, NIcon, NSpin } from 'naive-ui'
-import type { CategoryItem, SubjectItem } from '../../model/types'
+import { NCard, NSpace, NText, NButton, NIcon, NSpin, useMessage } from 'naive-ui'
+import type { SubjectItem } from '../../model/types'
+import { useCatalogSetup } from '../../model/use-catalog-setup'
+import CategoriesList from './CategoriesList.vue'
+import { X as XIcon } from '@vicons/tabler'
 
-defineProps<{
-  subject?: SubjectItem
-  loading?: boolean
+const { subject } = defineProps<{
+  subject: SubjectItem
 }>()
 
-const categories = defineModel<CategoryItem[]>('categories', { required: true })
+const emits = defineEmits<{
+  (e: 'onClose'): void
+}>()
 
-// const emits = defineEmits<{
-//   (e: 'onClose'): void
-//   (e: 'onSave'): void
-// }>()
+const isExpanded = ref(false)
 
-function toggleCheckedAllInCategory(catId: number) {
-  categories.value?.forEach((item) => {
-    if (item.id === catId) {
-      const isCheckedAll = item.child?.every((c) => c.isChecked)
+const {
+  loading,
+  categoriesData,
+  filterData,
+  saveFilterSubject,
+  brandsFilter,
+  updateBrandsFilter,
+  saveFilterSubjectStatus
+} = useCatalogSetup(subject)
 
-      if (isCheckedAll) {
-        item.child?.forEach((c) => {
-          c.isChecked = false
-        })
-      } else {
-        item.child?.forEach((c) => {
-          c.isChecked = true
-        })
-      }
-    }
-  })
+const message = useMessage()
+
+async function saveFilterSubjectHandler() {
+  await saveFilterSubject()
+
+  if (saveFilterSubjectStatus.value === 'success') {
+    message.success('Настройка успешно сохранена')
+  } else if (saveFilterSubjectStatus.value === 'error') {
+    message.success('Произошла ошибка')
+  }
 }
-
-function openBrandsSetting(childId: number) {}
 </script>
 
 <template>
+  <n-card>
+    <n-space vertical>
+      <n-space justify="space-between" align="start">
+        <div class="subject-info">
+          <h2>{{ subject.name }}</h2>
+          <div class="subject-info-details">
+            <n-text :depth="3">Код: {{ subject.code }}</n-text>
+            <n-text :depth="3">ИНН: {{ subject.inn }}</n-text>
+            <n-text :depth="3">ТА: {{ subject.taemail }}</n-text>
+          </div>
+        </div>
+        <div class="action-group">
+          <n-button
+            size="medium"
+            type="primary"
+            :disabled="loading"
+            :loading="saveFilterSubjectStatus === 'pending'"
+            @click="saveFilterSubjectHandler"
+          >
+            Сохранить настройку
+          </n-button>
+          <n-button
+            size="medium"
+            secondary
+            strong
+            :disabled="saveFilterSubjectStatus === 'pending' || loading"
+            @click="$emit('onClose')"
+          >
+            <template #icon>
+              <n-icon>
+                <XIcon />
+              </n-icon>
+            </template>
+            Закрыть
+          </n-button>
+        </div>
+      </n-space>
+      <n-text tag="h4">Персональный каталог</n-text>
+      <n-spin :show="loading">
+        <CategoriesList
+          v-if="categoriesData?.data"
+          :subject-id="subject.id"
+          :expanded-all="isExpanded"
+          :brands-filter="brandsFilter"
+          @on-update-brands-filter="updateBrandsFilter"
+        />
+        <div v-else style="height: 100px"></div>
+      </n-spin>
+    </n-space>
+  </n-card>
+
+  <!--
   <n-space vertical>
     <div class="category" v-for="parent in categories" :key="parent.id">
       <div class="parent">
@@ -52,32 +107,24 @@ function openBrandsSetting(childId: number) {}
       </div>
     </div>
   </n-space>
+  -->
 </template>
 
 <style scoped>
-.category {
-  margin-bottom: 1rem;
+.subject-info {
 }
 
-.parent {
+.subject-info h2 {
+  margin: 0;
+}
+
+.action-group {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.parent__item {
-  font-weight: 700;
-}
-
-.child {
-  margin-left: 1rem;
-}
-
-.child__item {
-  display: flex;
-  align-items: center;
   gap: 0.5rem;
-  font-weight: 400;
-  margin-top: 0.25rem;
+}
+
+.subject-info-details {
+  display: flex;
+  gap: 0.5rem;
 }
 </style>
