@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NSpace, NInput, NPopover, NList, NListItem, NText, NIcon } from 'naive-ui'
+import { NCard, NSpace, NInput, NPopover, NList, NListItem, NText, NIcon, NSelect } from 'naive-ui'
 import { Search } from '@vicons/tabler'
 import { useSearchSubject } from '../model/use-search-subject'
 import type { SubjectItem } from '../model/types'
@@ -35,7 +35,7 @@ function selectSubjectHandler(subj: SubjectItem) {
 
 <template>
   <n-card>
-    <n-space vertical>
+    <n-space>
       <div class="search-container">
         <n-popover
           style="max-height: 320px"
@@ -78,6 +78,17 @@ function selectSubjectHandler(subj: SubjectItem) {
           <n-text tag="p" style="text-align: center" v-else>Ничего не найдено</n-text>
         </n-popover>
       </div>
+      <!-- <div class="select-container">
+        <n-space vertical>
+          <n-text strong>Выбрать ответсвенного менеджера</n-text>
+          <n-select
+            v-model:value=""
+            filterable
+            placeholder="Please select a song"
+            :options=""
+          />
+        </n-space>
+      </div> -->
     </n-space>
   </n-card>
 </template>
