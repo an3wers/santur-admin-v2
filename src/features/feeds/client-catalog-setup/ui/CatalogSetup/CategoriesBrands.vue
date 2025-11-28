@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useClientCatalogApi } from '~/entities/feeds'
 import type { BrandItem, CategoryId } from '../../model/types'
-import { NTable, NCheckbox, NSpin, NInputNumber, NSelect } from 'naive-ui'
+import { NTable, NCheckbox, NSpin, NInputNumber, NSelect, NSpace, NSwitch, NText } from 'naive-ui'
 import { getCache } from '~/shared/libs/api/get-async-cache'
 
 const { categoryId, brandsFilter } = defineProps<{
@@ -15,7 +15,7 @@ const { categoryId, brandsFilter } = defineProps<{
 
 const { getBrandsByTk, getPriceTypes } = useClientCatalogApi()
 
-const inputDiscountValidator = (x: number) => x >= 0
+const inputDiscountValidator = (x: number) => typeof x === 'number'
 
 const {
   data: brandsData,
@@ -29,7 +29,7 @@ const {
       const found = brandsFilter.get(categoryId!)?.find((brand) => brand.brend === item.name)
       return {
         brend: item.name,
-        priceType: found?.priceType || 'pr_br', // pr_br - default price type
+        priceType: found?.priceType || 'pr_dog', // pr_dog - default price type
         discount: found?.discount || 0,
         isChecked: !!found // Наличие бренда в brandsFilter означает что checked
       }
@@ -52,6 +52,16 @@ const { data: priceTypesData, status: priceTypesStatus } = useAsyncData(
     lazy: true
   }
 )
+
+const isCheckedAll = computed(() => {
+  return brandsData.value?.every((item) => item.isChecked)
+})
+
+const switchCheckAll = (value: boolean) => {
+  brandsData.value?.forEach((item) => {
+    item.isChecked = value
+  })
+}
 </script>
 
 <template>
@@ -63,7 +73,20 @@ const { data: priceTypesData, status: priceTypesStatus } = useAsyncData(
           <n-table :bordered="false" :single-line="false">
             <thead>
               <tr>
-                <th>Наименование</th>
+                <th>
+                  <n-space justify="space-between">
+                    <span>Наименование</span>
+                    <n-space size="small">
+                      <n-switch
+                        id="switch"
+                        :value="isCheckedAll"
+                        size="small"
+                        @update-value="switchCheckAll"
+                      />
+                      <n-text style="font-weight: 400">Выбрать все</n-text>
+                    </n-space>
+                  </n-space>
+                </th>
                 <th width="200px">Тип цены</th>
                 <th width="140px">Скидка</th>
               </tr>
@@ -90,7 +113,6 @@ const { data: priceTypesData, status: priceTypesStatus } = useAsyncData(
                     size="small"
                     :validator="inputDiscountValidator"
                     :default-value="0"
-                    :min="0"
                   />
                 </td>
               </tr>
