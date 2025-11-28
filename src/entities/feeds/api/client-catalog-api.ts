@@ -22,13 +22,6 @@ export const useClientCatalogApi = () => {
     return _data
   }
 
-  // async function getFilterSubjectKeys() {
-  //   const res = await fetchWithToken<string[]>('admin/catalog/GetFilterSubjKeys')
-
-  //   const _data = checkError(res).data
-  //   return _data
-  // }
-
   async function getFilterSubject(subjId: number) {
     const query = new URLSearchParams({
       key: String(subjId)
@@ -91,7 +84,7 @@ export const useClientCatalogApi = () => {
       taemail: email
     }).toString()
 
-    const res = await fetchWithToken<unknown[]>(`admin/subjects/GetByTA?${query}`)
+    const res = await fetchWithToken<SearchSubjectRes[]>(`admin/subjects/GetByTA?${query}`)
 
     const _data = checkError(res).data
     return _data

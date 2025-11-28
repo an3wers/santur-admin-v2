@@ -59,43 +59,52 @@ const { data: priceTypesData, status: priceTypesStatus } = useAsyncData(
     <n-spin :show="brandsStatus === 'pending' || priceTypesStatus === 'pending'" size="small">
       <div v-if="!brandsData || !priceTypesData" style="min-height: 100px"></div>
       <div v-else>
-        <n-table :bordered="false" :single-line="false">
-          <thead>
-            <tr>
-              <th>Наименование</th>
-              <th width="200px">Тип цены</th>
-              <th width="140px">Скидка</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in brandsData" :key="item.brend">
-              <td>
-                <n-checkbox v-model:checked="item.isChecked">{{ item.brend }}</n-checkbox>
-              </td>
-              <td>
-                <n-select
-                  v-model:value="item.priceType"
-                  label-field="label"
-                  value-field="value"
-                  :disabled="priceTypesStatus === 'pending'"
-                  :options="priceTypesData"
-                />
-              </td>
-              <td>
-                <n-input-number
-                  v-model:value="item.discount"
-                  clearable
-                  :validator="inputDiscountValidator"
-                  :default-value="0"
-                  :min="0"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </n-table>
+        <div class="table-container">
+          <n-table :bordered="false" :single-line="false">
+            <thead>
+              <tr>
+                <th>Наименование</th>
+                <th width="200px">Тип цены</th>
+                <th width="140px">Скидка</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in brandsData" :key="item.brend">
+                <td>
+                  <n-checkbox v-model:checked="item.isChecked">{{ item.brend }}</n-checkbox>
+                </td>
+                <td>
+                  <n-select
+                    v-model:value="item.priceType"
+                    label-field="label"
+                    value-field="value"
+                    size="small"
+                    :disabled="priceTypesStatus === 'pending'"
+                    :options="priceTypesData"
+                  />
+                </td>
+                <td>
+                  <n-input-number
+                    v-model:value="item.discount"
+                    clearable
+                    size="small"
+                    :validator="inputDiscountValidator"
+                    :default-value="0"
+                    :min="0"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </n-table>
+        </div>
       </div>
     </n-spin>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.table-container {
+  max-height: calc(100dvh - 200px);
+  overflow-y: auto;
+}
+</style>

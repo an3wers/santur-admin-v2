@@ -24,21 +24,6 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     }
   }
 
-  // function toggleBrand(categoryId: CategoryId, brand: BrandItem) {
-  //   if (!brandsFilter.value.has(categoryId)) {
-  //     brandsFilter.value.set(categoryId, [brand])
-  //   } else {
-  //     const brands = brandsFilter.value.get(categoryId)
-  //     const foundIndex = brands?.findIndex((b) => b.brend === brand.brend)
-  //     if (foundIndex !== undefined && foundIndex !== -1) {
-  //       brands?.splice(foundIndex, 1)
-  //     } else {
-  //       brands?.push(brand)
-  //     }
-  //     // brandsFilter.value.set(categoryId, brands)
-  //   }
-  // }
-
   const subjectId = computed(() => {
     return toValue(subject)?.id ?? 0
   })
@@ -56,7 +41,8 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
       transform: (data) => {
         return { data, fetchedAt: new Date() }
       },
-      immediate: false
+      immediate: false,
+      watch: [subjectId]
     }
   )
 

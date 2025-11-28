@@ -54,6 +54,13 @@ function selectSubjectFromPopoverHandler(subj: SubjectItem) {
   emits('onSelectSubject', subj)
 }
 
+function selectSubjectFromModalHandler(subj: SubjectItem) {
+  resetStatus()
+  clearSearchValue()
+
+  emits('onSelectSubject', subj)
+}
+
 function focusManagersInputHandler() {
   if (searchManagersResult.value.length > 0) {
     openManagersPopover()
@@ -118,11 +125,6 @@ function selectManagerFromPopoverHandler(manager: ManagerItem) {
         </n-popover>
       </div>
       <div class="search-container">
-        <!-- <n-space vertical> -->
-        <!-- <n-text strong>Выбрать ответсвенного менеджера</n-text> -->
-        <!-- <n-select v-model:value="selectedValue" filterable placeholder="" :options="" /> -->
-        <!-- </n-space> -->
-
         <n-popover
           style="max-height: 320px"
           width="trigger"
@@ -174,7 +176,12 @@ function selectManagerFromPopoverHandler(manager: ManagerItem) {
       title="Выбор клиента"
       :mask-closable="false"
     >
-      <ClientListModal v-if="selectedManagerEmail" :selected-manager-email="selectedManagerEmail" />
+      <ClientListModal
+        v-if="selectedManagerEmail"
+        :selected-manager-email="selectedManagerEmail"
+        @on-close="toggleSubjectsModal"
+        @on-select-subject="selectSubjectFromModalHandler"
+      />
     </n-modal>
   </n-card>
 </template>

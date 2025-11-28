@@ -17,7 +17,10 @@ export const useSelectSubjectByManager = () => {
 
   watch(isOpenSubjectsModal, (newVal) => {
     if (!newVal) {
-      clearSelectedManager()
+      const timer = setTimeout(() => {
+        clearSelectedManager()
+        clearTimeout(timer)
+      }, 300)
     }
   })
 

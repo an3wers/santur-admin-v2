@@ -23,7 +23,7 @@ const {
   brandsFilter,
   updateBrandsFilter,
   saveFilterSubjectStatus
-} = useCatalogSetup(subject)
+} = useCatalogSetup(() => subject)
 
 const message = useMessage()
 
