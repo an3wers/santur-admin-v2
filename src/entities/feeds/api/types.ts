@@ -39,6 +39,12 @@ export interface SearchSubjectRes {
   taemail: string
 }
 
+export interface SearchManagersRes {
+  name: string
+  state: string
+  email: string
+}
+
 export interface FilterSubjectRes {
   subjectId: 100001
   title: 'каталог для 100001'

@@ -1,5 +1,10 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { FilterSubjectRes, SaveFilterSubjectReq, SearchSubjectRes } from './types'
+import type {
+  FilterSubjectRes,
+  SaveFilterSubjectReq,
+  SearchManagersRes,
+  SearchSubjectRes
+} from './types'
 
 export const useClientCatalogApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
@@ -47,8 +52,6 @@ export const useClientCatalogApi = () => {
   }
 
   async function saveFilterSubject(data: SaveFilterSubjectReq) {
-    console.log('@', data)
-
     const res = await fetchWithToken<unknown>('admin/catalog/SaveFilterSubj', {
       method: 'POST',
       body: data
@@ -70,5 +73,37 @@ export const useClientCatalogApi = () => {
     return _data
   }
 
-  return { searchSubject, getFilterSubject, getBrandsByTk, saveFilterSubject, getPriceTypes }
+  async function searchManagers(value: string, abortController: AbortController) {
+    const query = new URLSearchParams({
+      search: value
+    }).toString()
+
+    const res = await fetchWithToken<SearchManagersRes[]>(`admin/subjects/FindTA?${query}`, {
+      signal: abortController.signal
+    })
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  async function getSubjectsByManagerEmail(email: string) {
+    const query = new URLSearchParams({
+      taemail: email
+    }).toString()
+
+    const res = await fetchWithToken<unknown[]>(`admin/subjects/GetByTA?${query}`)
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  return {
+    searchSubject,
+    getFilterSubject,
+    getBrandsByTk,
+    saveFilterSubject,
+    getPriceTypes,
+    searchManagers,
+    getSubjectsByManagerEmail
+  }
 }

@@ -24,3 +24,9 @@ export interface BrandItem {
 export type CategoryId = number
 
 export type BrandsFilter = Record<CategoryId, BrandItem[]>
+
+export interface ManagerItem {
+  name: string
+  state: string
+  email: string
+}
