@@ -46,11 +46,11 @@ export interface SearchManagersRes {
 }
 
 export interface FilterSubjectRes {
-  subjectId: 100001
-  title: 'каталог для 100001'
-  descr: ''
-  finishData: ''
-  startData: ''
+  subjectId: number
+  title: string
+  descr: string
+  finishData: string
+  startData: string
   categories: {
     id: number
     title: string
@@ -80,7 +80,10 @@ export interface SaveFilterSubjectReq {
 }
 
 export interface FilterSubjectKeyRes {
-  key: number
+  key: string
   title: string
   descr: string
+  startDate: string
+  finishDate: string
+  subject: SearchSubjectRes
 }

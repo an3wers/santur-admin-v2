@@ -32,7 +32,10 @@ export interface ManagerItem {
 }
 
 export interface FilterSubjectKeyItem {
-  key: number
+  key: string
   title: string
   descr: string
+  startDate: string
+  finishDate: string
+  subject: SubjectItem
 }
