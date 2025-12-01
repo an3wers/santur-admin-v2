@@ -28,7 +28,11 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     return toValue(subject)?.id ?? 0
   })
 
-  const { getFilterSubject, saveFilterSubject: saveFilterSubjectApi } = useClientCatalogApi()
+  const {
+    getFilterSubject,
+    saveFilterSubject: saveFilterSubjectApi,
+    getCatalogBySubject
+  } = useClientCatalogApi()
 
   const {
     data: filterData,
@@ -46,8 +50,6 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     }
   )
 
-  const { getCatalog } = useCatalogApi()
-
   const {
     data: categoriesData,
     status: categoriesStatus,
@@ -58,7 +60,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
       if (!filterData.value) {
         return Promise.resolve(null)
       }
-      return getCatalog()
+      return getCatalogBySubject(subjectId.value)
     },
     {
       transform: (data) => {
@@ -71,6 +73,9 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
           name: item.name,
           parent_id: item.parent_id,
           vid: item.vid,
+          selectedTksQty: item.selectedTksQty,
+          selectedBrends: item.selectedBrends,
+          selectedBrendsQty: item.selectedBrendsQty,
           isChecked: !!filterData.value?.data.categories.some((category) => category.id === item.id)
         }))
 

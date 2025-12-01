@@ -60,7 +60,10 @@ function selectHandler(subj: FilterSubjectKeyItem['subject']) {
                 }}</n-button>
                 <n-text tag="p" :depth="3">{{ item.subject.inn }}</n-text>
               </td>
-              <td>{{ item.subject.taemail }}</td>
+              <td>
+                {{ item.subject.ta }}
+                <n-text tag="p" :depth="3">{{ item.subject.taemail }}</n-text>
+              </td>
               <td>{{ item.startDate }}</td>
               <td>{{ item.finishDate }}</td>
             </tr>

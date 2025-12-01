@@ -8,7 +8,9 @@ import {
   NCheckbox,
   NButton,
   NModal,
-  NSpace
+  NSpace,
+  NSwitch,
+  NTag
 } from 'naive-ui'
 import type { BrandItem, CategoryId, CategoryItem } from '../../model/types'
 import CategoriesBrands from './CategoriesBrands.vue'
@@ -41,7 +43,10 @@ function openBrandsSetting(childId: number) {
 
 watch(showBrandsSetting, (newVal) => {
   if (!newVal) {
-    selectedCategoryId.value = null
+    const timerId = setTimeout(() => {
+      selectedCategoryId.value = null
+      clearTimeout(timerId)
+    }, 300)
   }
 })
 
@@ -93,20 +98,41 @@ function saveBrandsSetting() {
     <n-collapse :trigger-areas="['main', 'arrow']" :default-expanded-names="expandedCategories">
       <n-collapse-item v-for="parent in categoriesData?.data" :key="parent.id" :name="parent.name">
         <template #header>
-          <n-text tag="p" strong>{{ parent.name }}</n-text>
+          <n-space>
+            <n-text tag="p" strong>{{ parent.name }}</n-text>
+
+            <n-tag size="tiny">Выбрано: {{ parent.selectedTksQty }}</n-tag>
+          </n-space>
         </template>
         <div class="child-container">
+          <n-space justify="space-between">
+            <n-space style="padding-left: 1.25rem; margin-bottom: 0.25rem" size="small">
+              <n-text :depth="3" style="font-weight: 500; font-size: small">Выбрать все</n-text>
+              <n-switch
+                id="switch"
+                :value="parent.child.every((c) => c.isChecked)"
+                size="small"
+                @update-value="toggleCheckedAllInCategory(parent.id)"
+              />
+            </n-space>
+          </n-space>
           <n-list hoverable>
             <n-list-item v-for="item in parent.child" :key="item.id">
               <div class="child__item">
                 <n-checkbox v-model:checked="item.isChecked">{{ item.name }}</n-checkbox>
                 <n-button
                   size="tiny"
+                  ghost
+                  type="primary"
                   :disabled="!item.isChecked"
                   @click="openBrandsSetting(item.id)"
                   >Настроить</n-button
                 >
               </div>
+              <n-text v-if="item.selectedBrendsQty > 0" :depth="3" style="font-size: small"
+                ><span style="font-weight: 500">Бренды ({{ item.selectedBrendsQty }}):</span>
+                {{ item.selectedBrends }}</n-text
+              >
             </n-list-item>
           </n-list>
         </div>

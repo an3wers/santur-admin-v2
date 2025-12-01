@@ -2,6 +2,7 @@ import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import type {
   FilterSubjectKeyRes,
   FilterSubjectRes,
+  GetCatalogRes,
   SaveFilterSubjectReq,
   SearchManagersRes,
   SearchSubjectRes
@@ -36,6 +37,15 @@ export const useClientCatalogApi = () => {
     }).toString()
 
     const res = await fetchWithToken<FilterSubjectRes>(`admin/catalog/GetFilterSubj?${query}`)
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  async function getCatalogBySubject(subjId: number) {
+    const res = await fetchWithToken<GetCatalogRes[]>(
+      `admin/catalog/GetTntksForSubjectFilter?subjectId=${subjId}`
+    )
 
     const _data = checkError(res).data
     return _data
@@ -106,6 +116,7 @@ export const useClientCatalogApi = () => {
     getPriceTypes,
     searchManagers,
     getSubjectsByManagerEmail,
-    getFilterSubjectsKeys
+    getFilterSubjectsKeys,
+    getCatalogBySubject
   }
 }

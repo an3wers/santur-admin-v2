@@ -12,6 +12,9 @@ export interface CategoryItem {
   parent_id: number
   vid: string
   isChecked: boolean
+  selectedTksQty: number
+  selectedBrends: string
+  selectedBrendsQty: number
   child: Omit<CategoryItem, 'child'>[]
 }
 

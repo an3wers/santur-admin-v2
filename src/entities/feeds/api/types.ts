@@ -36,6 +36,7 @@ export interface SearchSubjectRes {
   name: string
   code: string
   inn: string
+  ta: string
   taemail: string
 }
 
@@ -86,4 +87,20 @@ export interface FilterSubjectKeyRes {
   startDate: string
   finishDate: string
   subject: SearchSubjectRes
+}
+
+export interface GetCatalogRes {
+  id: number
+  name: string
+  parent_id: number
+  vid: string
+  selectedTks: {
+    id: number
+    name: string
+    parent_id: number
+    vid: string
+  }[]
+  selectedTksQty: number
+  selectedBrends: string
+  selectedBrendsQty: number
 }

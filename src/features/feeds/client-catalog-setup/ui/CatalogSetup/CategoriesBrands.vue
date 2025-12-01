@@ -77,13 +77,13 @@ const switchCheckAll = (value: boolean) => {
                   <n-space justify="space-between">
                     <span>Наименование</span>
                     <n-space size="small">
+                      <n-text style="font-weight: 400; font-size: small">Выбрать все</n-text>
                       <n-switch
                         id="switch"
                         :value="isCheckedAll"
                         size="small"
                         @update-value="switchCheckAll"
                       />
-                      <n-text style="font-weight: 400">Выбрать все</n-text>
                     </n-space>
                   </n-space>
                 </th>
