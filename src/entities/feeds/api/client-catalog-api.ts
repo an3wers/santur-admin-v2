@@ -1,5 +1,6 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import type {
+  FilterSubjectKeyRes,
   FilterSubjectRes,
   SaveFilterSubjectReq,
   SearchManagersRes,
@@ -17,6 +18,13 @@ export const useClientCatalogApi = () => {
     const res = await fetchWithToken<SearchSubjectRes[]>(`admin/subjects/Find?${query}`, {
       signal: abortController.signal
     })
+
+    const _data = checkError(res).data
+    return _data
+  }
+
+  async function getFilterSubjectsKeys() {
+    const res = await fetchWithToken<FilterSubjectKeyRes[]>('admin/catalog/GetFilterSubjKeys')
 
     const _data = checkError(res).data
     return _data
@@ -97,6 +105,7 @@ export const useClientCatalogApi = () => {
     saveFilterSubject,
     getPriceTypes,
     searchManagers,
-    getSubjectsByManagerEmail
+    getSubjectsByManagerEmail,
+    getFilterSubjectsKeys
   }
 }

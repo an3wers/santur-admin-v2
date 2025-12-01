@@ -78,3 +78,9 @@ export interface SaveFilterSubjectReq {
     }[]
   }[]
 }
+
+export interface FilterSubjectKeyRes {
+  key: number
+  title: string
+  descr: string
+}

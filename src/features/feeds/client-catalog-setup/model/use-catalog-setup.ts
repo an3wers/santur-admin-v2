@@ -1,5 +1,5 @@
 import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
-import type { BrandItem, BrandsFilter, CategoryId, CategoryItem, SubjectItem } from './types'
+import type { BrandItem, CategoryId, CategoryItem, SubjectItem } from './types'
 import { useClientCatalogApi } from '~/entities/feeds'
 import type { AsyncDataRequestStatus } from '#app'
 
@@ -120,6 +120,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
 
       // refetch
       filterExecute()
+      clearNuxtData('client-catalog-filter-subjects-keys')
     } catch (error) {
       console.error(error)
       saveFilterSubjectStatus.value = 'error'

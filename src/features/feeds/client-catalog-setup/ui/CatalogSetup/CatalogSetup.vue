@@ -45,9 +45,9 @@ async function saveFilterSubjectHandler() {
         <div class="subject-info">
           <h2>{{ subject.name }}</h2>
           <div class="subject-info-details">
-            <n-text :depth="3">Код: {{ subject.code }}</n-text>
-            <n-text :depth="3">ИНН: {{ subject.inn }}</n-text>
-            <n-text :depth="3">ТА: {{ subject.taemail }}</n-text>
+            <n-text :depth="3">Код: {{ subject.code || '-' }}</n-text>
+            <n-text :depth="3">ИНН: {{ subject.inn || '-' }}</n-text>
+            <n-text :depth="3">ТА: {{ subject.taemail || '-' }}</n-text>
           </div>
         </div>
         <div class="action-group">

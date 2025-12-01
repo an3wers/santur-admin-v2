@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { NSpace, NH1, NText } from 'naive-ui'
+import { NSpace, NH1 } from 'naive-ui'
 import ClientSelector from '~/features/feeds/client-catalog-setup/ui/ClientSelector.vue'
 import CatalogSetup from '~/features/feeds/client-catalog-setup/ui/CatalogSetup/CatalogSetup.vue'
 import type { SubjectItem } from '~/features/feeds/client-catalog-setup'
+import ClientListKeys from '~/features/feeds/client-catalog-setup/ui/ClientListKeys.vue'
 
 const currentSubject = ref<SubjectItem | null>()
 
@@ -29,11 +30,13 @@ function clearSubject() {
 
       <CatalogSetup v-if="currentSubject" :subject="currentSubject" @on-close="clearSubject" />
 
-      <div v-else style="height: 100px; display: flex; align-items: center">
+      <ClientListKeys v-else @on-select-subject="setCurrentSubject" />
+
+      <!-- <div v-else style="height: 100px; display: flex; align-items: center">
         <n-text tag="p" depth="3" style="text-align: center; width: 100%"
           >Выберите клиента для настройки через поиск</n-text
         >
-      </div>
+      </div> -->
     </n-space>
   </div>
 </template>

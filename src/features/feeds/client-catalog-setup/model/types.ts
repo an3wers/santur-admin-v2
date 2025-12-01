@@ -30,3 +30,9 @@ export interface ManagerItem {
   state: string
   email: string
 }
+
+export interface FilterSubjectKeyItem {
+  key: number
+  title: string
+  descr: string
+}
