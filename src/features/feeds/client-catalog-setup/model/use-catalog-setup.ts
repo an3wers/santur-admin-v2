@@ -1,10 +1,37 @@
-import { groupCatalogItems, useCatalogApi } from '~/entities/catalog'
+import { groupCatalogItems } from '~/entities/catalog'
 import type { BrandItem, CategoryId, CategoryItem, SubjectItem } from './types'
 import { useClientCatalogApi } from '~/entities/feeds'
 import type { AsyncDataRequestStatus } from '#app'
+import { formatDateForInput, formatDateForServer } from '~/shared/libs/format-date-for-server'
 
 export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
   const brandsFilter = ref(new Map<CategoryId, BrandItem[]>())
+
+  const startDate = ref<string>('')
+
+  const finishDate = ref<string>('')
+
+  const startDateFormatted = computed(() => {
+    return startDate.value ? formatDateForServer(new Date(startDate.value)) : ''
+  })
+
+  const finishDateFormatted = computed(() => {
+    return finishDate.value ? formatDateForServer(new Date(finishDate.value)) : ''
+  })
+
+  function resetDateRange() {
+    startDate.value = filterData.value?.data.startDate
+      ? formatDateForInput(filterData.value?.data.startDate)
+      : ''
+    finishDate.value = filterData.value?.data.finishDate
+      ? formatDateForInput(filterData.value?.data.finishDate)
+      : ''
+  }
+
+  function clearDateRange() {
+    startDate.value = ''
+    finishDate.value = ''
+  }
 
   function setupBrandsFilter() {
     brandsFilter.value.clear()
@@ -91,12 +118,19 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     }
   })
 
-  watchEffect(() => {
-    if (filterData.value) {
-      categoriesExecute()
-      setupBrandsFilter()
+  watch(
+    filterStatus,
+    () => {
+      if (filterStatus.value === 'success') {
+        categoriesExecute()
+        setupBrandsFilter()
+        resetDateRange()
+      }
+    },
+    {
+      immediate: true
     }
-  })
+  )
 
   const loading = computed(() => {
     return filterStatus.value === 'pending' || categoriesStatus.value === 'pending'
@@ -116,8 +150,8 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
         subjectId: toValue(subject).id,
         title: toValue(subject).name,
         descr: '',
-        startData: '',
-        finishData: '',
+        startDate: startDateFormatted.value,
+        finishDate: finishDateFormatted.value,
         categories: getCheckedCategories(categoriesData.value?.data || [])
       })
 
@@ -165,6 +199,12 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     filterData,
     saveFilterSubject,
     saveFilterSubjectStatus,
-    updateBrandsFilter
+    updateBrandsFilter,
+    startDate,
+    finishDate,
+    startDateFormatted,
+    finishDateFormatted,
+    resetDateRange,
+    clearDateRange
   }
 }

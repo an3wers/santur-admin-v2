@@ -19,3 +19,19 @@ export const formatDateForServer = (date = new Date()) => {
 
   return `${dd}.${mm}.${yy}`
 }
+
+/**
+ * Formats a given date into a string with the format `yyyy-mm-dd`.
+ *
+ * @param date - The date to format, example: "02.12.2025"
+ * @returns A string representing the formatted date in `yyyy-mm-dd` format.
+ * @example Return "2025-12-02"
+ */
+export const formatDateForInput = (date: string) => {
+  if (!date || date === '') {
+    return ''
+  }
+
+  const [dd, mm, yy] = date.split('.')
+  return `${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`
+}

@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { NCard, NSpace, NText, NButton, NIcon, NSpin, useMessage, NSwitch } from 'naive-ui'
+import {
+  NCard,
+  NSpace,
+  NText,
+  NButton,
+  NIcon,
+  NSpin,
+  useMessage,
+  NModal,
+  NFormItem,
+  NInput
+} from 'naive-ui'
 import type { SubjectItem } from '../../model/types'
 import { useCatalogSetup } from '../../model/use-catalog-setup'
 import CategoriesList from './CategoriesList.vue'
-import { X as XIcon, ArrowNarrowLeft } from '@vicons/tabler'
+import { X as XIcon } from '@vicons/tabler'
 
 const { subject } = defineProps<{
   subject: SubjectItem
@@ -15,14 +26,21 @@ const emits = defineEmits<{
 
 const isExpanded = ref(false)
 
+const showPeriodSetting = ref(false)
+
 const {
   loading,
   categoriesData,
-  filterData,
   saveFilterSubject,
   brandsFilter,
   updateBrandsFilter,
-  saveFilterSubjectStatus
+  saveFilterSubjectStatus,
+  startDate,
+  finishDate,
+  finishDateFormatted,
+  startDateFormatted,
+  resetDateRange,
+  clearDateRange
 } = useCatalogSetup(() => subject)
 
 const message = useMessage()
@@ -36,27 +54,31 @@ async function saveFilterSubjectHandler() {
     message.success('Произошла ошибка')
   }
 }
+
+function savePeriodSettingHandler() {
+  if ((startDate.value && !finishDate.value) || (!startDate.value && finishDate.value)) {
+    message.error('Необходимо заполнить все поля')
+    return
+  }
+
+  if (new Date(startDate.value) > new Date(finishDate.value)) {
+    message.error('Начало периода не может быть позже конца периода')
+    return
+  }
+
+  showPeriodSetting.value = false
+}
+
+function cancelPeriodSettingHandler() {
+  resetDateRange()
+  showPeriodSetting.value = false
+}
 </script>
 
 <template>
   <n-card>
     <n-space vertical>
-      <div>
-        <n-button
-          size="medium"
-          text
-          :disabled="saveFilterSubjectStatus === 'pending' || loading"
-          @click="$emit('onClose')"
-        >
-          <template #icon>
-            <n-icon size="20px">
-              <ArrowNarrowLeft />
-            </n-icon>
-          </template>
-          Назад
-        </n-button>
-      </div>
-      <n-space justify="space-between" align="start">
+      <div class="subject-info-header" justify="space-between" align="start">
         <div class="subject-info">
           <h2>{{ subject.name }}</h2>
           <div class="subject-info-details">
@@ -78,6 +100,7 @@ async function saveFilterSubjectHandler() {
           <n-button
             size="medium"
             secondary
+            type="primary"
             strong
             :disabled="saveFilterSubjectStatus === 'pending' || loading"
             @click="$emit('onClose')"
@@ -90,16 +113,14 @@ async function saveFilterSubjectHandler() {
             Закрыть
           </n-button>
         </div>
-      </n-space>
+      </div>
       <n-space :align="'baseline'">
         <n-text tag="h4">Персональный каталог</n-text>
-
-        <!-- <n-space justify="space-between">
-          <n-space style="padding-left: 1.25rem; margin-bottom: 0.25rem" size="small">
-            <n-text :depth="3" style="font-weight: 500; font-size: small">Раскрыть все</n-text>
-            <n-switch v-model:value="isExpanded" id="switch" size="small" />
-          </n-space>
-        </n-space> -->
+        <n-button size="small" ghost type="default" @click="showPeriodSetting = true">{{
+          startDate && finishDate
+            ? `Период действия: ${startDateFormatted} - ${finishDateFormatted}`
+            : 'Настроить период действия'
+        }}</n-button>
       </n-space>
       <n-spin :show="loading">
         <CategoriesList
@@ -112,10 +133,46 @@ async function saveFilterSubjectHandler() {
         <div v-else style="height: 100px"></div>
       </n-spin>
     </n-space>
+
+    <n-modal v-model:show="showPeriodSetting" style="max-width: 500px" :mask-closable="false">
+      <n-card size="medium" title="Настроить период действия">
+        <div class="period-setting-container">
+          <n-form-item label="Начало периода">
+            <n-input v-model:value="startDate" :input-props="{ type: 'date' }" placeholder="" />
+          </n-form-item>
+          <n-form-item label="Конец периода">
+            <n-input v-model:value="finishDate" :input-props="{ type: 'date' }" placeholder="" />
+          </n-form-item>
+        </div>
+        <template #footer>
+          <n-space justify="space-between">
+            <n-button type="error" @click="clearDateRange">Сбросить</n-button>
+            <n-space justify="end">
+              <n-button secondary type="primary" @click="cancelPeriodSettingHandler"
+                >Отменить</n-button
+              >
+              <n-button type="primary" @click="savePeriodSettingHandler">Сохранить</n-button>
+            </n-space>
+          </n-space>
+        </template>
+      </n-card>
+    </n-modal>
   </n-card>
 </template>
 
 <style scoped>
+.subject-info-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.period-setting-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .subject-info {
 }
 
@@ -125,6 +182,7 @@ async function saveFilterSubjectHandler() {
 
 .action-group {
   display: flex;
+  justify-content: flex-end;
   gap: 0.5rem;
 }
 

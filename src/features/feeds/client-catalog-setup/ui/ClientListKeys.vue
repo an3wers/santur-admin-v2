@@ -47,8 +47,8 @@ function selectHandler(subj: FilterSubjectKeyItem['subject']) {
               <th width="120">Id</th>
               <th>Клиент</th>
               <th width="260">ТА</th>
-              <th>Начало</th>
-              <th>Конец</th>
+              <th width="160">Дата начала</th>
+              <th width="160">Дата окончания</th>
             </tr>
           </thead>
           <tbody>

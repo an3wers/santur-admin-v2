@@ -123,7 +123,7 @@ function saveBrandsSetting() {
                 <n-button
                   size="tiny"
                   ghost
-                  type="primary"
+                  type="default"
                   :disabled="!item.isChecked"
                   @click="openBrandsSetting(item.id)"
                   >Настроить</n-button

@@ -50,8 +50,8 @@ export interface FilterSubjectRes {
   subjectId: number
   title: string
   descr: string
-  finishData: string
-  startData: string
+  finishDate: string
+  startDate: string
   categories: {
     id: number
     title: string
@@ -67,8 +67,8 @@ export interface SaveFilterSubjectReq {
   subjectId: number
   title: string
   descr: string
-  startData: string
-  finishData: string
+  startDate: string
+  finishDate: string
   categories: {
     id: number
     title: string
