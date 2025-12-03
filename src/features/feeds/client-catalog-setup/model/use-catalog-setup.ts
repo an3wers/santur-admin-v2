@@ -5,10 +5,29 @@ import type { AsyncDataRequestStatus } from '#app'
 import { formatDateForInput, formatDateForServer } from '~/shared/libs/format-date-for-server'
 
 export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
+  // filter state
   const brandsFilter = ref(new Map<CategoryId, BrandItem[]>())
 
-  const startDate = ref<string>('')
+  function setupBrandsFilter() {
+    brandsFilter.value.clear()
 
+    filterData.value?.data.categories.forEach((el) => {
+      if (el.brends.length) {
+        brandsFilter.value.set(el.id, el.brends)
+      }
+    })
+  }
+
+  function updateBrandsFilter(categoryId: CategoryId, brands: BrandItem[]) {
+    if (!brands.length) {
+      brandsFilter.value.delete(categoryId)
+    } else {
+      brandsFilter.value.set(categoryId, brands)
+    }
+  }
+
+  // dates state
+  const startDate = ref<string>('')
   const finishDate = ref<string>('')
 
   const startDateFormatted = computed(() => {
@@ -33,23 +52,8 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     finishDate.value = ''
   }
 
-  function setupBrandsFilter() {
-    brandsFilter.value.clear()
-
-    filterData.value?.data.categories.forEach((el) => {
-      if (el.brends.length) {
-        brandsFilter.value.set(el.id, el.brends)
-      }
-    })
-  }
-
-  function updateBrandsFilter(categoryId: CategoryId, brands: BrandItem[]) {
-    if (!brands.length) {
-      brandsFilter.value.delete(categoryId)
-    } else {
-      brandsFilter.value.set(categoryId, brands)
-    }
-  }
+  // isStrong state
+  const isStrong = ref(false)
 
   const subjectId = computed(() => {
     return toValue(subject)?.id ?? 0
@@ -125,6 +129,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
         categoriesExecute()
         setupBrandsFilter()
         resetDateRange()
+        isStrong.value = filterData.value?.data.isStrong ?? false
       }
     },
     {
@@ -150,6 +155,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
         subjectId: toValue(subject).id,
         title: toValue(subject).name,
         descr: '',
+        isStrong: isStrong.value,
         startDate: startDateFormatted.value,
         finishDate: finishDateFormatted.value,
         categories: getCheckedCategories(categoriesData.value?.data || [])
@@ -205,6 +211,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     startDateFormatted,
     finishDateFormatted,
     resetDateRange,
-    clearDateRange
+    clearDateRange,
+    isStrong
   }
 }

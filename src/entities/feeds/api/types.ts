@@ -52,6 +52,7 @@ export interface FilterSubjectRes {
   descr: string
   finishDate: string
   startDate: string
+  isStrong?: boolean
   categories: {
     id: number
     title: string
@@ -69,6 +70,7 @@ export interface SaveFilterSubjectReq {
   descr: string
   startDate: string
   finishDate: string
+  isStrong?: boolean
   categories: {
     id: number
     title: string

@@ -9,12 +9,14 @@ import {
   useMessage,
   NModal,
   NFormItem,
-  NInput
+  NInput,
+  NSwitch,
+  NPopover
 } from 'naive-ui'
 import type { SubjectItem } from '../../model/types'
 import { useCatalogSetup } from '../../model/use-catalog-setup'
 import CategoriesList from './CategoriesList.vue'
-import { X as XIcon } from '@vicons/tabler'
+import { X as XIcon, InfoCircle } from '@vicons/tabler'
 
 const { subject } = defineProps<{
   subject: SubjectItem
@@ -40,7 +42,8 @@ const {
   finishDateFormatted,
   startDateFormatted,
   resetDateRange,
-  clearDateRange
+  clearDateRange,
+  isStrong
 } = useCatalogSetup(() => subject)
 
 const message = useMessage()
@@ -114,14 +117,34 @@ function cancelPeriodSettingHandler() {
           </n-button>
         </div>
       </div>
-      <n-space :align="'baseline'">
-        <n-text tag="h4">Персональный каталог</n-text>
+
+      <n-space style="margin-bottom: 1rem" size="large" :align="'center'">
+        <n-text style="font-size: 1rem" tag="p" strong>Персональный каталог</n-text>
         <n-button size="small" ghost type="default" @click="showPeriodSetting = true">{{
           startDate && finishDate
             ? `Период действия: ${startDateFormatted} - ${finishDateFormatted}`
             : 'Настроить период действия'
         }}</n-button>
+
+        <div class="limit-catalog-container">
+          <n-popover style="width: 280px" trigger="hover" placement="bottom">
+            <template #trigger>
+              <div class="limit-catalog-info">
+                <n-icon size="20px" :component="InfoCircle" />
+                <n-text>Ограничить каталог</n-text>
+              </div>
+            </template>
+            <n-text
+              >При включении этой опции, каталог клиента будет ограничен только теми категориями и
+              брендами, которые выбраны в настройке.
+              <strong>Общий каталог будет недоступен.</strong></n-text
+            >
+          </n-popover>
+
+          <n-switch v-model:value="isStrong" size="small" />
+        </div>
       </n-space>
+
       <n-spin :show="loading">
         <CategoriesList
           v-if="categoriesData?.data"
@@ -165,6 +188,7 @@ function cancelPeriodSettingHandler() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .period-setting-container {
@@ -188,6 +212,18 @@ function cancelPeriodSettingHandler() {
 
 .subject-info-details {
   display: flex;
+  gap: 0.5rem;
+}
+
+.limit-catalog-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.limit-catalog-info {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 </style>

@@ -107,7 +107,7 @@ function saveBrandsSetting() {
         <div class="child-container">
           <n-space justify="space-between">
             <n-space style="padding-left: 1.25rem; margin-bottom: 0.25rem" size="small">
-              <n-text :depth="3" style="font-weight: 500; font-size: small">Выбрать все</n-text>
+              <n-text style="font-weight: 400; font-size: small">Выбрать все</n-text>
               <n-switch
                 id="switch"
                 :value="parent.child.every((c) => c.isChecked)"

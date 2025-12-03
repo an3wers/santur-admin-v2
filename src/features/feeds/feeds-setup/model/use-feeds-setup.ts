@@ -188,7 +188,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   // #endregion
 
-  //#region Brands
+  // #region Brands
   const currentLetter = ref('A')
 
   const excludedBrandsSet = ref<Set<string>>(new Set())
@@ -257,7 +257,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     }
   )
 
-  //#endregion
+  // #endregion
 
   // #region SideEffects
   watchEffect(() => {
