@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { PostItemCard, usePostItem } from '@/entities/post'
+import PostEditItem from '@/features/post/ui/PostEditItem.vue'
+import { usePostEditItem } from '@/features/post'
 import { NSpace, NH1 } from 'naive-ui'
 import { useCategoryApi } from '~/entities/category'
 
@@ -7,7 +8,7 @@ const route = useRoute()
 const { catId } = route.params
 const title = ref('Новая запись')
 
-const { postItem, isModified } = usePostItem({ catId: Number(catId) })
+const { postItem, isModified } = usePostEditItem({ catId: Number(catId) })
 const { getCategory } = useCategoryApi()
 watch(
   () => postItem.categoryId,
@@ -40,7 +41,7 @@ watch(
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PostItemCard
+      <PostEditItem
         v-model:state="postItem"
         :is-modified="isModified"
         :owner-id="parseInt(catId as string)"

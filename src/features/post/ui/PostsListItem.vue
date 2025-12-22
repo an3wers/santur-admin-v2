@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NListItem, NIcon, NButton, NDropdown, NTag, NText, NInputNumber } from 'naive-ui'
-import type { PostListItem } from '../api/post-schemas'
+import type { PostListItem } from '../model/types'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
 import { useUpdateOrderPost } from '../model/use-update-order-post'

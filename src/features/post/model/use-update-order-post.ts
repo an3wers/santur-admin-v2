@@ -1,14 +1,13 @@
-import { usePostApi } from '../api/post-api'
+import { usePostApi } from '@/entities/post'
 
-export const useCopyPost = () => {
+export const useUpdateOrderPost = () => {
   const status = ref<ProcessStatus>('idle')
 
   const api = usePostApi()
-
-  async function makeCopy(id: number) {
+  async function updateOrder(id: number, order: number) {
     try {
       status.value = 'pending'
-      await api.copyPost(id)
+      await api.updateOrder(id, order)
       status.value = 'success'
     } catch (error) {
       console.error(error)
@@ -16,5 +15,5 @@ export const useCopyPost = () => {
     }
   }
 
-  return { makeCopy, status }
+  return { status, updateOrder }
 }

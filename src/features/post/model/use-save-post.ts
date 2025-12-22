@@ -1,5 +1,5 @@
-import { usePostApi } from '../api/post-api'
-import type { SavePostDto } from '../api/post-schemas'
+import { usePostApi } from '../../../entities/post/api/post-api'
+import type { SavePostDto } from '../../../entities/post/api/post-schemas'
 
 export const useSavePost = () => {
   const status = ref<ProcessStatus>('idle')

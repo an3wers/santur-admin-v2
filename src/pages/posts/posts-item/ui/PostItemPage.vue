@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { PostItemCard, usePostItem } from '@/entities/post'
+import PostEditItem from '@/features/post/ui/PostEditItem.vue'
+import { usePostEditItem } from '@/features/post'
 import { NSpace, NH1 } from 'naive-ui'
 
 const route = useRoute()
 const { itemId, catId } = route.params
 const title = ref('')
 
-const { postItem, status, loadPostItem, isModified } = usePostItem({ catId: Number(catId) })
+const { postItem, status, loadPostItem, isModified } = usePostEditItem({ catId: Number(catId) })
 
 await loadPostItem(Number(itemId))
 
@@ -27,7 +28,7 @@ if (status.value === 'success') {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PostItemCard
+      <PostEditItem
         v-model:state="postItem"
         :is-modified="isModified"
         :owner-id="parseInt(catId as string)"

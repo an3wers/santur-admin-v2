@@ -1,4 +1,4 @@
-import { usePostApi } from '../api/post-api'
+import { usePostApi } from '@/entities/post'
 
 export const useRemovePost = () => {
   const status = ref<ProcessStatus>('idle')

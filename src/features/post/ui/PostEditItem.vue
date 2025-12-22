@@ -18,9 +18,9 @@ import type { PostItem } from '../model/types'
 import { useNavStore } from '~/shared/navigation'
 import { useRemovePost } from '../model/use-remove-post'
 import { useSavePost } from '../model/use-save-post'
-import { formattedDateForServer } from '../lib/formatted-date-for-server'
+import { formattedDateForServer } from '@/entities/post'
 import { Check } from '@vicons/tabler'
-// TODO: Решить проблему с нарушением FSD
+
 import { MediaList } from '@/entities/media'
 
 const model = defineModel<PostItem>('state', { required: true })

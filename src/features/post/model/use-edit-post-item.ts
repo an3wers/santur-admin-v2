@@ -1,8 +1,8 @@
 import { isEqual } from '~/shared/libs/is-equal'
-import { usePostApi } from '../api/post-api'
+import { usePostApi } from '@/entities/post'
 import type { PostItem } from './types'
 
-export const usePostItem = ({ catId }: { catId: number }) => {
+export const usePostEditItem = ({ catId }: { catId: number }) => {
   let originalPost: PostItem | null = null
 
   const postItem = reactive<PostItem>({
