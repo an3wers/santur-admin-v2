@@ -14,10 +14,10 @@ import {
   useMessage,
   NSwitch
 } from 'naive-ui'
-import { usePvzsItemStore } from '../model/use-pvzs-item-store'
-import { validationRules } from '../config/validation-rules'
+import { usePvzsEditItemStore } from '../model/use-pvzs-edit-item-store'
+import { validationRules } from '@/entities/pvzs'
 
-const pvzsItemStore = usePvzsItemStore()
+const pvzsItemStore = usePvzsEditItemStore()
 
 const { pvzsItem, pvzsItemSecondaryFields, saveStatus, removeStatus, removeError, saveError } =
   storeToRefs(pvzsItemStore)

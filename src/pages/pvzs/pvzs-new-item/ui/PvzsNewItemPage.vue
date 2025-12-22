@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { NH1, NSpace } from 'naive-ui'
-import { PvzsItemCard, usePvzsItemStore } from '~/entities/pvzs'
+import { usePvzsEditItemStore } from '@/features/pvzs'
+import PvzsEditItem from '~/features/pvzs/ui/PvzsEditItem.vue'
 
 const route = useRoute()
 const { catId } = route.params
 const title = 'Новый пункт выдачи'
 
-const pvzsItemStore = usePvzsItemStore()
+const pvzsItemStore = usePvzsEditItemStore()
 
 pvzsItemStore.$reset()
 pvzsItemStore.pvzsItemSecondaryFields.ownerid = parseInt(catId as string)
@@ -24,7 +25,7 @@ pvzsItemStore.pvzsItemSecondaryFields.ownerid = parseInt(catId as string)
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PvzsItemCard />
+      <PvzsEditItem />
     </n-space>
   </div>
 </template>

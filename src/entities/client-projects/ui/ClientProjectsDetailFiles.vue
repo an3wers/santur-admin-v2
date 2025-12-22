@@ -10,10 +10,10 @@ const { apiBase, santurS3Url } = useRuntimeConfig().public
 
 async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
   try {
-    const replacedPath = file.getPath.replace(new RegExp(santurS3Url, 'i'), '')
+    const replacedPath = file.getPath.replace(new RegExp(santurS3Url as string, 'i'), '')
 
     const res = await $fetch<unknown>(`/s3${replacedPath}`, {
-      baseURL: apiBase
+      baseURL: apiBase as string
     })
 
     let blob: Blob | undefined

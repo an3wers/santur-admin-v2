@@ -2,7 +2,7 @@
 import { NCard, NList, NIcon, NListItem, NText, NTag, NDropdown, NButton } from 'naive-ui'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots } from '@vicons/tabler'
-import type { PvzsListItem } from '../model/pvzs-types'
+import type { PvzsListItem } from '@/features/pvzs'
 
 const { pvzs, ownertId } = defineProps<{
   pvzs: PvzsListItem[]

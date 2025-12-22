@@ -1,5 +1,4 @@
-import { usePvzsApi } from '../api/pvzs-api'
-import { getPvzsCategoryKey } from '../api/query-keys'
+import { usePvzsApi, getPvzsCategoryKey } from '@/entities/pvzs'
 
 export const usePvzs = (ownerId: string) => {
   const { getPvzs } = usePvzsApi()

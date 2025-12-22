@@ -1,10 +1,8 @@
-import type { PvzsItem, Pvz } from './pvzs-types'
-import { usePvzsApi } from '../api/pvzs-api'
-import { getPvzsCategoryKey } from '../api/query-keys'
-import { mapPvzsItem } from '../libs/map-pvzs-item'
+import type { PvzsItem, Pvz } from './types'
+import { usePvzsApi, getPvzsCategoryKey, mapPvzsItem } from '@/entities/pvzs'
 
-// TODO: Заменить глобальный стор на composable или на контекст provide/inject
-export const usePvzsItemStore = defineStore('pvzs-item', () => {
+// TODO: Заменить глобальный стор на composable
+export const usePvzsEditItemStore = defineStore('pvzs-edit-item', () => {
   const pvzsItem = reactive<PvzsItem>({
     address: '',
     cfo: '',

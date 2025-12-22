@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { NSpace, NH1, NP, NButton, NIcon } from 'naive-ui'
-import { PvzsList, usePvzs } from '~/entities/pvzs'
+import { usePvzs } from '../model/use-pvzs-categoty-data'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { Plus } from '@vicons/tabler'
+import PvzsList from './PvzsList.vue'
 
 const route = useRoute()
 const { catId } = route.params

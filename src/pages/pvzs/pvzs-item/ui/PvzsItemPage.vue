@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NSpace, NH1, useMessage } from 'naive-ui'
-import { PvzsItemCard, usePvzsItemStore } from '~/entities/pvzs'
+import { usePvzsEditItemStore } from '@/features/pvzs'
+import PvzsEditItem from '~/features/pvzs/ui/PvzsEditItem.vue'
 
 const title = ref('')
 
@@ -8,7 +9,7 @@ const route = useRoute()
 
 const { itemId } = route.params
 
-const pvzsItemStore = usePvzsItemStore()
+const pvzsItemStore = usePvzsEditItemStore()
 
 pvzsItemStore.$reset()
 await pvzsItemStore.loadPvzsItem(itemId as string)
@@ -33,7 +34,7 @@ if (pvzsItemStore.loadStatus === 'error') {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PvzsItemCard v-if="pvzsItemStore.loadStatus === 'success'" />
+      <PvzsEditItem v-if="pvzsItemStore.loadStatus === 'success'" />
     </n-space>
   </div>
 </template>
