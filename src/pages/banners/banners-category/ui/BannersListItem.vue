@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
-import type { BannersListItem } from '../model/banner-types'
+import {
+  type BannersListItem,
+  useUpdateOrderBanner,
+  useCopyBanner,
+  useRemoveBanner
+} from '@/features/banner'
 import { NIcon, NListItem, NText, NDropdown, NButton, NImage, NInputNumber } from 'naive-ui'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
-import { useUpdateOrderBanner } from '../model/use-update-order-banner'
-import { useCopyBanner } from '../model/use-copy-banner'
-import { useRemoveBanner } from '../model/use-remove-banner'
 
 const { banner: item, ownertId } = defineProps<{
   banner: BannersListItem

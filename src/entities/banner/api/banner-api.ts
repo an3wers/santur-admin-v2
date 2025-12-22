@@ -1,22 +1,22 @@
 import {
-  type BannersOptionsDto,
-  type BannersDto,
+  type BannersOptionsReq,
+  type BannersResp,
   bannersSchema,
-  type SaveBannerDto,
-  type BannerDto
+  type SaveBannerReq,
+  type BannerResp
 } from './banner-schemas'
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 
 export const useBannerApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
-  async function getBanners(options: BannersOptionsDto): Promise<BannersDto> {
+  async function getBanners(options: BannersOptionsReq): Promise<BannersResp> {
     const query = new URLSearchParams({
       ...options,
       page: options.page.toString(),
       categoryId: options.categoryId.toString()
     })
 
-    const res = await fetchWithToken<BannersDto>(`AdminContent/GetBanners?${query.toString()}`)
+    const res = await fetchWithToken<BannersResp>(`AdminContent/GetBanners?${query.toString()}`)
 
     const _data = checkError(res).data
     return bannersSchema.parse(_data)
@@ -26,16 +26,16 @@ export const useBannerApi = () => {
     const query = new URLSearchParams({
       id: String(id)
     })
-    const res = await fetchWithToken<BannerDto>(`AdminContent/GetBanner?${query.toString()}`)
+    const res = await fetchWithToken<BannerResp>(`AdminContent/GetBanner?${query.toString()}`)
     // TODO: zod валидация
     return checkError(res).data
   }
 
-  async function saveBanner(data: SaveBannerDto) {
+  async function saveBanner(data: SaveBannerReq) {
     const formData = new FormData()
 
     for (const key in data) {
-      const value = data[key as keyof SaveBannerDto] as string
+      const value = data[key as keyof SaveBannerReq] as string
       formData.append(key, value)
     }
 

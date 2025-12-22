@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { NSpace, NH1, NModal } from 'naive-ui'
-import { BannerItemCard, userBannerItem } from '~/entities/banner'
 import { MediaList, type MediaListItem } from '@/entities/media'
+import { userEditBannerItem } from '~/features/banner'
+import BannerEditItem from '~/features/banner/ui/BannerEditItem.vue'
 
 const route = useRoute()
 
@@ -9,7 +10,7 @@ const { itemId, catId } = route.params
 
 const title = ref('')
 
-const { loadBanner, status, banner, removeMedia, selectMedia, isModified } = userBannerItem({
+const { loadBanner, status, banner, removeMedia, selectMedia, isModified } = userEditBannerItem({
   catId: parseInt(catId as string)
 })
 
@@ -47,7 +48,7 @@ function selectMediaHandler(media: MediaListItem) {
         </template>
       </page-title>
 
-      <BannerItemCard
+      <BannerEditItem
         v-model:state="banner"
         :is-modified="isModified"
         :ownert-id="parseInt(catId as string)"

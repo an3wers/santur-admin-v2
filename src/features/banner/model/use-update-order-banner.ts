@@ -1,4 +1,4 @@
-import { useBannerApi } from '../api/banner-api'
+import { useBannerApi } from '@/entities/banner'
 
 export const useUpdateOrderBanner = () => {
   const status = ref<ProcessStatus>('idle')

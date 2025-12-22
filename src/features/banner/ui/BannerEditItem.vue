@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useNavStore } from '~/shared/navigation'
-import type { BannerItem } from '../model/banner-types'
+import type { BannerItem } from '../model/types'
 import {
   NCard,
   NForm,

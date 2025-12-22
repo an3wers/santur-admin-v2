@@ -2,9 +2,10 @@
 import { NSpace, NH1, NButton, NIcon, NModal } from 'naive-ui'
 import { useNavStore } from '~/shared/navigation'
 import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
-import { useBannersCategory, BannersListUi as BannersList } from '@/entities/banner'
 import { Plus, Edit } from '@vicons/tabler'
 import { CategoryDetail } from '~/entities/category'
+import { useBannersCategory } from '../model/use-banners-category-data'
+import BannersList from './BannersList.vue'
 
 const route = useRoute()
 const { catId } = route.params
@@ -16,7 +17,7 @@ const title = computed(() => {
     ?.label
 })
 
-const { data, status, page, setPage, execute } = await useBannersCategory(
+const { data, page, setPage, execute } = await useBannersCategory(
   catId as string,
   navStore.activeResource
 )

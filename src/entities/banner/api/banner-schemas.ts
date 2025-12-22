@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export interface BannersOptionsDto {
+export interface BannersOptionsReq {
   app: string
   categoryId: string | number
   page: string | number
@@ -28,9 +28,9 @@ export const bannersSchema = z.object({
   totalCount: z.number()
 })
 
-export type BannersDto = z.infer<typeof bannersSchema>
+export type BannersResp = z.infer<typeof bannersSchema>
 
-export interface SaveBannerDto {
+export interface SaveBannerReq {
   id: number
   name: string
   imgPath: string
@@ -41,7 +41,7 @@ export interface SaveBannerDto {
   descr: string
 }
 
-export interface BannerDto {
+export interface BannerResp {
   id: number
   imgPath: string
   link: string

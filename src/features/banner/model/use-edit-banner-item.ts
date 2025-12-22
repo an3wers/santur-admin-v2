@@ -1,7 +1,7 @@
-import { useBannerApi } from '../api/banner-api'
-import type { BannerItem } from './banner-types'
+import { useBannerApi } from '@/entities/banner'
+import type { BannerItem } from './types'
 
-export const userBannerItem = ({ catId }: { catId: number }) => {
+export const userEditBannerItem = ({ catId }: { catId: number }) => {
   const originalBanner = shallowRef<BannerItem | null>(null)
 
   const banner = reactive<BannerItem & { dateTimestamp: number }>({

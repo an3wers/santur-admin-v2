@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { NCard, NList, NP, NPagination } from 'naive-ui'
-import type { BannersListItem } from '@/entities/banner'
-import BannersListItemUi from './BannersListItem.vue'
+import type { BannersListItem as BannersListItemType } from '@/features/banner'
+import BannersListItem from './BannersListItem.vue'
 
 const { banners, ownertId } = defineProps<{
-  banners: BannersListItem[]
+  banners: BannersListItemType[]
   ownertId: number
   page: number
   totalPages: number
@@ -19,7 +19,7 @@ defineEmits<{
 <template>
   <n-card>
     <n-list v-if="banners.length" hoverable>
-      <BannersListItemUi
+      <BannersListItem
         v-for="banner in banners"
         :key="banner.id"
         :banner="banner"

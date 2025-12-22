@@ -1,5 +1,4 @@
-import { getBannersCategoryKey } from '../api/query-keys'
-import { useBannerApi } from '../api/banner-api'
+import { getBannersCategoryKey, useBannerApi } from '@/entities/banner'
 
 export const useBannersCategory = async (
   catId: MaybeRef<string | number>,

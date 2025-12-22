@@ -1,13 +1,14 @@
-import { useBannerApi } from '../api/banner-api'
+import { useBannerApi } from '@/entities/banner'
 
-export const useCopyBanner = () => {
+export const useRemoveBanner = () => {
   const status = ref<ProcessStatus>('idle')
 
   const api = useBannerApi()
-  async function makeCopy(id: number) {
+
+  async function remove(id: number) {
     try {
       status.value = 'pending'
-      await api.copyBanner(id)
+      await api.deleteBanner(id)
       status.value = 'success'
     } catch (error) {
       console.error(error)
@@ -15,5 +16,5 @@ export const useCopyBanner = () => {
     }
   }
 
-  return { makeCopy, status }
+  return { remove, status }
 }
