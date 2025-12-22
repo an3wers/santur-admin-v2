@@ -1,12 +1,12 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { GetPostsDto, PostsDto, PostDetailDto, SavePostDto } from './post-schemas'
+import type { GetPostsReq, PostsResp, PostDetailResp, SavePostReq } from './post-schemas'
 
 // TODO: Добавить Zod валидацию
 export const usePostApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
-  async function getPosts(data: GetPostsDto) {
-    const res = await fetchWithToken<PostsDto>('AdminContent/GetPosts', {
+  async function getPosts(data: GetPostsReq) {
+    const res = await fetchWithToken<PostsResp>('AdminContent/GetPosts', {
       query: data
     })
     return checkError(res).data
@@ -16,12 +16,12 @@ export const usePostApi = () => {
     const query = new URLSearchParams({
       id: postId.toString()
     })
-    const res = await fetchWithToken<PostDetailDto>(`AdminContent/GetPost?${query.toString()}`)
+    const res = await fetchWithToken<PostDetailResp>(`AdminContent/GetPost?${query.toString()}`)
 
     return checkError(res).data
   }
 
-  async function savePost(data: SavePostDto) {
+  async function savePost(data: SavePostReq) {
     const res = await fetchWithToken<unknown>('AdminContent/SavePost', {
       method: 'POST',
       body: data

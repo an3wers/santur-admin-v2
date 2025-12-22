@@ -1,4 +1,4 @@
-export interface GetPostsDto {
+export interface GetPostsReq {
   app: string
   categoryId: string | number
   page: string | number
@@ -21,9 +21,9 @@ export interface PostListItem {
   extFields: ExtFieldsValue[] | null
 }
 
-export interface PostsDto {
+export interface PostsResp {
   totalPages: number
-  items: PostListItem[] // TODO: дотипизировать
+  items: PostListItem[]
   currentPage: number
   pageSize: number
   totalCount: number
@@ -39,7 +39,7 @@ export interface ExtFieldsValue extends ExtFields {
   value: string
 }
 
-export interface PostDetailDto {
+export interface PostDetailResp {
   id: number
   title: string
   description: string
@@ -55,7 +55,7 @@ export interface PostDetailDto {
   order: number
 }
 
-export interface SavePostDto {
+export interface SavePostReq {
   id: number
   title: string
   alias: string

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { NListItem, NIcon, NButton, NDropdown, NTag, NText, NInputNumber } from 'naive-ui'
-import type { PostListItem } from '../model/types'
+import type { PostListItem } from '../../../../features/post/model/types'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
-import { useUpdateOrderPost } from '../model/use-update-order-post'
-import { useCopyPost } from '../model/use-copy-post'
-import { useRemovePost } from '../model/use-remove-post'
+import { useUpdateOrderPost, useCopyPost, useRemovePost } from '@/features/post'
 
 const { ownertId, ownerName, post } = defineProps<{
   post: PostListItem

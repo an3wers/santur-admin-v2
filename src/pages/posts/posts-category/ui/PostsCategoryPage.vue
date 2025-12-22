@@ -5,7 +5,7 @@ import PageTitle from '~/shared/ui/page-title/PageTitle.vue'
 import { Plus, Edit } from '@vicons/tabler'
 import { usePostsCategory } from '../model/use-posts-category'
 import { CategoryDetail } from '~/entities/category'
-import { PostsList } from '~/entities/post'
+import PostsList from './PostsList.vue'
 
 const route = useRoute()
 const { catId } = route.params

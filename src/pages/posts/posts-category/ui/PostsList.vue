@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NCard, NList, NP, NPagination } from 'naive-ui'
-import type { PostListItem } from '../model/types'
+import type { PostListItem } from '@/features/post'
 
 import PostsListItem from './PostsListItem.vue'
 

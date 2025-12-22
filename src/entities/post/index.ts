@@ -4,9 +4,9 @@ export { usePostApi } from './api/post-api'
 export type {
   ExtFields,
   ExtFieldsValue,
-  PostDetailDto,
+  PostDetailResp,
   PostListItem,
-  SavePostDto
+  SavePostReq
 } from './api/post-schemas'
 
 export { formattedDateForServer } from './lib/formatted-date-for-server'
