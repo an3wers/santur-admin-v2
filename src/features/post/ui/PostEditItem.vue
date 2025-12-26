@@ -12,18 +12,46 @@ import {
   NDatePicker,
   NSwitch,
   NButton,
-  NIcon
+  NIcon,
+  NUpload,
+  NUploadDragger,
+  NText,
+  NP,
+  NImage
 } from 'naive-ui'
 import type { PostItem } from '../model/types'
 import { useNavStore } from '~/shared/navigation'
 import { useRemovePost } from '../model/use-remove-post'
 import { useSavePost } from '../model/use-save-post'
 import { formattedDateForServer } from '@/entities/post'
-import { Check } from '@vicons/tabler'
+import { Check, X, Plus } from '@vicons/tabler'
 
 import { MediaList } from '@/entities/media'
 
 const model = defineModel<PostItem>('state', { required: true })
+
+//const previewImage = ref(null)
+const previewImageUrl = ref('')
+const previewImageName = ref('')
+
+const handleUploadChange = ({file}) => {
+  if (file.file) {
+    model.value.previewImage = file.file
+    previewImageName.value = file.name
+    console.log('file.', file)
+    previewImageUrl.value = URL.createObjectURL(file.file)
+  }
+}
+
+const removeImage = () => {
+  model.value.previewImage = undefined
+  previewImageUrl.value = ''
+  previewImageName.value = ''
+}
+
+const removeLoadedImage = () => {
+  model.value.previewImgUrl = ''
+}
 
 const dateFormat = 'dd-MM-yyyy'
 
@@ -112,7 +140,7 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-
+    console.log('model.value', model.value)
     await savePost({
       id: model.value.id,
       title: model.value.title,
@@ -122,9 +150,10 @@ async function saveHandler() {
       published: model.value.published ? 'Y' : 'N',
       extFields: model.value.extFields,
       alias: model.value.alias,
-      date: formattedDateForServer(new Date(model.value.dateTimestamp))
+      date: formattedDateForServer(new Date(model.value.dateTimestamp)),
+      previewImgUrl: model.value.previewImgUrl,
+      ...(model.value.previewImage && { previewImage: model.value.previewImage })
     })
-
     if (saveSatus.value === 'error') {
       throw new Error('Ошибка сохранения')
     }
@@ -144,6 +173,8 @@ async function saveHandler() {
     }
   }
 }
+
+console.log('model.value', model.value)
 </script>
 
 <template>
@@ -166,6 +197,91 @@ async function saveHandler() {
             v-model:value="model.descr"
             placeholder="Введите короткое описание"
           />
+        </n-form-item>
+        <n-form-item label="Изображение" path="previewImage">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%">
+            <div>
+              <n-upload
+                style="height: 100%"
+                action="/api/upload"
+                :show-file-list="false"
+                directory-dnd
+                @change="handleUploadChange"
+              >
+                <n-upload-dragger>
+                  <div
+                    style="
+                      display: flex;
+                      flex-direction: column;
+                      justify-items: center;
+                      align-items: center;
+                    "
+                  >
+                    <n-icon size="48" :depth="3">
+                      <Plus />
+                    </n-icon>
+                    <n-text style="font-size: 14px"> Нажмите или перенесите сюда файл </n-text>
+                    <n-p depth="3" style="margin: 8px 0 0 0; font-size: 12px">
+                      .jpg, .jpeg, .png, .webp
+                    </n-p>
+                  </div>
+                </n-upload-dragger>
+              </n-upload>
+            </div>
+
+            <!-- Правая колонка: Превью -->
+            <div style="display: flex; flex-direction: column">
+              <n-button
+                v-if="previewImageUrl"
+                size="tiny"
+                @click="removeImage"
+                type="error"
+                text
+                style="align-self: end"
+              >
+                <NIcon size="24px"><X /></NIcon>
+              </n-button>
+
+              <div v-if="previewImageUrl" style="text-align: center">
+                <n-image
+                  :src="previewImageUrl"
+                  width="120"
+                  height="120"
+                  object-fit="contain"
+                  preview-disabled
+                />
+              </div>
+              <n-button
+                v-if="model.previewImgUrl && !previewImageUrl"
+                size="tiny"
+                @click="removeLoadedImage"
+                type="error"
+                text
+                style="align-self: end"
+              >
+                <NIcon size="24px"><X /></NIcon>
+              </n-button>
+              <div v-if="model.previewImgUrl && !previewImageUrl" style="text-align: center">
+                <n-image
+                  :src="model.previewImgUrl"
+                  width="120"
+                  height="120"
+                  object-fit="contain"
+                  preview-disabled
+                />
+              </div>
+
+              <div
+                v-if="!model.previewImgUrl && !previewImageUrl"
+                style="text-align: center; padding: 40px 0; color: #ccc"
+              >
+                <n-icon size="48">
+                  <ImageIcon />
+                </n-icon>
+                <n-text depth="3" style="display: block; margin-top: 8px"> Нет изображения </n-text>
+              </div>
+            </div>
+          </div>
         </n-form-item>
         <n-form-item label="Содержание">
           <app-editor v-model="model.content">
@@ -232,4 +348,8 @@ async function saveHandler() {
   </n-form>
 </template>
 
-<style scoped></style>
+<style scoped>
+.hidden-file-input {
+  display: none;
+}
+</style>

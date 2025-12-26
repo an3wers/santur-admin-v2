@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { GetPostsReq, PostsResp, PostDetailResp, SavePostReq } from './post-schemas'
+import type { GetPostsReq, PostsResp, PostDetailResp } from './post-schemas'
 
 // TODO: Добавить Zod валидацию
 export const usePostApi = () => {
@@ -21,8 +21,8 @@ export const usePostApi = () => {
     return checkError(res).data
   }
 
-  async function savePost(data: SavePostReq) {
-    const res = await fetchWithToken<unknown>('AdminContent/SavePost', {
+  async function savePost(data: FormData) {
+    const res = await fetchWithToken<unknown>('AdminContent/SavePost2', {
       method: 'POST',
       body: data
     })

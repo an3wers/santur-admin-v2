@@ -15,7 +15,8 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
     dateTimestamp: Date.now(),
     descr: '',
     extFields: [],
-    published: false
+    published: false,
+    previewImgUrl: ''
   })
 
   const isModified = ref(false)
@@ -44,6 +45,7 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
       postItem.published = res.status === 'published'
       postItem.descr = res.description
       postItem.dateTimestamp = getTimestamp(res.regDate)
+      postItem.previewImgUrl = res.previewImgUrl
 
       originalPost = JSON.parse(
         JSON.stringify({

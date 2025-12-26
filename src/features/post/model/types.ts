@@ -16,6 +16,8 @@ export interface PostItem {
   dateTimestamp: number
   extFields: ExtFields[]
   published: boolean
+  previewImage?: File
+  previewImgUrl: string
 }
 
 
