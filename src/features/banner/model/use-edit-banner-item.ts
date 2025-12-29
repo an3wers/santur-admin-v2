@@ -9,7 +9,9 @@ export const userEditBannerItem = (
     dateTimestamp: number
   }
 
-  let originalBanner: Omit<Banner, 'app' | 'descr'> | null = null // shallowRef<Banner | null>(null)
+  let originalBanner: Omit<Banner, 'app' | 'descr'> | null = null
+
+  const timestamp = Date.now()
 
   const banner = ref<BannerItem>({
     categoryId: toValue(catId),
@@ -18,35 +20,35 @@ export const userEditBannerItem = (
     link: '',
     name: '',
     nn: 0,
-    dateTimestamp: Date.now()
+    dateTimestamp: timestamp
   })
 
-  // init banner and originalBanner from initialBanner
-  watchEffect(() => {
-    if (initialBanner && toValue(initialBanner)) {
-      banner.value = {
-        ...toValue(initialBanner),
-        dateTimestamp: Date.now()
+  watch(
+    () => toValue(initialBanner),
+    () => {
+      if (toValue(initialBanner)) {
+        banner.value = {
+          ...toValue(initialBanner!),
+          dateTimestamp: timestamp
+        }
       }
-      originalBanner = toValue(initialBanner)
+      originalBanner = structuredClone({ ...banner.value })
+    },
+    {
+      immediate: true
     }
-  })
+  )
 
   const isModified = ref(false)
 
   watch(
-    [
-      () => banner.value.name,
-      () => banner.value.imgPath,
-      () => banner.value.link,
-      () => banner.value.categoryId
-    ],
-    ([newName, newImgPath, newLink, newCatId], [oldName, oldImgPath, oldLink, oldCatId]) => {
-      isModified.value =
-        (newName !== oldName && newName !== originalBanner?.name) ||
-        (newImgPath !== oldImgPath && newImgPath !== originalBanner?.imgPath) ||
-        (newLink !== oldLink && newLink !== originalBanner?.link) ||
-        (newCatId !== oldCatId && newCatId !== originalBanner?.categoryId)
+    banner,
+    () => {
+      console.log({ banner: banner.value, originalBanner })
+      isModified.value = !isEqual(banner.value, originalBanner)
+    },
+    {
+      deep: true
     }
   )
 

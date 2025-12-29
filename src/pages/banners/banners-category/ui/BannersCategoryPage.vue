@@ -13,12 +13,11 @@ const { catId } = route.params
 const navStore = useNavStore()
 
 const title = computed(() => {
-  return navStore.currentNavigationMenu?.items.find((i) => i.id === parseInt(catId as string))
-    ?.label
+  return navStore.currentNavigationMenu?.items.find((i) => i.id === Number(catId as string))?.label
 })
 
 const { data, page, setPage, execute } = await useBannersCategory(
-  catId as string,
+  Number(catId as string),
   navStore.activeResource
 )
 
@@ -34,7 +33,6 @@ function toggleEditCategory() {
 
 async function updateCategoryHandler() {
   await navStore.loadMenu(navStore.activeResource)
-  // updateBannerHandler()
 }
 </script>
 

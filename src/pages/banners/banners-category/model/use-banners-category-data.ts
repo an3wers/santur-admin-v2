@@ -1,8 +1,8 @@
 import { getBannersCategoryKey, useBannerApi } from '@/entities/banner'
 
 export const useBannersCategory = async (
-  catId: MaybeRef<string | number>,
-  app: MaybeRef<string>
+  catId: MaybeRefOrGetter<number>,
+  app: MaybeRefOrGetter<string>
 ) => {
   const page = ref(1)
   const search = ref('')
@@ -10,12 +10,12 @@ export const useBannersCategory = async (
 
   const api = useBannerApi()
   const { data, status, execute } = await useAsyncData(
-    getBannersCategoryKey(unref(catId)),
+    getBannersCategoryKey(toValue(catId)),
     () =>
       api.getBanners({
-        app: unref(app),
-        categoryId: unref(catId),
-        page: String(page.value),
+        app: toValue(app),
+        categoryId: toValue(catId),
+        page: page.value,
         search: search.value,
         sort: sort.value
       }),

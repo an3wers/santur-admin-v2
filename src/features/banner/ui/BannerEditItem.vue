@@ -23,19 +23,11 @@ import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import type { Banner } from '~/entities/banner'
 import { userEditBannerItem } from '../model/use-edit-banner-item'
 import { MediaList, type MediaListItem } from '@/entities/media'
-// import type { Banner } from '~/entities/banner'
-
-// const model = defineModel<Banner>('state')
 
 const { ownerId, banner = undefined } = defineProps<{
   ownerId: number
   banner?: Banner
 }>()
-
-// defineEmits<{
-//   (e: 'onSelectMedia'): void
-//   (e: 'onRemoveMedia'): void
-// }>()
 
 const {
   banner: bannerItem,

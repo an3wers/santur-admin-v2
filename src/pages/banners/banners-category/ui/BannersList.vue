@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { NCard, NList, NP, NPagination } from 'naive-ui'
-import type { BannersListItem as BannersListItemType } from '@/features/banner'
 import BannersListItem from './BannersListItem.vue'
+import type { Banners } from '~/entities/banner'
 
 const { banners, ownertId } = defineProps<{
-  banners: BannersListItemType[]
+  banners: Banners['items']
   ownertId: number
   page: number
   totalPages: number
@@ -23,10 +23,9 @@ defineEmits<{
         v-for="banner in banners"
         :key="banner.id"
         :banner="banner"
-        :ownert-id="ownertId"
+        :owner-id="ownertId"
         @on-update="$emit('onUpdate')"
       />
-      <!-- TODO: Постраничная навигация -->
       <div class="pagination-container">
         <NPagination
           :page="page"

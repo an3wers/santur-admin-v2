@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
-import {
-  type BannersListItem,
-  useUpdateOrderBanner,
-  useCopyBanner,
-  useRemoveBanner
-} from '@/features/banner'
+import { useUpdateOrderBanner, useCopyBanner, useRemoveBanner } from '@/features/banner'
 import { NIcon, NListItem, NText, NDropdown, NButton, NImage, NInputNumber } from 'naive-ui'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
+import type { Banners } from '~/entities/banner'
 
-const { banner: item, ownertId } = defineProps<{
-  banner: BannersListItem
-  ownertId: number
+const { banner: item, ownerId } = defineProps<{
+  banner: Banners['items'][number]
+  ownerId: number
 }>()
 
 const emit = defineEmits<{
@@ -43,7 +39,7 @@ function handleDropdown(key: MenuKeys, itemId: number) {
 }
 
 function editBanner(id: number) {
-  return navigateTo(`${ownertId}/${id}`)
+  return navigateTo(`${ownerId}/${id}`)
 }
 
 const { makeCopy, status: copyStatus } = useCopyBanner()
@@ -90,7 +86,7 @@ async function changeOrder(value: number | null) {
       </div>
       <div class="item-base">
         <div class="item-title">
-          <nuxt-link :to="`${ownertId}/${item.id}`">
+          <nuxt-link :to="`${ownerId}/${item.id}`">
             <h4>{{ item.name }}</h4>
           </nuxt-link>
         </div>
