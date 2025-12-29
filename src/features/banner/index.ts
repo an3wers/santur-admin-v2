@@ -4,4 +4,4 @@ export { useRemoveBanner } from './model/use-remove-banner'
 export { useSaveBanner } from './model/use-save-banner'
 export { useUpdateOrderBanner } from './model/use-update-order-banner'
 
-export type { BannerItem, BannersList, BannersListItem } from './model/types'
+// export type { BannerItem, BannersList, BannersListItem } from './model/types'

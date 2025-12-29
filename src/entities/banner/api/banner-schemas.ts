@@ -28,7 +28,7 @@ export const bannersSchema = z.object({
   totalCount: z.number()
 })
 
-export type BannersResp = z.infer<typeof bannersSchema>
+export type Banners = z.infer<typeof bannersSchema>
 
 export interface SaveBannerReq {
   id: number
@@ -41,13 +41,15 @@ export interface SaveBannerReq {
   descr: string
 }
 
-export interface BannerResp {
-  id: number
-  imgPath: string
-  link: string
-  name: string
-  order: number
-  regDate: string
-  nn: number
-  categoryId: number
-}
+export const bannerSchema = z.object({
+  id: z.number(),
+  imgPath: z.string(),
+  link: z.string(),
+  name: z.string(),
+  order: z.number(),
+  regDate: z.string(),
+  nn: z.number(),
+  categoryId: z.number()
+})
+
+export type Banner = z.infer<typeof bannerSchema>

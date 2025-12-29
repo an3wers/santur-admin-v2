@@ -1,10 +1,9 @@
-import { useBannerApi } from '@/entities/banner'
-import type { BannerItem } from './types'
+import { useBannerApi, type Banner } from '@/entities/banner'
 
 export const userEditBannerItem = ({ catId }: { catId: number }) => {
-  const originalBanner = shallowRef<BannerItem | null>(null)
+  const originalBanner = shallowRef<Banner | null>(null)
 
-  const banner = reactive<BannerItem & { dateTimestamp: number }>({
+  const banner = reactive<Banner & { dateTimestamp: number }>({
     categoryId: catId,
     dateTimestamp: Date.now(),
     id: 0,
@@ -17,13 +16,14 @@ export const userEditBannerItem = ({ catId }: { catId: number }) => {
   })
 
   const status = ref<ProcessStatus>('idle')
+
+  // TODO: можно сделать рефакторинг
   const isModified = ref(false)
 
   watch(
     [() => banner.name, () => banner.imgPath, () => banner.link, () => banner.categoryId],
     ([newName, newImgPath, newLink, newCatId], [oldName, oldImgPath, oldLink, oldCatId]) => {
       if ((status.value === 'success' && oldName !== '') || status.value === 'idle') {
-        // console.log({ newName, oldName, org: originalBanner.value?.name })
         isModified.value =
           (newName !== oldName && newName !== originalBanner.value?.name) ||
           (newImgPath !== oldImgPath && newImgPath !== originalBanner.value?.imgPath) ||
@@ -34,12 +34,17 @@ export const userEditBannerItem = ({ catId }: { catId: number }) => {
   )
 
   const api = useBannerApi()
+
+  // TODO: можно ли заменить на useAsyncData?
   async function loadBanner(id: number) {
     try {
       status.value = 'pending'
-      const res = await api.getBanner(id)
-      Object.assign(banner, res)
-      originalBanner.value = res
+      const data = await api.getBanner(id)
+
+      // ??
+      Object.assign(banner, data)
+      originalBanner.value = data
+
       status.value = 'success'
     } catch (error) {
       console.error(error)
