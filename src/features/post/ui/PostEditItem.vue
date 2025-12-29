@@ -17,7 +17,8 @@ import {
   NUploadDragger,
   NText,
   NP,
-  NImage
+  NImage,
+  type UploadFileInfo
 } from 'naive-ui'
 import type { PostItem } from '../model/types'
 import { useNavStore } from '~/shared/navigation'
@@ -34,7 +35,7 @@ const model = defineModel<PostItem>('state', { required: true })
 const previewImageUrl = ref('')
 const previewImageName = ref('')
 
-const handleUploadChange = ({file}) => {
+const handleUploadChange = (file: UploadFileInfo) => {
   if (file.file) {
     model.value.previewImage = file.file
     previewImageName.value = file.name
@@ -140,17 +141,17 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-    console.log('model.value', model.value)
     await savePost({
       id: model.value.id,
       title: model.value.title,
       descr: model.value.descr,
       content: model.value.content,
       categoryId: model.value.categoryId,
-      published: model.value.published ? 'Y' : 'N',
+      published: model.value.published,
       extFields: model.value.extFields,
       alias: model.value.alias,
       date: formattedDateForServer(new Date(model.value.dateTimestamp)),
+      dateTimestamp: model.value.dateTimestamp,
       previewImgUrl: model.value.previewImgUrl,
       ...(model.value.previewImage && { previewImage: model.value.previewImage })
     })
@@ -203,10 +204,9 @@ console.log('model.value', model.value)
             <div>
               <n-upload
                 style="height: 100%"
-                action="/api/upload"
                 :show-file-list="false"
                 directory-dnd
-                @change="handleUploadChange"
+                @change="(payload) => handleUploadChange(payload.file)"
               >
                 <n-upload-dragger>
                   <div

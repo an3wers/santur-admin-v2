@@ -1,5 +1,5 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { GetPostsReq, PostsResp, PostDetailResp } from './post-schemas'
+import type { GetPostsReq, PostsResp, PostDetailResp, SavePostReq } from './post-schemas'
 
 // TODO: Добавить Zod валидацию
 export const usePostApi = () => {
@@ -21,11 +21,29 @@ export const usePostApi = () => {
     return checkError(res).data
   }
 
-  async function savePost(data: FormData) {
+  async function savePost(data: SavePostReq) {
     const res = await fetchWithToken<unknown>('AdminContent/SavePost2', {
       method: 'POST',
-      body: data
+      body: createPost(data)
     })
+    function createPost(data: SavePostReq) {
+      const formdata = new FormData()
+      formdata.append('id', data.id.toString())
+      formdata.append('title', data.title)
+      formdata.append('alias', data.alias)
+      formdata.append('descr', data.descr)
+      formdata.append('content', data.content)
+      formdata.append('categoryId', data.categoryId.toString())
+      formdata.append('published', data.published)
+      formdata.append('date', data.date)
+      formdata.append('extFields', JSON.stringify(data.extFields))
+      formdata.append('previewImgUrl', data.previewImgUrl)
+      if (data.previewImage) {
+        const file = data.previewImage
+        formdata.append('previewImage', file)
+      }
+      return formdata
+    }
 
     return checkError(res).data
   }

@@ -16,7 +16,8 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
     descr: '',
     extFields: [],
     published: false,
-    previewImgUrl: ''
+    previewImgUrl: '',
+    previewImage: undefined
   })
 
   const isModified = ref(false)
@@ -58,9 +59,12 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
           dateTimestamp: getTimestamp(res.regDate),
           descr: res.description,
           extFields: res.extFields ?? [],
-          published: res.status === 'published'
+          published: res.status === 'published',
+          previewImgUrl: res.previewImgUrl
         })
       )
+
+
 
       status.value = 'success'
     } catch (error) {
