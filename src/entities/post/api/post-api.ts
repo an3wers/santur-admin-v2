@@ -1,27 +1,36 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { GetPostsReq, PostsResp, PostDetailResp, SavePostReq } from './post-schemas'
+import {
+  type GetPostsReq,
+  type SavePostReq,
+  type Post,
+  type Posts,
+  postsSchema,
+  postSchema
+} from './post-schemas'
 
-// TODO: Добавить Zod валидацию
 export const usePostApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
   async function getPosts(data: GetPostsReq) {
-    const res = await fetchWithToken<PostsResp>('AdminContent/GetPosts', {
+    const res = await fetchWithToken<Posts>('AdminContent/GetPosts', {
       query: data
     })
-    return checkError(res).data
+
+    const _data = checkError(res).data
+    return postsSchema.parse(_data)
   }
 
   async function getPost(postId: number) {
     const query = new URLSearchParams({
       id: postId.toString()
     })
-    const res = await fetchWithToken<PostDetailResp>(`AdminContent/GetPost?${query.toString()}`)
-
-    return checkError(res).data
+    const res = await fetchWithToken<Post>(`AdminContent/GetPost?${query.toString()}`)
+    const _data = checkError(res).data
+    return postSchema.parse(_data)
   }
 
   async function savePost(data: SavePostReq) {
+    // TODO: типизировать ответ
     const res = await fetchWithToken<unknown>('AdminContent/SavePost2', {
       method: 'POST',
       body: createPost(data)
@@ -53,6 +62,7 @@ export const usePostApi = () => {
       id: postId.toString()
     })
 
+    // TODO: типизировать ответ
     const res = await fetchWithToken<unknown>(`AdminContent/DeletePost?${query.toString()}`)
 
     return checkError(res).data
@@ -77,7 +87,7 @@ export const usePostApi = () => {
       order: String(order)
     })
 
-    // TODO: Типизировать + zod валидация
+    // TODO: типизировать ответ
     const res = await fetchWithToken<unknown>(`AdminContent/UpdateOrder?${query.toString()}`)
     return checkError(res).data
   }
