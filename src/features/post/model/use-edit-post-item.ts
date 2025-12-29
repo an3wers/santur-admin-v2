@@ -15,16 +15,21 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
     dateTimestamp: Date.now(),
     descr: '',
     extFields: [],
-    published: false
+    published: false,
+    previewImgUrl: '',
+    previewImage: undefined
   })
 
-  const isModified = ref(false)
+  const isModified = ref(true)
 
-  watch(postItem, (newValue, oldValue) => {
-    if ((status.value === 'success' && oldValue.title !== '') || status.value === 'idle') {
-      isModified.value = !(isEqual(newValue, oldValue) && isEqual(newValue, originalPost))
-    }
-  })
+  // TODO: Реализовать проверку на изменения
+  // сейчас впринципе некорректно работает, так как postItem всегда указывает на один и тот же объект - newValue, oldValue всегда будут равны
+  // также доработать проверка с учетом поля previewImage, originalPost не содержит этого поля
+  // watch(postItem, (newValue, oldValue) => {
+  //   if ((status.value === 'success' && oldValue.title !== '') || status.value === 'idle') {
+  //     isModified.value = !(isEqual(newValue, oldValue) && isEqual(newValue, originalPost))
+  //   }
+  // })
 
   const status = ref<ProcessStatus>('idle')
 
@@ -44,6 +49,7 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
       postItem.published = res.status === 'published'
       postItem.descr = res.description
       postItem.dateTimestamp = getTimestamp(res.regDate)
+      postItem.previewImgUrl = res.previewImgUrl
 
       originalPost = JSON.parse(
         JSON.stringify({
@@ -56,7 +62,8 @@ export const usePostEditItem = ({ catId }: { catId: number }) => {
           dateTimestamp: getTimestamp(res.regDate),
           descr: res.description,
           extFields: res.extFields ?? [],
-          published: res.status === 'published'
+          published: res.status === 'published',
+          previewImgUrl: res.previewImgUrl
         })
       )
 

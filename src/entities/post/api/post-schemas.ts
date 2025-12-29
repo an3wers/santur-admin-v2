@@ -53,6 +53,7 @@ export interface PostDetailResp {
   status: string // "" or "published"
   extFields: ExtFieldsValue[] | null
   order: number
+  previewImgUrl: string
 }
 
 export interface SavePostReq {
@@ -65,4 +66,6 @@ export interface SavePostReq {
   date: string // example: 26.06.2023
   extFields: ExtFields[]
   published: 'Y' | 'N'
+  previewImage?: File
+  previewImgUrl: string
 }
