@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useNavStore } from '~/shared/navigation'
-import type { BannerItem } from '../model/types'
 import {
   NCard,
   NForm,
@@ -11,31 +10,42 @@ import {
   NButton,
   NSelect,
   type FormInst,
-  type FormItemRule,
   useMessage,
   NSpace,
   NIcon,
-  NInputGroup
+  NInputGroup,
+  NModal
 } from 'naive-ui'
 import { useSaveBanner } from '../model/use-save-banner'
 import { useRemoveBanner } from '../model/use-remove-banner'
 import { Check, Copy } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
+import type { Banner } from '~/entities/banner'
+import { userEditBannerItem } from '../model/use-edit-banner-item'
+import { MediaList, type MediaListItem } from '@/entities/media'
+// import type { Banner } from '~/entities/banner'
 
-const model = defineModel<BannerItem>('state')
+// const model = defineModel<Banner>('state')
 
-// TODO: ownertId -> ownerId
-const { isModified, ownertId } = defineProps<{
-  isModified: boolean
-  ownertId: number
+const { ownerId, banner = undefined } = defineProps<{
+  ownerId: number
+  banner?: Banner
 }>()
 
-defineEmits<{
-  (e: 'onSelectMedia'): void
-  (e: 'onRemoveMedia'): void
-}>()
+// defineEmits<{
+//   (e: 'onSelectMedia'): void
+//   (e: 'onRemoveMedia'): void
+// }>()
+
+const {
+  banner: bannerItem,
+  selectMedia,
+  removeMedia,
+  isModified
+} = userEditBannerItem(ownerId, banner)
 
 const copyToClipboard = useCopyToClipboard()
+
 const navStore = useNavStore()
 
 const categoryOptions = computed(() => {
@@ -48,6 +58,7 @@ const categoryOptions = computed(() => {
 })
 
 const formRef = ref<FormInst | null>(null)
+
 const formRules = {
   name: {
     required: true,
@@ -60,14 +71,13 @@ const formRules = {
     trigger: ['change', 'blur']
   },
   categoryId: {
-    required: false,
-    message: 'Выберите категорию',
-    trigger: ['change', 'blur'],
+    required: false
     // Закаментировано т.к. в случае добавление баннера в мобильные приложения, категория не указывается из-за того что в мобильных приложениях нет категорий
-    // required: false по этой же причине
     // TODO: Придумать решение разделное: для сайта и мобильных приложений
+    // message: 'Выберите категорию',
+    // trigger: ['change', 'blur'],
     // validator: (_rule: FormItemRule, value: any) => value !== 0
-    validator: (_rule: FormItemRule, _value: any) => true // value !== 0
+    // validator: (_rule: FormItemRule, _value: any) => true // value !== 0
   }
 }
 
@@ -82,18 +92,7 @@ async function saveHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
-    if (!model.value) return
-
-    await save({
-      categoryId: model.value.categoryId,
-      id: model.value.id,
-      app: navStore.activeResource,
-      descr: '',
-      imgPath: model.value.imgPath,
-      link: model.value.link,
-      name: model.value.name,
-      nn: model.value.nn
-    })
+    await save({ ...bannerItem.value, app: navStore.activeResource, descr: '' })
 
     if (saveStatus.value === 'error') {
       throw new Error('Ошибка сохранения')
@@ -101,7 +100,7 @@ async function saveHandler() {
 
     if (saveStatus.value === 'success') {
       message.success('Баннер сохранен')
-      return navigateTo({ path: `/banners/${ownertId}` })
+      return navigateTo({ path: `/banners/${ownerId}` })
     }
   } catch (error) {
     if (Array.isArray(error)) {
@@ -118,23 +117,18 @@ async function saveHandler() {
 const { remove, status: removeStatus } = useRemoveBanner()
 
 async function removeHandler() {
-  if (!model.value) return
-
   if (!confitmation('delete')) return
 
-  await remove(model.value.id)
+  await remove(bannerItem.value.id)
 
   if (removeStatus.value === 'success') {
-    return navigateTo({ path: `/banners/${ownertId}` })
+    return navigateTo({ path: `/banners/${ownerId}` })
   }
 }
 
 function cancelHandler() {
-  if (!model.value) return
-
   if (isModified && !confitmation('cancel')) return
-
-  return navigateTo({ path: `/banners/${ownertId}` })
+  return navigateTo({ path: `/banners/${ownerId}` })
 }
 
 function confitmation(action: 'delete' | 'cancel') {
@@ -155,29 +149,41 @@ function confitmation(action: 'delete' | 'cancel') {
   const isConfirm = confirm(message)
   return isConfirm
 }
+
+const hasMediaManagerModel = ref(false)
+
+function showMediaManager() {
+  hasMediaManagerModel.value = true
+}
+
+function selectMediaHandler(media: MediaListItem) {
+  selectMedia(media.imgPath)
+  hasMediaManagerModel.value = false
+}
 </script>
 
 <template>
   <n-card>
-    <n-form ref="formRef" :model="model" :rules="formRules" v-if="model">
+    <n-form ref="formRef" :model="bannerItem" :rules="formRules">
       <n-form-item label="Заголовок" path="name">
-        <n-input v-model:value="model.name" placeholder="Введите заголовок" />
+        <n-input v-model:value="bannerItem.name" placeholder="Введите заголовок" />
       </n-form-item>
 
       <n-form-item label="Категория" path="categoryId">
-        <n-select v-model:value="model.categoryId" :options="categoryOptions"></n-select>
+        <n-select v-model:value="bannerItem.categoryId" :options="categoryOptions"></n-select>
       </n-form-item>
 
       <div class="image-container">
         <div class="image-container__preview">
-          <img v-if="model?.imgPath" :src="model.imgPath" />
+          <img v-if="bannerItem.imgPath" :src="bannerItem.imgPath" />
           <div v-else class="image-container__preview-empty">
             <n-text depth="3">Изображение не выбрано</n-text>
           </div>
-          <n-p class="text-info" v-if="model?.categoryId === 30"
+          <!-- TODO: Реализовать динамический систему рекомендаций баннеров в зависимости от типа и категории -->
+          <n-p class="text-info" v-if="bannerItem.categoryId === 30"
             >Рекомендуемый размер: 1505×404 px</n-p
           >
-          <n-p class="text-info" v-if="model?.categoryId === 29"
+          <n-p class="text-info" v-if="bannerItem.categoryId === 29"
             >Рекомендуемый размер: 1505×220 px</n-p
           >
         </div>
@@ -185,23 +191,26 @@ function confitmation(action: 'delete' | 'cancel') {
           <n-form-item label="Ссылка на изображение" path="imgPath">
             <n-input-group>
               <n-input
-                v-model:value="model.imgPath"
+                v-model:value="bannerItem.imgPath"
                 :readonly="true"
                 placeholder="Cсылка на изображение"
               />
-              <n-button ghost @click.stop="copyToClipboard(model.imgPath)">
+              <n-button ghost @click.stop="copyToClipboard(bannerItem.imgPath)">
                 <n-icon size="20px" :component="Copy" />
               </n-button>
             </n-input-group>
           </n-form-item>
           <div class="image-container__btns-select">
-            <n-button @click="$emit('onSelectMedia')" type="primary">Выбрать изображение</n-button>
-            <n-button secondary type="primary" @click="$emit('onRemoveMedia')">Очистить</n-button>
+            <n-button @click="showMediaManager" type="primary">Выбрать изображение</n-button>
+            <n-button secondary type="primary" @click="removeMedia">Очистить</n-button>
           </div>
           <n-form-item label="Ссылка для перехода" path="link">
             <n-input-group>
-              <n-input v-model:value="model.link" placeholder="https://santur.ru/about/company" />
-              <n-button ghost @click.stop="copyToClipboard(model.link)">
+              <n-input
+                v-model:value="bannerItem.link"
+                placeholder="https://santur.ru/about/company"
+              />
+              <n-button ghost @click.stop="copyToClipboard(bannerItem.link)">
                 <n-icon size="20px" :component="Copy" />
               </n-button>
             </n-input-group>
@@ -212,7 +221,7 @@ function confitmation(action: 'delete' | 'cancel') {
     <template #action>
       <n-space justify="space-between">
         <n-button
-          v-show="model?.id"
+          v-show="!!bannerItem.id"
           @click="removeHandler"
           :disabled="removeStatus === 'pending'"
           :loading="removeStatus === 'pending'"
@@ -244,6 +253,18 @@ function confitmation(action: 'delete' | 'cancel') {
         </n-space>
       </n-space>
     </template>
+
+    <n-modal
+      style="margin: 24px"
+      title="Выберите изображение"
+      size="huge"
+      preset="card"
+      :bordered="false"
+      :show="hasMediaManagerModel"
+      @close="hasMediaManagerModel = false"
+    >
+      <media-list media-view-mode="select" @on-media-select="selectMediaHandler"></media-list>
+    </n-modal>
   </n-card>
 </template>
 

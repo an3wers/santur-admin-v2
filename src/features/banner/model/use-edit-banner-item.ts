@@ -1,64 +1,62 @@
-import { useBannerApi, type Banner } from '@/entities/banner'
+import type { Banner } from '@/entities/banner'
+import { isEqual } from '~/shared/libs/is-equal'
 
-export const userEditBannerItem = ({ catId }: { catId: number }) => {
-  const originalBanner = shallowRef<Banner | null>(null)
+export const userEditBannerItem = (
+  catId: MaybeRefOrGetter<number>,
+  initialBanner?: MaybeRefOrGetter<Banner>
+) => {
+  interface BannerItem extends Omit<Banner, 'app' | 'descr'> {
+    dateTimestamp: number
+  }
 
-  const banner = reactive<Banner & { dateTimestamp: number }>({
-    categoryId: catId,
-    dateTimestamp: Date.now(),
+  let originalBanner: Omit<Banner, 'app' | 'descr'> | null = null // shallowRef<Banner | null>(null)
+
+  const banner = ref<BannerItem>({
+    categoryId: toValue(catId),
     id: 0,
     imgPath: '',
     link: '',
     name: '',
     nn: 0,
-    order: 0,
-    regDate: ''
+    dateTimestamp: Date.now()
   })
 
-  const status = ref<ProcessStatus>('idle')
+  // init banner and originalBanner from initialBanner
+  watchEffect(() => {
+    if (initialBanner && toValue(initialBanner)) {
+      banner.value = {
+        ...toValue(initialBanner),
+        dateTimestamp: Date.now()
+      }
+      originalBanner = toValue(initialBanner)
+    }
+  })
 
-  // TODO: можно сделать рефакторинг
   const isModified = ref(false)
 
   watch(
-    [() => banner.name, () => banner.imgPath, () => banner.link, () => banner.categoryId],
+    [
+      () => banner.value.name,
+      () => banner.value.imgPath,
+      () => banner.value.link,
+      () => banner.value.categoryId
+    ],
     ([newName, newImgPath, newLink, newCatId], [oldName, oldImgPath, oldLink, oldCatId]) => {
-      if ((status.value === 'success' && oldName !== '') || status.value === 'idle') {
-        isModified.value =
-          (newName !== oldName && newName !== originalBanner.value?.name) ||
-          (newImgPath !== oldImgPath && newImgPath !== originalBanner.value?.imgPath) ||
-          (newLink !== oldLink && newLink !== originalBanner.value?.link) ||
-          (newCatId !== oldCatId && newCatId !== originalBanner.value?.categoryId)
-      }
+      isModified.value =
+        (newName !== oldName && newName !== originalBanner?.name) ||
+        (newImgPath !== oldImgPath && newImgPath !== originalBanner?.imgPath) ||
+        (newLink !== oldLink && newLink !== originalBanner?.link) ||
+        (newCatId !== oldCatId && newCatId !== originalBanner?.categoryId)
     }
   )
 
-  const api = useBannerApi()
-
-  // TODO: можно ли заменить на useAsyncData?
-  async function loadBanner(id: number) {
-    try {
-      status.value = 'pending'
-      const data = await api.getBanner(id)
-
-      // ??
-      Object.assign(banner, data)
-      originalBanner.value = data
-
-      status.value = 'success'
-    } catch (error) {
-      console.error(error)
-      status.value = 'error'
-    }
-  }
-
   function selectMedia(imagePath: string) {
-    banner.imgPath = imagePath
+    banner.value.imgPath = imagePath
   }
 
   function removeMedia() {
-    banner.imgPath = ''
+    banner.value.imgPath = ''
   }
 
-  return { loadBanner, banner, status, selectMedia, removeMedia, isModified }
+  return { banner, selectMedia, removeMedia, isModified }
 }

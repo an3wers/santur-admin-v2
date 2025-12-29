@@ -1,10 +1,10 @@
-import { useBannerApi, type SaveBannerReq } from '@/entities/banner'
+import { useBannerApi, type Banner } from '@/entities/banner'
 
 export const useSaveBanner = () => {
   const status = ref<ProcessStatus>('idle')
   const api = useBannerApi()
 
-  async function save(data: SaveBannerReq) {
+  async function save(data: Banner) {
     try {
       status.value = 'pending'
       await api.saveBanner(data)

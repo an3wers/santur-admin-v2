@@ -1,24 +1,25 @@
 import { z } from 'zod'
 
-export interface BannersOptionsReq {
-  app: string
-  categoryId: string | number
-  page: string | number
-  search: string
-  sort: string
-}
+export const bannerSchema = z.object({
+  app: z.string(),
+  descr: z.string(),
+  id: z.number(),
+  name: z.string(),
+  link: z.string(),
+  imgPath: z.string(),
+  nn: z.number(),
+  categoryId: z.number()
+})
+
+export type Banner = z.infer<typeof bannerSchema>
 
 export const bannersSchema = z.object({
   currentPage: z.number(),
   extendedData: z.unknown(),
   items: z.array(
     z.object({
-      categoryId: z.number(),
+      ...bannerSchema.omit({ nn: true, app: true, descr: true }).shape,
       categoryName: z.string(),
-      id: z.number(),
-      imgPath: z.string(),
-      link: z.string(),
-      name: z.string(),
       order: z.number(),
       regDate: z.string()
     })
@@ -30,6 +31,14 @@ export const bannersSchema = z.object({
 
 export type Banners = z.infer<typeof bannersSchema>
 
+export interface GetBannersReq {
+  app: string
+  categoryId: number
+  page: number
+  search: string
+  sort: string
+}
+
 export interface SaveBannerReq {
   id: number
   name: string
@@ -40,16 +49,3 @@ export interface SaveBannerReq {
   app: string
   descr: string
 }
-
-export const bannerSchema = z.object({
-  id: z.number(),
-  imgPath: z.string(),
-  link: z.string(),
-  name: z.string(),
-  order: z.number(),
-  regDate: z.string(),
-  nn: z.number(),
-  categoryId: z.number()
-})
-
-export type Banner = z.infer<typeof bannerSchema>

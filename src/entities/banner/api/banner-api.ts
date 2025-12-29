@@ -1,5 +1,5 @@
 import {
-  type BannersOptionsReq,
+  type GetBannersReq,
   type Banners,
   bannersSchema,
   bannerSchema,
@@ -10,7 +10,7 @@ import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 
 export const useBannerApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
-  async function getBanners(options: BannersOptionsReq): Promise<Banners> {
+  async function getBanners(options: GetBannersReq): Promise<Banners> {
     const query = new URLSearchParams({
       ...options,
       page: options.page.toString(),
@@ -44,7 +44,6 @@ export const useBannerApi = () => {
       method: 'POST',
       body: formData
     })
-    // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
 
@@ -54,18 +53,16 @@ export const useBannerApi = () => {
     })
 
     const res = await fetchWithToken<unknown>(`AdminContent/DeleteBanner?${query.toString()}`)
-    // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
 
-  // TODO: Валидный запрос возвращает ошибку, но при этом создает компию - разбираться с проблемой
+  // TODO: разбираться с проблемой - валидный запрос возвращает ошибку, но при этом создает компию
   async function copyBanner(id: number) {
     const query = new URLSearchParams({
       id: String(id)
     })
 
     const res = await fetchWithToken<unknown>(`AdminContent/CopyBannerV2?${query.toString()}`)
-    // TODO: типизировавть + zod валидация
     return checkError(res).data
   }
 
@@ -78,7 +75,6 @@ export const useBannerApi = () => {
       order: String(order)
     })
 
-    // TODO: Типизировать + zod валидация
     const res = await fetchWithToken<unknown>(`AdminContent/UpdateOrder?${query.toString()}`)
     return checkError(res).data
   }

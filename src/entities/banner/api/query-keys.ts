@@ -1,1 +1,1 @@
-export const getBannersCategoryKey = (catId: string | number) => `banners-category-${catId}`
+export const getBannersCategoryKey = (catId: number) => `banners-category-${catId}`

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NSpace, NH1, NModal } from 'naive-ui'
-import { MediaList, type MediaListItem } from '@/entities/media'
-import { userEditBannerItem } from '~/features/banner'
+// import { MediaList, type MediaListItem } from '@/entities/media'
+// import { userEditBannerItem } from '~/features/banner'
 import BannerEditItem from '~/features/banner/ui/BannerEditItem.vue'
 
 const title = ref('Новый баннер')
@@ -9,19 +9,21 @@ const title = ref('Новый баннер')
 const route = useRoute()
 
 const { catId } = route.params
-const { banner, removeMedia, selectMedia, isModified } = userEditBannerItem({
-  catId: parseInt(catId as string)
-})
 
-const hasMediaManagerModel = ref(false)
-function showMediaManager() {
-  hasMediaManagerModel.value = true
-}
+// TODO: Унести в компонент отвечающий за редактирование баннера
+// const { banner, removeMedia, selectMedia, isModified } = userEditBannerItem({
+//   catId: parseInt(catId as string)
+// })
 
-function selectMediaHandler(media: MediaListItem) {
-  selectMedia(media.imgPath)
-  hasMediaManagerModel.value = false
-}
+// const hasMediaManagerModel = ref(false)
+// function showMediaManager() {
+//   hasMediaManagerModel.value = true
+// }
+
+// function selectMediaHandler(media: MediaListItem) {
+//   selectMedia(media.imgPath)
+//   hasMediaManagerModel.value = false
+// }
 </script>
 
 <template>
@@ -33,15 +35,9 @@ function selectMediaHandler(media: MediaListItem) {
         </template>
       </page-title>
 
-      <BannerEditItem
-        v-model:state="banner"
-        :is-modified="isModified"
-        :ownert-id="parseInt(catId as string)"
-        @on-select-media="showMediaManager"
-        @on-remove-media="removeMedia"
-      />
+      <BannerEditItem :owner-id="Number(catId as string)" />
     </n-space>
-    <n-modal
+    <!-- <n-modal
       style="margin: 24px"
       title="Выберите изображение"
       size="huge"
@@ -51,7 +47,7 @@ function selectMediaHandler(media: MediaListItem) {
       @close="hasMediaManagerModel = false"
     >
       <media-list media-view-mode="select" @on-media-select="selectMediaHandler"></media-list>
-    </n-modal>
+    </n-modal> -->
   </div>
 </template>
 
