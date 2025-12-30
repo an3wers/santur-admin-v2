@@ -2,31 +2,31 @@ import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import {
   type GetPostsReq,
   type SavePostReq,
-  type Post,
-  type Posts,
-  postsSchema,
-  postSchema
+  type PostItem,
+  type PostsList,
+  postsListSchema,
+  postItemSchema
 } from './post-schemas'
 
 export const usePostApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
   async function getPosts(data: GetPostsReq) {
-    const res = await fetchWithToken<Posts>('AdminContent/GetPosts', {
+    const res = await fetchWithToken<PostsList>('AdminContent/GetPosts', {
       query: data
     })
 
     const _data = checkError(res).data
-    return postsSchema.parse(_data)
+    return postsListSchema.parse(_data)
   }
 
   async function getPost(postId: number) {
     const query = new URLSearchParams({
       id: postId.toString()
     })
-    const res = await fetchWithToken<Post>(`AdminContent/GetPost?${query.toString()}`)
+    const res = await fetchWithToken<PostItem>(`AdminContent/GetPost?${query.toString()}`)
     const _data = checkError(res).data
-    return postSchema.parse(_data)
+    return postItemSchema.parse(_data)
   }
 
   async function savePost(data: SavePostReq) {

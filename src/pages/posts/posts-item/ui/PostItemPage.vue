@@ -1,22 +1,32 @@
 <script setup lang="ts">
 import PostEditItem from '@/features/post/ui/PostEditItem.vue'
-import { usePostEditItem } from '@/features/post'
 import { NSpace, NH1 } from 'naive-ui'
+import { usePostApi } from '~/entities/post'
 
 const route = useRoute()
 const { itemId, catId } = route.params
 const title = ref('')
 
-const { postItem, status, loadPostItem, isModified } = usePostEditItem({ catId: Number(catId) })
+const { getPost } = usePostApi()
 
-await loadPostItem(Number(itemId))
+const {
+  data: postItem,
+  status,
+  error
+} = await useAsyncData(`post-item-${String(itemId)}`, () => getPost(Number(itemId as string)), {
+  lazy: false
+})
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'Произошла ошибка на странице', statusCode: 400, fatal: true })
+  throw createError({
+    statusCode: 400,
+    fatal: true,
+    statusMessage: error.value?.message || 'Произошла ошибка на странице'
+  })
 }
 
-if (status.value === 'success') {
-  title.value = postItem?.title ?? ''
+if (status.value === 'success' && postItem.value) {
+  title.value = postItem.value.title
 }
 </script>
 
@@ -28,11 +38,7 @@ if (status.value === 'success') {
           <n-h1>{{ title }}</n-h1>
         </template>
       </page-title>
-      <PostEditItem
-        v-model:state="postItem"
-        :is-modified="isModified"
-        :owner-id="parseInt(catId as string)"
-      />
+      <PostEditItem :post-item="postItem ?? undefined" :owner-id="Number(catId as string)" />
     </n-space>
   </div>
 </template>

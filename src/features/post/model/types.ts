@@ -1,37 +1,9 @@
-export interface ExtFields {
-  id: number
-  title: string
-  extFieldId: number
-  value: string
-}
+import type { PostItem } from '~/entities/post'
 
-export interface PostItem {
-  id: number
-  title: string
-  alias: string
-  descr: string
-  content: string
-  categoryId: number
-  date: string // example: 26.06.2023
-  dateTimestamp: number
-  extFields: ExtFields[]
+export interface PostItemModel extends Omit<
+  PostItem,
+  'author' | 'authorId' | 'order' | 'status' | 'regDate'
+> {
+  timestamp: number
   published: boolean
-  previewImage?: File
-  previewImgUrl: string
-}
-
-
-export interface PostListItem {
-  id: number
-  title: string
-  alias: string
-  description: string
-  author: string | null
-  regDate: string
-  regDateS: string
-  isPublished: boolean
-  order: number
-  categoryId: number
-  categoryName: string
-  extFields: ExtFields[] | null
 }

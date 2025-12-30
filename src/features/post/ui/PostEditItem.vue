@@ -20,46 +20,36 @@ import {
   NImage,
   type UploadFileInfo
 } from 'naive-ui'
-import type { PostItem } from '../model/types'
 import { useNavStore } from '~/shared/navigation'
 import { useRemovePost } from '../model/use-remove-post'
 import { useSavePost } from '../model/use-save-post'
-import { formattedDateForServer } from '@/entities/post'
+import type { PostItem } from '@/entities/post'
 import { Check, X, Plus } from '@vicons/tabler'
-
 import { MediaList } from '@/entities/media'
+import { usePostEditItem } from '../model/use-edit-post-item'
 
-const model = defineModel<PostItem>('state', { required: true })
+const { ownerId, postItem = undefined } = defineProps<{
+  ownerId: number
+  postItem?: PostItem
+}>()
 
-//const previewImage = ref(null)
-const previewImageUrl = ref('')
-const previewImageName = ref('')
+const {
+  postItem: postItemModel,
+  isModified,
+  previewImage,
+  previewImageName,
+  removeImage
+} = usePostEditItem(ownerId, postItem)
 
 const handleUploadChange = (file: UploadFileInfo) => {
   if (file.file) {
-    model.value.previewImage = file.file
+    previewImage.value = file.file
     previewImageName.value = file.name
-    console.log('file.', file)
-    previewImageUrl.value = URL.createObjectURL(file.file)
+    postItemModel.value.previewImgUrl = URL.createObjectURL(file.file)
   }
 }
 
-const removeImage = () => {
-  model.value.previewImage = undefined
-  previewImageUrl.value = ''
-  previewImageName.value = ''
-}
-
-const removeLoadedImage = () => {
-  model.value.previewImgUrl = ''
-}
-
 const dateFormat = 'dd-MM-yyyy'
-
-const { ownerId, isModified } = defineProps<{
-  ownerId: number
-  isModified: boolean
-}>()
 
 const navStore = useNavStore()
 
@@ -86,7 +76,7 @@ const formRules = {
     trigger: ['change', 'blur'],
     validator: (_rule: FormItemRule, value: any) => value !== 0
   },
-  descr: {
+  description: {
     required: false,
     message: 'Добавьте описание',
     trigger: ['change', 'blur']
@@ -96,9 +86,7 @@ const formRules = {
 const message = useMessage()
 
 function cancelHandler() {
-  if (!model.value) return
-
-  if (isModified && !confitmation('cancel')) return
+  if (isModified.value && !confitmation('cancel')) return
 
   return navigateTo({ path: `/banners/${ownerId}` })
 }
@@ -123,17 +111,20 @@ function confitmation(action: 'delete' | 'cancel') {
 }
 
 const { removePost, status: removeStatus } = useRemovePost()
+
 async function removeHandler() {
   if (!confitmation('delete')) return
 
-  await removePost(model.value.id)
+  await removePost(postItemModel.value.id)
 
   if (removeStatus.value === 'success') {
     message.success('Запись удалена')
     return navigateTo({ path: `/posts/${ownerId}` })
   }
 }
+
 const { savePost, status: saveSatus } = useSavePost()
+
 async function saveHandler() {
   try {
     const errors = await formRef.value?.validate()
@@ -141,20 +132,9 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-    await savePost({
-      id: model.value.id,
-      title: model.value.title,
-      descr: model.value.descr,
-      content: model.value.content,
-      categoryId: model.value.categoryId,
-      published: model.value.published,
-      extFields: model.value.extFields,
-      alias: model.value.alias,
-      date: formattedDateForServer(new Date(model.value.dateTimestamp)),
-      dateTimestamp: model.value.dateTimestamp,
-      previewImgUrl: model.value.previewImgUrl,
-      ...(model.value.previewImage && { previewImage: model.value.previewImage })
-    })
+
+    await savePost({ ...postItemModel.value, previewImage: previewImage.value })
+
     if (saveSatus.value === 'error') {
       throw new Error('Ошибка сохранения')
     }
@@ -174,32 +154,31 @@ async function saveHandler() {
     }
   }
 }
-
-console.log('model.value', model.value)
 </script>
 
 <template>
-  <n-form ref="formRef" :rules="formRules" :model="model">
+  <n-form ref="formRef" :rules="formRules" :model="postItemModel">
     <n-space vertical size="large" style="width: 100%">
-      <n-card :title="model.id ? 'Редактировать запись' : 'Создать запись'">
+      <n-card :title="postItemModel.id ? 'Редактировать запись' : 'Создать запись'">
         <n-form-item label="Заголовок" path="title">
-          <n-input v-model:value="model.title" placeholder="Введите заголовок" />
+          <n-input v-model:value="postItemModel.title" placeholder="Введите заголовок" />
         </n-form-item>
         <n-form-item label="Категория" path="categoryId">
           <n-select
-            :disabled="model.id !== 0"
-            v-model:value="model.categoryId"
+            :disabled="postItemModel.id !== 0"
+            v-model:value="postItemModel.categoryId"
             :options="categoryOptions"
           ></n-select>
         </n-form-item>
-        <n-form-item label="Описание" path="descr">
+        <n-form-item label="Описание" path="description">
           <n-input
             type="textarea"
-            v-model:value="model.descr"
+            v-model:value="postItemModel.description"
             placeholder="Введите короткое описание"
           />
         </n-form-item>
         <n-form-item label="Изображение" path="previewImage">
+          <!-- TODO: Вынести в класс -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%">
             <div>
               <n-upload
@@ -232,7 +211,7 @@ console.log('model.value', model.value)
             <!-- Правая колонка: Превью -->
             <div style="display: flex; flex-direction: column">
               <n-button
-                v-if="previewImageUrl"
+                v-if="postItemModel.previewImgUrl"
                 size="tiny"
                 @click="removeImage"
                 type="error"
@@ -242,17 +221,17 @@ console.log('model.value', model.value)
                 <NIcon size="24px"><X /></NIcon>
               </n-button>
 
-              <div v-if="previewImageUrl" style="text-align: center">
+              <div v-if="postItemModel.previewImgUrl" style="text-align: center">
                 <n-image
-                  :src="previewImageUrl"
+                  :src="postItemModel.previewImgUrl"
                   width="120"
                   height="120"
                   object-fit="contain"
                   preview-disabled
                 />
               </div>
-              <n-button
-                v-if="model.previewImgUrl && !previewImageUrl"
+              <!-- <n-button
+                v-if="postItemModel.previewImgUrl"
                 size="tiny"
                 @click="removeLoadedImage"
                 type="error"
@@ -260,8 +239,8 @@ console.log('model.value', model.value)
                 style="align-self: end"
               >
                 <NIcon size="24px"><X /></NIcon>
-              </n-button>
-              <div v-if="model.previewImgUrl && !previewImageUrl" style="text-align: center">
+              </n-button> -->
+              <!-- <div v-if="model.previewImgUrl && !previewImageUrl" style="text-align: center">
                 <n-image
                   :src="model.previewImgUrl"
                   width="120"
@@ -269,10 +248,10 @@ console.log('model.value', model.value)
                   object-fit="contain"
                   preview-disabled
                 />
-              </div>
+              </div> -->
 
               <div
-                v-if="!model.previewImgUrl && !previewImageUrl"
+                v-if="!postItemModel.previewImgUrl"
                 style="text-align: center; padding: 40px 0; color: #ccc"
               >
                 <n-icon size="48">
@@ -284,8 +263,7 @@ console.log('model.value', model.value)
           </div>
         </n-form-item>
         <n-form-item label="Содержание">
-          <app-editor v-model="model.content">
-            <!-- TODO: Решить проблему с нарушением FSD -->
+          <app-editor v-model="postItemModel.content">
             <template #media-manager="{ onMediaSelect }">
               <media-list media-view-mode="select" @on-media-select="onMediaSelect"></media-list>
             </template>
@@ -295,23 +273,23 @@ console.log('model.value', model.value)
           <n-space align="center">
             <n-date-picker
               :format="dateFormat"
-              v-model:value="model.dateTimestamp"
+              v-model:value="postItemModel.timestamp"
               type="date"
               :first-day-of-week="0"
             />
-            <n-switch v-model:value="model.published" />
+            <n-switch v-model:value="postItemModel.published" />
             <span>Опубликовано</span>
           </n-space>
         </n-form-item>
         <template #action>
           <n-space justify="space-between">
             <n-button
-              v-show="model.id"
-              @click="removeHandler"
-              :disabled="removeStatus === 'pending'"
-              :loading="removeStatus === 'pending'"
+              v-show="postItemModel.id"
               secondary
               type="error"
+              :disabled="removeStatus === 'pending'"
+              :loading="removeStatus === 'pending'"
+              @click="removeHandler"
               >Удалить</n-button
             >
             <n-space>
@@ -339,8 +317,12 @@ console.log('model.value', model.value)
           </n-space>
         </template>
       </n-card>
-      <n-card v-if="model.extFields.length" title="Дополнительные поля">
-        <n-form-item v-for="field in model.extFields" :key="field.title" :label="field.title">
+      <n-card v-if="postItemModel.extFields.length" title="Дополнительные поля">
+        <n-form-item
+          v-for="field in postItemModel.extFields"
+          :key="field.title"
+          :label="field.title"
+        >
           <n-input v-model:value="field.value" placeholder="Введите значение" />
         </n-form-item>
       </n-card>

@@ -1,82 +1,105 @@
 import { isEqual } from '~/shared/libs/is-equal'
-import { usePostApi } from '@/entities/post'
-import type { PostItem } from './types'
+import type { PostItem } from '@/entities/post'
+import type { PostItemModel } from './types'
+import { useCategoryApi } from '~/entities/category'
 
-export const usePostEditItem = ({ catId }: { catId: number }) => {
-  let originalPost: PostItem | null = null
+export const usePostEditItem = (
+  catId: MaybeRefOrGetter<number>,
+  initialPost?: MaybeRefOrGetter<PostItem>
+) => {
+  let originalPost: PostItemModel | null = null
 
-  const postItem = reactive<PostItem>({
+  const timestamp = Date.now()
+
+  const postItem = ref<PostItemModel>({
     id: 0,
-    title: '',
     alias: '',
-    categoryId: catId,
+    categoryId: toValue(catId),
     content: '',
-    date: Date.now().toString(),
-    dateTimestamp: Date.now(),
-    descr: '',
+    description: '',
     extFields: [],
-    published: false,
     previewImgUrl: '',
-    previewImage: undefined
+    regDateS: Date.now().toString(),
+    title: '',
+    timestamp: timestamp,
+    published: false
   })
 
-  const isModified = ref(true)
+  const previewImage = ref<File | undefined>(undefined)
+  const previewImageName = ref('')
 
-  // TODO: Реализовать проверку на изменения
-  // сейчас впринципе некорректно работает, так как postItem всегда указывает на один и тот же объект - newValue, oldValue всегда будут равны
-  // также доработать проверка с учетом поля previewImage, originalPost не содержит этого поля
-  // watch(postItem, (newValue, oldValue) => {
-  //   if ((status.value === 'success' && oldValue.title !== '') || status.value === 'idle') {
-  //     isModified.value = !(isEqual(newValue, oldValue) && isEqual(newValue, originalPost))
-  //   }
-  // })
-
-  const status = ref<ProcessStatus>('idle')
-
-  const api = usePostApi()
-  async function loadPostItem(postId: number | string) {
-    try {
-      status.value = 'pending'
-      const res = await api.getPost(Number(postId))
-
-      postItem.id = res.id
-      postItem.title = res.title
-      postItem.alias = res.alias
-      postItem.categoryId = res.categoryId
-      postItem.content = res.content
-      postItem.date = res.regDateS
-      postItem.extFields = res.extFields ?? []
-      postItem.published = res.status === 'published'
-      postItem.descr = res.description
-      postItem.dateTimestamp = getTimestamp(res.regDate)
-      postItem.previewImgUrl = res.previewImgUrl
-
-      originalPost = JSON.parse(
-        JSON.stringify({
-          id: res.id,
-          title: res.title,
-          alias: res.alias,
-          categoryId: res.categoryId,
-          content: res.content,
-          date: res.regDateS,
-          dateTimestamp: getTimestamp(res.regDate),
-          descr: res.description,
-          extFields: res.extFields ?? [],
-          published: res.status === 'published',
-          previewImgUrl: res.previewImgUrl
-        })
-      )
-
-      status.value = 'success'
-    } catch (error) {
-      console.error(error)
-      status.value = 'error'
+  watch(
+    () => toValue(initialPost),
+    () => {
+      if (initialPost && toValue(initialPost)) {
+        postItem.value = {
+          id: toValue(initialPost).id,
+          alias: toValue(initialPost).alias,
+          categoryId: toValue(initialPost).categoryId,
+          content: toValue(initialPost).content,
+          description: toValue(initialPost).description,
+          extFields: toValue(initialPost).extFields,
+          previewImgUrl: toValue(initialPost).previewImgUrl,
+          regDateS: toValue(initialPost).regDateS,
+          title: toValue(initialPost).title,
+          timestamp: getTimestamp(toValue(initialPost).regDate),
+          published: toValue(initialPost).status === 'published'
+        }
+      }
+      // TODO: разобраться почему structuredClone не работает
+      // originalPost = structuredClone({ ...postItem.value })
+      originalPost = JSON.parse(JSON.stringify(postItem.value))
+    },
+    {
+      immediate: true
     }
+  )
+
+  const isModified = ref(false)
+
+  watch(
+    postItem,
+    () => {
+      isModified.value = !isEqual(postItem.value, originalPost)
+    },
+    {
+      deep: true
+    }
+  )
+
+  // Заполняем extFields для нового поста
+  const { getCategory } = useCategoryApi()
+  watchEffect(async () => {
+    if (postItem.value.id) {
+      return
+    }
+    try {
+      const category = await getCategory(postItem.value.categoryId)
+      postItem.value.extFields = category.extFields.map((item) => {
+        return {
+          id: 0,
+          title: item.title,
+          extFieldId: item.id,
+          value: ''
+        }
+      })
+      // TODO: разобраться почему structuredClone не работает
+      // originalPost = structuredClone({ ...postItem.value })
+      originalPost = JSON.parse(JSON.stringify(postItem.value))
+    } catch (error) {
+      console.error('Error fetching category:', error)
+    }
+  })
+
+  function removeImage() {
+    previewImage.value = undefined
+    postItem.value.previewImgUrl = ''
+    previewImageName.value = ''
   }
 
   function getTimestamp(date: string) {
     return new Date(date).getTime()
   }
 
-  return { postItem, status, loadPostItem, isModified }
+  return { postItem, isModified, previewImage, previewImageName, removeImage }
 }

@@ -1,18 +1,21 @@
 import { usePostApi, getPostsCategoryKey } from '~/entities/post'
 
-export const usePostsCategory = async (catId: MaybeRef<string | number>, app: MaybeRef<string>) => {
+export const usePostsCategory = async (
+  catId: MaybeRefOrGetter<number>,
+  app: MaybeRefOrGetter<string>
+) => {
   const page = ref(1)
   const search = ref('')
   const sort = ref('nn')
 
   const api = usePostApi()
-  const { data, status, execute } = await useAsyncData(
-    getPostsCategoryKey(unref(catId)),
+  const { data, status, execute, error } = await useAsyncData(
+    getPostsCategoryKey(toValue(catId)),
     () =>
       api.getPosts({
-        app: unref(app),
-        categoryId: unref(catId),
-        page: String(page.value),
+        app: toValue(app),
+        categoryId: toValue(catId),
+        page: page.value,
         search: search.value,
         sort: sort.value
       }),
@@ -30,5 +33,5 @@ export const usePostsCategory = async (catId: MaybeRef<string | number>, app: Ma
     })
   }
 
-  return { data, status, execute, setPage, page, search, sort }
+  return { data, status, execute, setPage, page, search, sort, error }
 }

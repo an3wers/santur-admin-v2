@@ -15,7 +15,7 @@ export const extFieldsSchema = z.object({
   title: z.string()
 })
 
-export const postSchema = z.object({
+export const postItemSchema = z.object({
   id: z.number(),
   title: z.string(),
   description: z.string(),
@@ -32,17 +32,18 @@ export const postSchema = z.object({
   order: z.number()
 })
 
-export type Post = z.infer<typeof postSchema>
+export type PostItem = z.infer<typeof postItemSchema>
 
 export const postListSchema = z.object({
-  ...postSchema.omit({ status: true, previewImgUrl: true, content: true }).shape,
+  ...postItemSchema.omit({ status: true, previewImgUrl: true, content: true, authorId: true })
+    .shape,
   isPublished: z.boolean(),
   categoryName: z.string()
 })
 
-export type PostList = z.infer<typeof postListSchema>
+export type PostItemList = z.infer<typeof postListSchema>
 
-export const postsSchema = z.object({
+export const postsListSchema = z.object({
   currentPage: z.number(),
   items: z.array(postListSchema),
   pageSize: z.number(),
@@ -50,7 +51,7 @@ export const postsSchema = z.object({
   totalPages: z.number()
 })
 
-export type Posts = z.infer<typeof postsSchema>
+export type PostsList = z.infer<typeof postsListSchema>
 
 export interface SavePostReq {
   id: number
@@ -60,7 +61,7 @@ export interface SavePostReq {
   content: string
   categoryId: number
   date: string // example: 26.06.2023
-  extFields: Pick<Post['extFields'][number], 'id' | 'title'>[]
+  extFields: PostItem['extFields']
   published: 'Y' | 'N'
   previewImage?: File
   previewImgUrl: string
