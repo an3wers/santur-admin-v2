@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { NListItem, NIcon, NButton, NDropdown, NTag, NText, NInputNumber } from 'naive-ui'
-import type { PostListItem } from '../../../../features/post/model/types'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
 import { useUpdateOrderPost, useCopyPost, useRemovePost } from '@/features/post'
+import type { PostItemList } from '~/entities/post'
 
 const { ownertId, ownerName, post } = defineProps<{
-  post: PostListItem
+  post: PostItemList
   ownertId: number
   ownerName: string
 }>()
@@ -35,7 +35,6 @@ const moreMenu = [
 ] as const
 
 type MenuKeys = (typeof moreMenu)[number]['key']
-//  as unknown as DropdownMixedOption[]
 
 function handleDropdown(key: MenuKeys, itemId: number) {
   switch (key) {

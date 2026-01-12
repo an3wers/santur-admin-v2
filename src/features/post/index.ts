@@ -4,4 +4,4 @@ export { useRemovePost } from './model/use-remove-post'
 export { useSavePost } from './model/use-save-post'
 export { useUpdateOrderPost } from './model/use-update-order-post'
 
-export type { ExtFields, PostItem, PostListItem } from './model/types'
+export type { PostItemModel } from './model/types'

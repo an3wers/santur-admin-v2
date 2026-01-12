@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { NCard, NList, NP, NPagination } from 'naive-ui'
-import type { PostListItem } from '@/features/post'
 
 import PostsListItem from './PostsListItem.vue'
+import type { PostItemList } from '~/entities/post'
 
 const { posts, ownertId } = defineProps<{
-  posts: PostListItem[]
+  posts: PostItemList[]
   ownertId: number
   ownerName: string
   page: number

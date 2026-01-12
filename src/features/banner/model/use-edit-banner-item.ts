@@ -44,7 +44,6 @@ export const userEditBannerItem = (
   watch(
     banner,
     () => {
-      console.log({ banner: banner.value, originalBanner })
       isModified.value = !isEqual(banner.value, originalBanner)
     },
     {

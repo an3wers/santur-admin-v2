@@ -1,12 +1,6 @@
 export { getPostsCategoryKey } from './api/query-keys'
 export { usePostApi } from './api/post-api'
 
-export type {
-  ExtFields,
-  ExtFieldsValue,
-  PostDetailResp,
-  PostListItem,
-  SavePostReq
-} from './api/post-schemas'
+export type { SavePostReq, PostItem, PostsList, PostItemList } from './api/post-schemas'
 
 export { formattedDateForServer } from './lib/formatted-date-for-server'

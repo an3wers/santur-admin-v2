@@ -1,60 +1,57 @@
+import { z } from 'zod'
+
 export interface GetPostsReq {
   app: string
-  categoryId: string | number
-  page: string | number
+  categoryId: number
+  page: number
   search: string
   sort: string
 }
 
-export interface PostListItem {
-  id: number
-  title: string
-  alias: string
-  description: string
-  author: string | null
-  regDate: string
-  regDateS: string
-  isPublished: boolean
-  order: number
-  categoryId: number
-  categoryName: string
-  extFields: ExtFieldsValue[] | null
-}
+export const extFieldsSchema = z.object({
+  id: z.number(),
+  extFieldId: z.number(),
+  value: z.string(),
+  title: z.string()
+})
 
-export interface PostsResp {
-  totalPages: number
-  items: PostListItem[]
-  currentPage: number
-  pageSize: number
-  totalCount: number
-}
+export const postItemSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  description: z.string(),
+  alias: z.string(),
+  regDate: z.string(),
+  regDateS: z.string(),
+  content: z.string(),
+  authorId: z.number(),
+  categoryId: z.number(),
+  author: z.string(),
+  status: z.enum(['published', '']),
+  previewImgUrl: z.string(),
+  extFields: z.array(extFieldsSchema),
+  order: z.number()
+})
 
-export interface ExtFields {
-  id: number
-  title: string
-}
+export type PostItem = z.infer<typeof postItemSchema>
 
-export interface ExtFieldsValue extends ExtFields {
-  extFieldId: number
-  value: string
-}
+export const postListSchema = z.object({
+  ...postItemSchema.omit({ status: true, previewImgUrl: true, content: true, authorId: true })
+    .shape,
+  isPublished: z.boolean(),
+  categoryName: z.string()
+})
 
-export interface PostDetailResp {
-  id: number
-  title: string
-  description: string
-  alias: string
-  regDate: string
-  regDateS: string
-  content: string
-  authorId: number
-  categoryId: number
-  author: string
-  status: string // "" or "published"
-  extFields: ExtFieldsValue[] | null
-  order: number
-  previewImgUrl: string
-}
+export type PostItemList = z.infer<typeof postListSchema>
+
+export const postsListSchema = z.object({
+  currentPage: z.number(),
+  items: z.array(postListSchema),
+  pageSize: z.number(),
+  totalCount: z.number(),
+  totalPages: z.number()
+})
+
+export type PostsList = z.infer<typeof postsListSchema>
 
 export interface SavePostReq {
   id: number
@@ -64,7 +61,7 @@ export interface SavePostReq {
   content: string
   categoryId: number
   date: string // example: 26.06.2023
-  extFields: ExtFields[]
+  extFields: PostItem['extFields']
   published: 'Y' | 'N'
   previewImage?: File
   previewImgUrl: string

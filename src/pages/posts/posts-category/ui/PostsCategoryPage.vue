@@ -14,22 +14,25 @@ const navStore = useNavStore()
 
 const catName = computed(
   () =>
-    navStore.currentNavigationMenu?.items.find((el) => el.id === parseInt(catId as string))
-      ?.label ?? ''
+    navStore.currentNavigationMenu?.items.find((el) => el.id === Number(catId as string))?.label ??
+    ''
 )
 
 const title = computed(() => {
-  return navStore.currentNavigationMenu?.items.find((i) => i.id === parseInt(catId as string))
-    ?.label
+  return navStore.currentNavigationMenu?.items.find((i) => i.id === Number(catId as string))?.label
 })
 
-const { data, status, page, setPage, search, execute } = await usePostsCategory(
-  catId as string,
+const { data, status, page, setPage, search, execute, error } = await usePostsCategory(
+  Number(catId as string),
   navStore.activeResource
 )
 
 if (status.value === 'error') {
-  throw createError({ statusMessage: 'На странице произошла ошибка', statusCode: 404, fatal: true })
+  throw createError({
+    statusCode: 404,
+    fatal: true,
+    statusMessage: error.value?.message || 'На странице произошла ошибка'
+  })
 }
 
 const isShowEditCategory = ref(false)
@@ -56,7 +59,7 @@ async function updateCategoryHandler() {
         </template>
         <template #actions>
           <n-button
-            v-if="catId && parseInt(catId as string)"
+            v-if="catId && Number(catId as string)"
             type="primary"
             @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
           >
@@ -76,7 +79,7 @@ async function updateCategoryHandler() {
       <PostsList
         v-if="status !== 'error'"
         :posts="data?.items ?? []"
-        :ownert-id="parseInt(catId as string)"
+        :ownert-id="Number(catId as string)"
         :owner-name="catName"
         :page="page"
         :search="search"
@@ -97,7 +100,7 @@ async function updateCategoryHandler() {
       :title="title"
     >
       <CategoryDetail
-        :id="parseInt(catId as string)"
+        :id="Number(catId as string)"
         :first-level-name="navStore.firstLevelName"
         @on-cancel="toggleEditCategory"
         @on-update="updateCategoryHandler"
