@@ -31,7 +31,7 @@ export const usePostApi = () => {
 
   async function savePost(data: SavePostReq) {
     // TODO: типизировать ответ
-    const res = await fetchWithToken<unknown>('AdminContent/SavePost2', {
+    const res = await fetchWithToken<unknown>('AdminContent/SavePost', {
       method: 'POST',
       body: createPost(data)
     })
