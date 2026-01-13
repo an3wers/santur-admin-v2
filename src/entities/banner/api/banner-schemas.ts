@@ -42,6 +42,7 @@ export interface GetBannersReq {
 export interface SaveBannerReq {
   id: number
   name: string
+  // images: [{}]
   imgPath: string
   link: string
   nn: number
@@ -49,3 +50,40 @@ export interface SaveBannerReq {
   app: string
   descr: string
 }
+
+// Дополнительное изображение к сущности Баннер в админке.
+// Для сохранения изображения в форме должны быть файлы с name например "desktop_img" и "mobile_img".
+// На самом деле можно указать и другие имена но в одном должно присутствовать слово "desktop" а в другом "mobile".
+
+// TS типы
+// Типы устройств, для которых может быть изображение
+// type DeviceType = 'desktop' | 'mobile'; // можно расширить в будущем
+
+// interface BannerImage {
+//   type: DeviceType;
+//   imgPath: string;
+// }
+
+// interface SaveBannerReq {
+//   id: number;
+//   name: string;
+//   images: BannerImage[]; // дополнительно к imgPath
+//   link: string;
+//   imgPath: string
+//   nn: number;
+//   categoryId: number;
+//   app: string;
+//   descr: string;
+// }
+
+// interface BannerResp {
+//   id: number;
+//   images: BannerImage[]; // дополнительно к imgPath
+//   link: string;
+//   imgPath: string
+//   name: string;
+//   order: number;
+//   regDate: string;
+//   nn: number;
+//   categoryId: number;
+// }
