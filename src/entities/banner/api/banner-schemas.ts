@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import {  z } from 'zod'
 
 export const bannerSchema = z.object({
   app: z.string(),
@@ -8,7 +8,11 @@ export const bannerSchema = z.object({
   link: z.string(),
   imgPath: z.string(),
   nn: z.number(),
-  categoryId: z.number()
+  categoryId: z.number(),
+  images: z.array(
+    z.object({ device: z.union([z.literal('desktop'), z.literal('mobile')]), imgPath: z.string() })
+  ),
+  published: z.string()
 })
 
 export type Banner = z.infer<typeof bannerSchema>
@@ -42,13 +46,19 @@ export interface GetBannersReq {
 export interface SaveBannerReq {
   id: number
   name: string
-  // images: [{}]
+  images: BannerImage[]
   imgPath: string
   link: string
   nn: number
   categoryId: number
   app: string
   descr: string
+  published: string
+}
+type DeviceType = 'desktop' | 'mobile';
+export interface BannerImage {
+  device: DeviceType
+  imgPath: string
 }
 
 // Дополнительное изображение к сущности Баннер в админке.

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useUpdateOrderBanner, useCopyBanner, useRemoveBanner } from '@/features/banner'
-import { NIcon, NListItem, NText, NDropdown, NButton, NImage, NInputNumber } from 'naive-ui'
+import { NIcon, NListItem, NText, NDropdown, NButton, NImage, NInputNumber, NTag } from 'naive-ui'
 import { Dots, ChevronUp, ChevronDown } from '@vicons/tabler'
 import type { Banners } from '~/entities/banner'
 
@@ -82,13 +82,23 @@ async function changeOrder(value: number | null) {
         <n-text depth="3">{{ item.id }}</n-text>
       </div>
       <div class="item-image">
-        <n-image class="item-image__preview" preview-disabled :src="item.imgPath" />
+        <n-image class="item-image__preview" preview-disabled :src="item.images[0].imgPath" />
       </div>
       <div class="item-base">
         <div class="item-title">
           <nuxt-link :to="`${ownerId}/${item.id}`">
             <h4>{{ item.name }}</h4>
           </nuxt-link>
+        </div>
+      </div>
+      <div>
+        <div class="item-status">
+          <n-tag size="small" v-if="item.published === 'Y'" type="success">Опубликовано</n-tag>
+          <n-tag size="small" v-else type="error">Не опубликовано</n-tag>
+          <div class="item-type">
+            <n-tag size="small" round v-if="item.images[0]?.imgPath.length > 1">D</n-tag>
+            <n-tag size="small" round v-if="item.images[1]?.imgPath.length > 1">M</n-tag>
+          </div>
         </div>
       </div>
       <div class="item-order">
@@ -131,7 +141,14 @@ async function changeOrder(value: number | null) {
 .item-base {
   flex-grow: 1;
 }
-
+.item-type {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
 .item-title {
   display: inline-block;
 }
