@@ -14,7 +14,10 @@ import {
   NSpace,
   NIcon,
   NInputGroup,
-  NModal
+  NModal,
+  NTabs,
+  NTabPane,
+  NSwitch
 } from 'naive-ui'
 import { useSaveBanner } from '../model/use-save-banner'
 import { useRemoveBanner } from '../model/use-remove-banner'
@@ -84,7 +87,11 @@ async function saveHandler() {
       throw new Error('Проверьте корректность заполнения полей')
     }
 
-    await save({ ...bannerItem.value, app: navStore.activeResource, descr: '' })
+    await save({
+      ...bannerItem.value,
+      app: navStore.activeResource,
+      descr: ''
+    })
 
     if (saveStatus.value === 'error') {
       throw new Error('Ошибка сохранения')
@@ -144,18 +151,31 @@ function confitmation(action: 'delete' | 'cancel') {
 
 const hasMediaManagerModel = ref(false)
 
+const isPublished = ref(bannerItem.value.published == 'Y' ? true : false)
+watch(isPublished, (newVal) => {
+  bannerItem.value.published = newVal ? 'Y' : 'N'
+})
+
 function showMediaManager() {
   hasMediaManagerModel.value = true
 }
 
 function selectMediaHandler(media: MediaListItem) {
-  selectMedia(media.imgPath)
+  if (activeTab.value === 'Mobile') selectMedia(media.imgPath, 'mobile')
+  if (activeTab.value === 'Desktop') selectMedia(media.imgPath)
   hasMediaManagerModel.value = false
 }
+
+const activeTab = ref<'Desktop' | 'Mobile'>('Desktop')
 </script>
 
 <template>
   <n-card>
+    <template #header>
+      <div class="item-publish">
+        <span> Опубликовано: </span><n-switch v-model:value="isPublished" />
+      </div>
+    </template>
     <n-form ref="formRef" :model="bannerItem" :rules="formRules">
       <n-form-item label="Заголовок" path="name">
         <n-input v-model:value="bannerItem.name" placeholder="Введите заголовок" />
@@ -164,51 +184,101 @@ function selectMediaHandler(media: MediaListItem) {
       <n-form-item label="Категория" path="categoryId">
         <n-select v-model:value="bannerItem.categoryId" :options="categoryOptions"></n-select>
       </n-form-item>
-
-      <div class="image-container">
-        <div class="image-container__preview">
-          <img v-if="bannerItem.imgPath" :src="bannerItem.imgPath" />
-          <div v-else class="image-container__preview-empty">
-            <n-text depth="3">Изображение не выбрано</n-text>
-          </div>
-          <!-- TODO: Реализовать динамический систему рекомендаций баннеров в зависимости от типа и категории -->
-          <n-p class="text-info" v-if="bannerItem.categoryId === 30"
-            >Рекомендуемый размер: 1505×404 px</n-p
-          >
-          <n-p class="text-info" v-if="bannerItem.categoryId === 29"
-            >Рекомендуемый размер: 1505×220 px</n-p
-          >
-        </div>
-        <div class="image-container__controls">
-          <n-form-item label="Ссылка на изображение" path="imgPath">
-            <n-input-group>
-              <n-input
-                v-model:value="bannerItem.imgPath"
-                :readonly="true"
-                placeholder="Cсылка на изображение"
-              />
-              <n-button ghost @click.stop="copyToClipboard(bannerItem.imgPath)">
-                <n-icon size="20px" :component="Copy" />
-              </n-button>
-            </n-input-group>
-          </n-form-item>
-          <div class="image-container__btns-select">
-            <n-button @click="showMediaManager" type="primary">Выбрать изображение</n-button>
-            <n-button secondary type="primary" @click="removeMedia">Очистить</n-button>
-          </div>
-          <n-form-item label="Ссылка для перехода" path="link">
-            <n-input-group>
-              <n-input
-                v-model:value="bannerItem.link"
-                placeholder="https://santur.ru/about/company"
-              />
-              <n-button ghost @click.stop="copyToClipboard(bannerItem.link)">
-                <n-icon size="20px" :component="Copy" />
-              </n-button>
-            </n-input-group>
-          </n-form-item>
-        </div>
-      </div>
+      <n-tabs type="bar" default-value="Desktop" animated v-model:value="activeTab">
+        <n-tab-pane name="Desktop" tab="Desktop">
+          <div class="image-container">
+            <div class="image-container__preview">
+              <img v-if="bannerItem.images[0].imgPath" :src="bannerItem.images[0].imgPath" />
+              <div v-else class="image-container__preview-empty">
+                <n-text depth="3">Изображение не выбрано</n-text>
+              </div>
+              <!-- TODO: Реализовать динамический систему рекомендаций баннеров в зависимости от типа и категории -->
+              <n-p class="text-info" v-if="bannerItem.categoryId === 30"
+                >Рекомендуемый размер: 1505×404 px</n-p
+              >
+              <n-p class="text-info" v-if="bannerItem.categoryId === 29"
+                >Рекомендуемый размер: 1505×220 px</n-p
+              >
+            </div>
+            <div class="image-container__controls">
+              <n-form-item label="Ссылка на изображение" path="imgPath">
+                <n-input-group>
+                  <n-input
+                    v-model:value="bannerItem.images[0].imgPath"
+                    :readonly="true"
+                    placeholder="Cсылка на изображение"
+                  />
+                  <n-button ghost @click.stop="copyToClipboard(bannerItem.imgPath)">
+                    <n-icon size="20px" :component="Copy" />
+                  </n-button>
+                </n-input-group>
+              </n-form-item>
+              <div class="image-container__btns-select">
+                <n-button @click="showMediaManager" type="primary">Выбрать изображение</n-button>
+                <n-button secondary type="primary" @click="removeMedia('desktop')"
+                  >Очистить</n-button
+                >
+              </div>
+              <n-form-item label="Ссылка для перехода" path="link">
+                <n-input-group>
+                  <n-input
+                    v-model:value="bannerItem.link"
+                    placeholder="https://santur.ru/about/company"
+                  />
+                  <n-button ghost @click.stop="copyToClipboard(bannerItem.link)">
+                    <n-icon size="20px" :component="Copy" />
+                  </n-button>
+                </n-input-group>
+              </n-form-item>
+            </div></div
+        ></n-tab-pane>
+        <n-tab-pane name="Mobile" tab="Mobile">
+          <div class="image-container">
+            <div class="image-container__preview">
+              <img v-if="bannerItem.images[1].imgPath" :src="bannerItem.images[1].imgPath" />
+              <div v-else class="image-container__preview-empty">
+                <n-text depth="3">Изображение не выбрано</n-text>
+              </div>
+              <!-- TODO: Реализовать динамический систему рекомендаций баннеров в зависимости от типа и категории -->
+              <n-p class="text-info" v-if="bannerItem.categoryId === 30"
+                >Рекомендуемый размер: 1505×404 px</n-p
+              >
+              <n-p class="text-info" v-if="bannerItem.categoryId === 29"
+                >Рекомендуемый размер: 1505×220 px</n-p
+              >
+            </div>
+            <div class="image-container__controls">
+              <n-form-item label="Ссылка на изображение" path="imgPath">
+                <n-input-group>
+                  <n-input
+                    v-model:value="bannerItem.images[1].imgPath"
+                    :readonly="true"
+                    placeholder="Cсылка на изображение"
+                  />
+                  <n-button ghost @click.stop="copyToClipboard(bannerItem.imgPath)">
+                    <n-icon size="20px" :component="Copy" />
+                  </n-button>
+                </n-input-group>
+              </n-form-item>
+              <div class="image-container__btns-select">
+                <n-button @click="showMediaManager" type="primary">Выбрать изображение</n-button>
+                <n-button secondary type="primary" @click="removeMedia('mobile')"
+                  >Очистить</n-button
+                >
+              </div>
+              <n-form-item label="Ссылка для перехода" path="link">
+                <n-input-group>
+                  <n-input
+                    v-model:value="bannerItem.link"
+                    placeholder="https://santur.ru/about/company"
+                  />
+                  <n-button ghost @click.stop="copyToClipboard(bannerItem.link)">
+                    <n-icon size="20px" :component="Copy" />
+                  </n-button>
+                </n-input-group>
+              </n-form-item>
+            </div></div></n-tab-pane
+      ></n-tabs>
     </n-form>
     <template #action>
       <n-space justify="space-between">
@@ -303,5 +373,13 @@ function selectMediaHandler(media: MediaListItem) {
   .text-info {
     font-size: 13px;
   }
+}
+
+.item-publish {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+  font-weight: normal;
 }
 </style>

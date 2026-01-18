@@ -33,16 +33,17 @@ export const useBannerApi = () => {
   }
 
   async function saveBanner(data: SaveBannerReq) {
-    const formData = new FormData()
+    // const formData = new FormData()
 
-    for (const key in data) {
-      const value = data[key as keyof SaveBannerReq] as string
-      formData.append(key, value)
-    }
+    // for (const key in data) {
+    //   const value = data[key as keyof SaveBannerReq] as string
+    //   formData.append(key, value)
+    // }
+    const jsonData = JSON.stringify(data)
 
-    const res = await fetchWithToken<{}>('AdminContent/SaveBannerV2', {
+    const res = await fetchWithToken<{}>('AdminContent/SaveBannerV3', {
       method: 'POST',
-      body: formData
+      body: jsonData
     })
     return checkError(res).data
   }
