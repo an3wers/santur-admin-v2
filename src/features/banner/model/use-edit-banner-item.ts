@@ -34,14 +34,20 @@ export const userEditBannerItem = (
     () => toValue(initialBanner),
     () => {
       if (toValue(initialBanner)) {
+        const initial = toValue(initialBanner!)
+        const hasMobile = initial.images?.some((img) => img.device === 'mobile')
+
         banner.value = {
-          ...toValue(initialBanner!),
+          ...initial,
+          images: hasMobile
+            ? initial.images
+            : [...initial.images, { device: 'mobile', imgPath: '' }],
           dateTimestamp: timestamp
         }
       }
+
       const rawState = toRaw(banner.value)
       originalBanner = JSON.parse(JSON.stringify(rawState))
-      console.log('originalBanner', originalBanner)
     },
     {
       immediate: true
