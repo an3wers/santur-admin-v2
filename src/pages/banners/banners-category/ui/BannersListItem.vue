@@ -82,7 +82,7 @@ async function changeOrder(value: number | null) {
         <n-text depth="3">{{ item.id }}</n-text>
       </div>
       <div class="item-image">
-        <n-image class="item-image__preview" preview-disabled :src="item.images[0].imgPath" />
+        <n-image class="item-image__preview" preview-disabled :src="item.images[0]?.imgPath" />
       </div>
       <div class="item-base">
         <div class="item-title">
