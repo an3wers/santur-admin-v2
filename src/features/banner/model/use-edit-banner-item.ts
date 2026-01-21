@@ -36,9 +36,13 @@ export const userEditBannerItem = (
       if (toValue(initialBanner)) {
         const initial = toValue(initialBanner!)
         const updatedImages = [...initial.images]
+        if (!updatedImages?.some((img) => img.device === 'desktop')) {
+          updatedImages.push({ device: 'desktop', imgPath: '' })
+        }
         if (!updatedImages?.some((img) => img.device === 'mobile')) {
           updatedImages.push({ device: 'mobile', imgPath: '' })
         }
+
 
         banner.value = {
           ...initial,
