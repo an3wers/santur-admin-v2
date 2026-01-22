@@ -132,7 +132,7 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-
+    console.log('savePost', postItemModel.value)
     await savePost({ ...postItemModel.value, previewImage: previewImage.value })
 
     if (saveSatus.value === 'error') {
@@ -293,6 +293,22 @@ async function saveHandler() {
         >
           <n-input v-model:value="field.value" placeholder="Введите значение" />
         </n-form-item>
+      </n-card>
+      <n-card title="Мета-теги">
+        <n-form-item label="Title" path="seotitle">
+          <n-input v-model:value="postItemModel.seotitle" placeholder="Введите seotitle" />
+        </n-form-item>
+        <n-form-item label="Keywords" path="keywords">
+          <n-input v-model:value="postItemModel.keywords" placeholder="Введите keywords" />
+        </n-form-item>
+        <n-form-item label="Description">
+          <n-input
+            type="textarea"
+            v-model:value="postItemModel.shortDescr"
+            placeholder="Введите короткое описание"
+          />
+        </n-form-item>
+
       </n-card>
     </n-space>
   </n-form>

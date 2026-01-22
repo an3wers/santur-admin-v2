@@ -22,7 +22,10 @@ export const usePostEditItem = (
     regDateS: Date.now().toString(),
     title: '',
     timestamp: timestamp,
-    published: false
+    published: false,
+    keywords: '',
+    seotitle: '',
+    shortDescr: ''
   })
 
   const previewImage = ref<File | undefined>(undefined)
@@ -43,7 +46,10 @@ export const usePostEditItem = (
           regDateS: toValue(initialPost).regDateS,
           title: toValue(initialPost).title,
           timestamp: getTimestamp(toValue(initialPost).regDate),
-          published: toValue(initialPost).status === 'published'
+          published: toValue(initialPost).status === 'published',
+          keywords: toValue(initialPost).keywords,
+          seotitle: toValue(initialPost).seotitle,
+          shortDescr: toValue(initialPost).shortDescr
         }
       }
       // TODO: разобраться почему structuredClone не работает

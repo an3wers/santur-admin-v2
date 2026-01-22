@@ -29,7 +29,10 @@ export const postItemSchema = z.object({
   status: z.enum(['published', '']),
   previewImgUrl: z.string(),
   extFields: z.array(extFieldsSchema),
-  order: z.number()
+  order: z.number(),
+  keywords: z.string(),
+  seotitle: z.string(),
+  shortDescr: z.string()
 })
 
 export type PostItem = z.infer<typeof postItemSchema>
@@ -65,4 +68,7 @@ export interface SavePostReq {
   published: 'Y' | 'N'
   previewImage?: File
   previewImgUrl: string
+  seotitle: string
+  shortDescr: string
+  keywords: string
 }
