@@ -51,6 +51,9 @@ export const usePostApi = () => {
         const file = data.previewImage
         formdata.append('previewImage', file)
       }
+      formdata.append('seotitle', data.seotitle)
+      formdata.append('shortDescr', data.shortDescr)
+      formdata.append('keywords', data.keywords)
       return formdata
     }
 

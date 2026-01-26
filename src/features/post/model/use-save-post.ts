@@ -18,9 +18,12 @@ export const useSavePost = () => {
       date: formattedDateForServer(new Date(data.timestamp)),
       extFields: data.extFields,
       previewImgUrl: data.previewImage ? '' : data.previewImgUrl,
-      previewImage: data.previewImage
+      previewImage: data.previewImage,
+      seotitle: data.seotitle,
+      shortDescr: data.shortDescr,
+      keywords: data.keywords
     } satisfies SavePostReq
-
+    console.log('newData', newData)
     try {
       status.value = 'pending'
       await api.savePost(newData)
