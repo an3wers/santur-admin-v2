@@ -184,7 +184,7 @@ async function removeLogoHandler(size: 'small' | 'big') {
         <div class="layout">
           <div>
             <n-form ref="formRef" :model="brandItem" :rules="formRules">
-              <n-card title="Каточка бренда">
+              <n-card title="Карточка бренда">
                 <n-form-item label="Наименование" path="name">
                   <n-input v-model:value="brandItem.name" placeholder="Наименование" />
                 </n-form-item>
