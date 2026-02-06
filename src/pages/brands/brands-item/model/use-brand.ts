@@ -6,6 +6,7 @@ import {
   type BrandSaveFilesDto
 } from '@/entities/brand'
 import type { UploadFileInfo } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import type { OptionsType } from '~/entities/media'
 import { generateAlias } from '~/shared/libs/generate-alias'
 
@@ -128,7 +129,7 @@ export const useBrand = () => {
 
   const MAX_SIZE_FILE = 20_000_000
 
-  const fileChangeHandler = (options: OptionsType, fileKey: FilesKeys) => {
+  const fileChangeHandler = async (options: OptionsType, fileKey: FilesKeys) => {
     const isValidSize = () => options.file.file && options.file.file.size <= MAX_SIZE_FILE
     const isDownloadStatus = () => options.file.status !== 'removed'
 
@@ -144,7 +145,7 @@ export const useBrand = () => {
     }
 
     if (!isDownloadStatus() && !currentFile.file) {
-      removeDocument(currentFile.id)
+      await removeDocument(currentFile.id)
     }
   }
 
@@ -223,21 +224,31 @@ export const useBrand = () => {
     }
   }
 
+  const message = useMessage()
   const removeDocument = async (id: number | string) => {
     try {
       await api.removeDocument(id)
     } catch (error) {
       console.error(error)
+      const errorText =
+        error instanceof Error ? error.message : 'Произошла ошибка при удалении файла'
+      message.error(errorText)
     }
   }
 
-  // TODO: можно перенести в отдельный Composable
   const removeLogo = async (size: 'small' | 'big') => {
-    await api.removeLogo(brandItem.id, size)
-    if (size === 'small') {
-      brandItem.logoSmallExist = false
-    } else {
-      brandItem.logoBigExist = false
+    try {
+      await api.removeLogo(brandItem.id, size)
+      if (size === 'small') {
+        brandItem.logoSmallExist = false
+      } else {
+        brandItem.logoBigExist = false
+      }
+    } catch (error) {
+      console.error(error)
+      const errorText =
+        error instanceof Error ? error.message : 'Произошла ошибка при удалении логотипа'
+      message.error(errorText)
     }
   }
 
