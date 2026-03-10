@@ -55,7 +55,7 @@ export const useAnalyticsApi = () => {
     })
 
     const res = await baseFetch<ReportSummaryClientsDto>(
-      `apissz/ReportSummaryCliens?${query.toString()}`
+      `/api-gateway/apissz/ReportSummaryCliens?${query.toString()}`
     )
 
     if (typeof res === 'string') {
@@ -74,11 +74,12 @@ export const useAnalyticsApi = () => {
       src,
       subjectId: String(subjectId)
     })
-    const res = await baseFetch<ReportClientSalesDto>(`apissz/ReportClienSales?${query.toString()}`)
+    const res = await baseFetch<ReportClientSalesDto>(
+      `/api-gateway/apissz/ReportClienSales?${query.toString()}`
+    )
     return checkError(res).data
   }
 
-  // apiSSZ/ReportSummaryCliensAsExcel?leftdate=...&rightdate=...
   async function getReportSummaryClientsToExcel(
     options: GetReportSummaryClientsDto,
     signal?: AbortSignal
@@ -91,9 +92,12 @@ export const useAnalyticsApi = () => {
       ownerId: String(ownerId)
     })
 
-    const res = await baseFetch<Blob>(`apissz/ReportSummaryCliensAsExcel?${query.toString()}`, {
-      signal: signal
-    })
+    const res = await baseFetch<Blob>(
+      `/api-gateway/apissz/ReportSummaryCliensAsExcel?${query.toString()}`,
+      {
+        signal: signal
+      }
+    )
     return res as unknown as Blob
   }
 
