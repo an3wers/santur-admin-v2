@@ -11,7 +11,7 @@ export interface GetPostsReq {
 export const extFieldsSchema = z.object({
   id: z.number(),
   extFieldId: z.number(),
-  value: z.string(),
+  value: z.union([z.string(), z.null()]),
   title: z.string()
 })
 
