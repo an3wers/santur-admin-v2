@@ -167,7 +167,8 @@ export const useNavStore = defineStore('navigation', () => {
         item.modelName === 'analytics' ||
         item.modelName === 'pvzs' ||
         item.modelName === 'uploading' ||
-        item.modelName === 'feeds'
+        item.modelName === 'feeds' ||
+        item.modelName === 'services'
       ) {
         const isFirstLevel = item.categoryId === 0 && item.id !== 0 && item.needSubmenu
         result = isFirstLevel ? `/${item.modelName}` : `/${item.modelName}/${item.id}`
@@ -228,6 +229,25 @@ export const useNavStore = defineStore('navigation', () => {
         label: 'Клиентские проекты',
         modelName: 'client-projects',
         needSubmenu: false
+      },
+      {
+        app: '',
+        categoryId: 0,
+        id: 12,
+        items: [
+          {
+            app: '',
+            categoryId: 0,
+            id: 1,
+            items: [],
+            label: 'Очередь email-рассылок',
+            modelName: 'services',
+            needSubmenu: false
+          }
+        ],
+        label: 'Сервисы',
+        modelName: 'services',
+        needSubmenu: true
       }
     ]
   }
@@ -295,7 +315,7 @@ export const useNavStore = defineStore('navigation', () => {
         items: [],
         label: 'Сервисы',
         modelName: 'services',
-        needSubmenu: false
+        needSubmenu: true
       }
     ]
   }
@@ -333,7 +353,7 @@ export const useNavStore = defineStore('navigation', () => {
           // buckets['orders-clients'].items.push(item)
           break
         case 'services':
-          // buckets['services'].items.push(item)
+          buckets['services'].items.push(...item.items)
           break
       }
     })
