@@ -28,6 +28,25 @@ export const usePostEditItem = (
     shortDescr: ''
   })
 
+  const cityOptions = [
+    {
+      value: 'Екатеринбург',
+      label: 'Екатеринбург'
+    },
+    {
+      value: 'Нижний Тагил',
+      label: 'Нижний Тагил'
+    },
+    {
+      value: 'Пермь',
+      label: 'Пермь'
+    },
+    {
+      value: 'Сургут',
+      label: 'Сургут'
+    }
+  ]
+
   const previewImage = ref<File | undefined>(undefined)
   const previewImageName = ref('')
 
@@ -86,7 +105,7 @@ export const usePostEditItem = (
           id: 0,
           title: item.title,
           extFieldId: item.id,
-          value: ''
+          value: null
         }
       })
       // TODO: разобраться почему structuredClone не работает
@@ -107,5 +126,5 @@ export const usePostEditItem = (
     return new Date(date).getTime()
   }
 
-  return { postItem, isModified, previewImage, previewImageName, removeImage }
+  return { postItem, isModified, previewImage, previewImageName, cityOptions, removeImage }
 }

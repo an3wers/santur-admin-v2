@@ -38,9 +38,10 @@ const {
   isModified,
   previewImage,
   previewImageName,
+  cityOptions,
   removeImage
 } = usePostEditItem(ownerId, postItem)
-
+console.log('postItemModel', postItemModel)
 const handleUploadChange = (file: UploadFileInfo) => {
   if (file.file) {
     previewImage.value = file.file
@@ -80,7 +81,7 @@ const formRules = {
     required: false,
     message: 'Добавьте описание',
     trigger: ['change', 'blur']
-  }
+  },
 }
 
 const message = useMessage()
@@ -132,7 +133,7 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-    console.log('savePost', postItemModel.value)
+    console.log('errors', errors)
     await savePost({ ...postItemModel.value, previewImage: previewImage.value })
 
     if (saveSatus.value === 'error') {
@@ -291,7 +292,13 @@ async function saveHandler() {
           :key="field.title"
           :label="field.title"
         >
-          <n-input v-model:value="field.value" placeholder="Введите значение" />
+          <n-select
+            v-if="field.title === 'Город'"
+            placeholder="Выберите город"
+            :options="cityOptions"
+            v-model:value="field.value"
+          />
+          <n-input v-else v-model:value="field.value" placeholder="Введите значение" />
         </n-form-item>
       </n-card>
       <n-card title="Мета-теги">
@@ -308,7 +315,6 @@ async function saveHandler() {
             placeholder="Введите короткое описание"
           />
         </n-form-item>
-
       </n-card>
     </n-space>
   </n-form>
