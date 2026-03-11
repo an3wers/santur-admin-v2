@@ -79,38 +79,6 @@ export default defineNuxtConfig({
     },
 
     routeRules: {
-      '/apiauth/**': {
-        proxy: {
-          to:
-            process.env.API_MODE === 'debugg'
-              ? 'http://10.10.10.77:64439/apiauth/**'
-              : process.env.BASE_URL_PROXY + 'apiauth/**'
-        }
-      },
-      '/apissz/**': {
-        proxy: {
-          to:
-            process.env.API_MODE === 'debugg'
-              ? 'http://10.10.10.77:64439/apissz/**'
-              : process.env.BASE_URL_PROXY + 'apissz/**'
-        }
-      },
-      '/apiadmin/**': {
-        proxy: {
-          to:
-            process.env.API_MODE === 'debugg'
-              ? 'http://10.10.10.77:64439/apiadmin/**'
-              : process.env.BASE_URL_PROXY + 'apiadmin/**'
-        }
-      },
-      '/apiTmp/**': {
-        proxy: {
-          to:
-            process.env.API_MODE === 'debugg'
-              ? 'http://10.10.10.77:64439/apiadmin/**'
-              : process.env.BASE_URL_PROXY + 'apiTmp/**'
-        }
-      },
       '/api-gateway/**': { proxy: { to: process.env.BASE_URL_GATEWAY_PROXY + 'api/**' } },
       '/s3/**': {
         proxy: {

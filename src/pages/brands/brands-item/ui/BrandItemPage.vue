@@ -78,33 +78,7 @@ function cancelHandler() {
 }
 const message = useMessage()
 const { saveBrand, status: saveStatus } = useSaveBrand()
-/* 
-  На серверно стороне не работает сохранение бренд без заполненных файлов
 
-      "title": "One or more validation errors occurred.",
-    "status": 400,
-    "errors": {
-        "file1": [
-            "The file1 field is required."
-        ],
-        "file2": [
-            "The file2 field is required."
-        ],
-        "file3": [
-            "The file3 field is required."
-        ],
-        "file4": [
-            "The file4 field is required."
-        ],
-        "logobig": [
-            "The logobig field is required."
-        ],
-        "logosmall": [
-            "The logosmall field is required."
-        ]
-    },
-
-*/
 async function saveHandler() {
   try {
     const errors = await formRef.value?.validate()
@@ -184,7 +158,7 @@ async function removeLogoHandler(size: 'small' | 'big') {
         <div class="layout">
           <div>
             <n-form ref="formRef" :model="brandItem" :rules="formRules">
-              <n-card title="Каточка бренда">
+              <n-card title="Карточка бренда">
                 <n-form-item label="Наименование" path="name">
                   <n-input v-model:value="brandItem.name" placeholder="Наименование" />
                 </n-form-item>

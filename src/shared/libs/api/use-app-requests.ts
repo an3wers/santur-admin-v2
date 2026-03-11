@@ -21,12 +21,10 @@ export const useAppRequest = () => {
     return res.data
   }
 
-  // Fix: message
   const checkError = <DataType>(res: ResponseApi<DataType>, message?: string) => {
-    if (!res.success && !res.data) {
+    if (!res.success && res.data == null) {
       throw new Error(message || res.message || 'Произошла ошибка')
     }
-
     return res
   }
 

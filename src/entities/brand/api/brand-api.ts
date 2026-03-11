@@ -68,7 +68,7 @@ export const useBrandApi = () => {
   }
 
   async function removeDocument(docId: number | string) {
-    const res = await fetchWithToken<unknown>(`AdminGoods/DeleteFile?id=${docId}`)
+    const res = await fetchWithToken<unknown>(`adminGoods/removeFileBrend?id=${docId}`)
     return checkError(res).data
   }
 
