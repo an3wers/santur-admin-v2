@@ -13,6 +13,7 @@ import TableRow from '@tiptap/extension-table-row'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import ImageResize from 'tiptap-extension-resize-image'
+import { Iframe } from './iframe-extension'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
 import {
@@ -33,7 +34,7 @@ import {
   AlignRight,
   AlignJustified,
   AlignCenter,
-  Movie as _Movie
+  Movie
 } from '@vicons/tabler'
 
 interface Props {
@@ -72,15 +73,8 @@ const editor = useEditor({
     TextAlign.configure({
       types: ['paragraph', 'heading', 'image']
     }),
-    ImageResize
-    // Youtube.configure({
-    //   nocookie: true,
-    //   controls: false,
-    //   autoplay: false,
-    //   width: 640,
-    //   height: 480,
-    //   HTMLAttributes: { class: 'video-post' }
-    // })
+    ImageResize,
+    Iframe
   ],
   onUpdate: () => {
     emits('update:modelValue', editor.value ? editor.value.getHTML() : '')
@@ -294,6 +288,58 @@ const selectMedia = (media: {
 
 //   editor.value.commands.setYoutubeVideo({ src: url })
 // }
+//
+function parseIframeCode(input: string): { src: string; width: number; height: number } | null {
+  const trimmed = input.trim()
+
+  if (trimmed.startsWith('<iframe')) {
+    const srcMatch = trimmed.match(/src=["']([^"']+)["']/)
+    const widthMatch = trimmed.match(/width=["']?(\d+)["']?/)
+    const heightMatch = trimmed.match(/height=["']?(\d+)["']?/)
+
+    if (!srcMatch) return null
+
+    return {
+      src: srcMatch[1],
+      width: widthMatch ? parseInt(widthMatch[1], 10) : 640,
+      height: heightMatch ? parseInt(heightMatch[1], 10) : 360
+    }
+  }
+
+  try {
+    const url = new URL(trimmed)
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      return { src: trimmed, width: 640, height: 360 }
+    }
+  } catch {
+    // not a valid URL
+  }
+
+  return null
+}
+
+function setVideoFrame() {
+  if (!editor.value) {
+    return null
+  }
+
+  const input = prompt('Вставьте код <iframe> или ссылку на видео')
+
+  if (!input) return null
+
+  const parsed = parseIframeCode(input)
+
+  if (!parsed) {
+    alert('Не удалось распознать ссылку или код видео')
+    return null
+  }
+
+  editor.value.commands.setIframe({
+    src: parsed.src,
+    width: Math.min(parsed.width, 720),
+    height: Math.min(parsed.height, 405)
+  })
+}
 
 watchEffect(() => {
   if (!editor.value) return null
@@ -560,18 +606,18 @@ onUnmounted(() => {
           </n-icon>
         </template>
       </n-button>
-      <!-- <n-button
+      <n-button
         secondary
         size="small"
         style="padding-left: 8px; padding-right: 8px"
-        @click="setYoutubeVideo"
+        @click="setVideoFrame"
       >
         <template #icon>
           <n-icon size="20px">
             <Movie />
           </n-icon>
         </template>
-      </n-button> -->
+      </n-button>
     </div>
     <editor-content class="editor__content" :editor="editor" />
   </div>
@@ -787,23 +833,32 @@ onUnmounted(() => {
     }
   }
 
-  iframe {
-    border: 8px solid #000;
-    border-radius: 4px;
-    min-width: 200px;
-    min-height: 200px;
-    display: block;
-    outline: 0px solid transparent;
+  .iframe-wrapper {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 720px;
+    aspect-ratio: 16 / 9;
+    margin: 1rem 0;
+    cursor: pointer;
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 4px;
+    }
   }
 
-  div[data-youtube-video] {
-    cursor: move;
-    padding-right: 24px;
-  }
-
-  .ProseMirror-selectednode iframe {
-    transition: outline 0.15s;
+  .ProseMirror-selectednode .iframe-wrapper,
+  .ProseMirror-selectednode.iframe-wrapper {
     outline: 3px solid #68cef8;
+    outline-offset: 2px;
+    border-radius: 4px;
+    transition: outline 0.15s;
   }
 }
 
