@@ -2,7 +2,18 @@
 import StarterKit from '@tiptap/starter-kit'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
 import { onUnmounted, watch } from 'vue'
-import { NButton, NSelect, type SelectOption, NIcon, NDropdown, NModal } from 'naive-ui'
+import {
+  NButton,
+  NSelect,
+  type SelectOption,
+  NIcon,
+  NDropdown,
+  NModal,
+  NText,
+  NSpace,
+  NInput,
+  useMessage
+} from 'naive-ui'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
@@ -36,12 +47,16 @@ import {
   AlignCenter,
   Movie
 } from '@vicons/tabler'
+import { set } from 'zod'
 
 interface Props {
   modelValue: string
 }
 
 const isMediaModal = ref(false)
+
+const isVideoFrameModal = ref(false)
+const videoFrameValue = ref('')
 
 const props = defineProps<Props>()
 // const refHtml = ref(null)
@@ -248,6 +263,10 @@ const toggleMediaModal = () => {
   isMediaModal.value = !isMediaModal.value
 }
 
+const toggleVideoFrameModal = () => {
+  isVideoFrameModal.value = !isVideoFrameModal.value
+}
+
 // TODO: Рефакторинг типа
 const selectMedia = (media: {
   year: number
@@ -318,19 +337,25 @@ function parseIframeCode(input: string): { src: string; width: number; height: n
   return null
 }
 
-function setVideoFrame() {
+const message = useMessage()
+
+function setVideoFrame(value: string) {
   if (!editor.value) {
     return null
   }
 
-  const input = prompt('Вставьте код <iframe> или ссылку на видео')
+  // const input = prompt('Вставьте код <iframe> или ссылку на видео')
 
-  if (!input) return null
+  // if (!input) return null
 
-  const parsed = parseIframeCode(input)
+  if (!value) {
+    return null
+  }
+
+  const parsed = parseIframeCode(value)
 
   if (!parsed) {
-    alert('Не удалось распознать ссылку или код видео')
+    message.error('Не удалось распознать ссылку или код видео')
     return null
   }
 
@@ -339,7 +364,15 @@ function setVideoFrame() {
     width: Math.min(parsed.width, 720),
     height: Math.min(parsed.height, 405)
   })
+
+  isVideoFrameModal.value = false
 }
+
+watch(isVideoFrameModal, () => {
+  if (!isVideoFrameModal.value) {
+    videoFrameValue.value = ''
+  }
+})
 
 watchEffect(() => {
   if (!editor.value) return null
@@ -610,7 +643,7 @@ onUnmounted(() => {
         secondary
         size="small"
         style="padding-left: 8px; padding-right: 8px"
-        @click="setVideoFrame"
+        @click="toggleVideoFrameModal"
       >
         <template #icon>
           <n-icon size="20px">
@@ -623,6 +656,22 @@ onUnmounted(() => {
   </div>
   <Teleport to="body">
     <n-modal
+      style="width: 100%; max-width: 480px"
+      :show="isVideoFrameModal"
+      preset="dialog"
+      title="Вставить код видео"
+      :show-icon="false"
+      @esc="isVideoFrameModal = false"
+      @close="isVideoFrameModal = false"
+    >
+      <n-space vertical>
+        <n-text :depth="3">Код вставки видео может иметь формат: &lt;iframe...&gt; </n-text>
+        <n-input v-model:value="videoFrameValue" type="textarea" placeholder="" />
+        <NButton type="primary" @click="setVideoFrame(videoFrameValue)">Добавить видео</NButton>
+      </n-space>
+    </n-modal>
+
+    <n-modal
       style="margin: 24px"
       title="Выберите изображение"
       size="huge"
@@ -632,13 +681,7 @@ onUnmounted(() => {
       @close="toggleMediaModal"
     >
       <slot name="media-manager" :on-media-select="selectMedia"></slot>
-      <!-- <media-list media-view-mode="select" @on-media-select="selectMediaHandler"></media-list> -->
     </n-modal>
-    <!-- <media-select-modal
-      :show="isMediaModal"
-      @on-close="() => (isMediaModal = false)"
-      @on-select="setImage"
-    /> -->
   </Teleport>
 </template>
 
