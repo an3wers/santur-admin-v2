@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EmailQueuePage from '~/pages/services/ui/EmailQueuePage.vue';
+
 definePageMeta({
   middleware: 'check-permission',
   ctx: 'services'
@@ -6,5 +8,5 @@ definePageMeta({
 </script>
 
 <template>
-  <div>123</div>
+  <EmailQueuePage />
 </template>
