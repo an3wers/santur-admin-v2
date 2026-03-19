@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NIcon, NButton, NSpace, NText } from 'naive-ui'
+import { NCard, NIcon, NButton, NSpace, NText, NSpin } from 'naive-ui'
 import type { ClientProjectDetailDto } from '../api/types'
 import { FileText } from '@vicons/tabler'
 
@@ -8,8 +8,11 @@ const props = defineProps<{
 }>()
 const { apiBase, santurS3Url } = useRuntimeConfig().public
 
+const isDownloading = ref(false)
+
 async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
   try {
+    isDownloading.value = true
     const replacedPath = file.getPath.replace(new RegExp(santurS3Url as string, 'i'), '')
 
     const res = await $fetch<unknown>(`/s3${replacedPath}`, {
@@ -41,6 +44,8 @@ async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
     window.URL.revokeObjectURL(url)
   } catch (error) {
     console.log(error)
+  } finally {
+    isDownloading.value = false
   }
 }
 
@@ -61,23 +66,25 @@ function handleFileClick(event: Event) {
 <template>
   <n-card title="Файлы">
     <n-text v-if="files.length === 0"> Файлы не добавлены </n-text>
-    <n-space v-else vertical @click="handleFileClick">
-      <n-button
-        v-for="file in files"
-        type="primary"
-        text
-        attr-type="button"
-        :key="file.fileUID"
-        :data-file-uid="file.fileUID"
-      >
-        <template #icon>
-          <n-icon size="24px">
-            <FileText />
-          </n-icon>
-        </template>
-        {{ file.fileName }}
-      </n-button>
-    </n-space>
+    <n-spin size="small" :show="isDownloading">
+      <n-space v-if="files.length" vertical @click="handleFileClick">
+        <n-button
+          v-for="file in files"
+          type="primary"
+          text
+          attr-type="button"
+          :key="file.fileUID"
+          :data-file-uid="file.fileUID"
+        >
+          <template #icon>
+            <n-icon size="24px">
+              <FileText />
+            </n-icon>
+          </template>
+          {{ file.fileName }}
+        </n-button>
+      </n-space>
+    </n-spin>
   </n-card>
 </template>
 
