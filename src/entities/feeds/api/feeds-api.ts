@@ -5,7 +5,9 @@ export const useFeedsApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
 
   async function saveFeedFilter(key: string, data: FeedFilterReq, makexmlfeed: boolean) {
-    const res = await fetchWithToken<FeedFilterRes>(
+    const res = await fetchWithToken<{
+      feedFilePath: string
+    }>(
       // `AdminGoods/SaveCatalogFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
       `admin/catalog/SaveFilter?key=${key}&makexmlfeed=${makexmlfeed}`,
       {

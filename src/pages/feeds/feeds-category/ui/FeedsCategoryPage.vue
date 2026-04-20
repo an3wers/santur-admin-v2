@@ -77,6 +77,7 @@ watchEffect(() => {
           :feed-keys="feedsKeysData || []"
           :feed-link="feedLink"
           :feed-permissions="feedPermissions"
+          :feed-file-path="feedFilterData?.feedFilePath || ''"
           @on-update-feed="saveFeedHandler"
           @on-saved-key="savedKeyHandler"
           @on-removed-key="removedKeyHandler"

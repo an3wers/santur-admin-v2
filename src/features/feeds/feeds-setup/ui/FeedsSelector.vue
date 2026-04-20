@@ -12,25 +12,27 @@ import {
   NText,
   useMessage
 } from 'naive-ui'
-import { Copy, ExternalLink, Dots } from '@vicons/tabler'
+import { Copy, Dots } from '@vicons/tabler'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import { useRemoveFeed } from '../model/use-remove-feed'
 import EditFeedKeyForm from './EditFeedKeyForm.vue'
 
-const { ctx, currentFeedKeyWithPrefix, feedKeys, feedPermissions, feedLink } = defineProps<{
-  ctx: string
-  currentFeedKeyWithPrefix: string | null
-  feedKeys: { label: string; value: string; descr: string }[]
-  feedPermissions: {
-    canAddNewKey: boolean
-    canEdit: boolean
-    canEditKey: boolean
-    canEditKeyName: boolean
-    canRemove: boolean
-    canViewFeedLink: boolean
-  }
-  feedLink: string
-}>()
+const { ctx, currentFeedKeyWithPrefix, feedKeys, feedPermissions, feedLink, feedFilePath } =
+  defineProps<{
+    ctx: string
+    currentFeedKeyWithPrefix: string | null
+    feedKeys: { label: string; value: string; descr: string }[]
+    feedPermissions: {
+      canAddNewKey: boolean
+      canEdit: boolean
+      canEditKey: boolean
+      canEditKeyName: boolean
+      canRemove: boolean
+      canViewFeedLink: boolean
+    }
+    feedLink: string
+    feedFilePath: string
+  }>()
 
 const currentFeedKeyWithoutPrefixValue = defineModel<string | null>('feedKey')
 
@@ -80,7 +82,7 @@ function handleDropdown(key: dropdownKeys) {
 
 const isOpenKeyModal = ref(false)
 
-const openInNewTabHandler = () => {
+const _openInNewTabHandler = () => {
   window.open(feedLink, '_blank')
 }
 const copyToClipboard = useCopyToClipboard()
@@ -161,20 +163,30 @@ watch(isOpenKeyModal, () => {
               </n-button>
             </n-dropdown>
 
-            <n-button type="primary" @click="saveFeedHandler">Обновить настройку</n-button>
+            <n-button secondary type="primary" @click="saveFeedHandler"
+              >Обновить настройку</n-button
+            >
           </div>
         </div>
-        <div v-if="feedPermissions.canViewFeedLink" class="row">
-          <n-input class="row__input" :value="feedLink" readonly />
-          <div class="row__btns">
-            <n-button ghost @click="openInNewTabHandler">
+        <template v-if="feedPermissions.canViewFeedLink">
+          <div class="row">
+            <n-input class="row__input" :value="feedLink" readonly />
+            <div class="row__btns">
+              <!-- <n-button ghost @click="openInNewTabHandler">
               <n-icon size="20px" :component="ExternalLink" />
-            </n-button>
-            <n-button ghost @click="copyHandler">
-              <n-icon size="20px" :component="Copy" />
-            </n-button>
+            </n-button> -->
+              <n-button text type="primary" @click="copyHandler">
+                <n-icon size="20px" :component="Copy" />
+              </n-button>
+            </div>
           </div>
-        </div>
+
+          <div v-if="feedFilePath !== ''">
+            <n-text :depth="3" style="display: block">Ссылка на статичный файл (*.xml)</n-text>
+            <nuxt-link :to="feedFilePath" target="_blank">{{ feedFilePath }}</nuxt-link>
+          </div>
+        </template>
+
         <n-p v-if="currentFeedMeta">
           <n-text :depth="3" style="display: block">Ключ</n-text>
           <span class="key-value"
@@ -186,7 +198,7 @@ watch(isOpenKeyModal, () => {
               @click="copyToClipboard(currentFeedMeta.value)"
             >
               <template #icon>
-                <n-icon size="16px" :component="Copy" />
+                <n-icon size="20px" :component="Copy" />
               </template>
             </n-button>
           </span>

@@ -17,6 +17,7 @@ export interface FeedFilterRes {
   title: string
   descr: string
   isStrong: boolean
+  feedFilePath: string
   znaks: {
     znak: string
     incash: boolean
