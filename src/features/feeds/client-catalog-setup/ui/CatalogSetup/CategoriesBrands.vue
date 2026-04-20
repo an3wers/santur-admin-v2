@@ -108,11 +108,12 @@ const switchCheckAll = (value: boolean) => {
                 </td>
                 <td>
                   <n-input-number
-                    v-model:value="item.discount"
+                    :value="item.discount"
                     clearable
                     size="small"
                     :validator="inputDiscountValidator"
                     :default-value="0"
+                    @update:value="(val) => (item.discount = val ?? 0)"
                   />
                 </td>
               </tr>
