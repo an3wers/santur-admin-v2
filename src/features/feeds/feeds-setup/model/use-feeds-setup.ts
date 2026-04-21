@@ -82,7 +82,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
           const key = el.key.split(':')[1]
           return {
             label: el.title,
-            value: key, // key without prefix
+            value: key || el.key, // key without prefix
             descr: el.descr
           }
         })
