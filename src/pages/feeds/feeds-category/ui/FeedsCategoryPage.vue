@@ -42,7 +42,8 @@ const {
   saveFeedHandler,
   toggleExcludedBrand,
   savedKeyHandler,
-  removedKeyHandler
+  removedKeyHandler,
+  saveFeedStatus
 } = useFeedsSetup(catId)
 
 if (catId.value == '1') {
@@ -78,6 +79,7 @@ watchEffect(() => {
           :feed-link="feedLink"
           :feed-permissions="feedPermissions"
           :feed-file-path="feedFilterData?.feedFileStaticPath || ''"
+          :is-save-loading="saveFeedStatus === 'pending'"
           @on-update-feed="saveFeedHandler"
           @on-saved-key="savedKeyHandler"
           @on-removed-key="removedKeyHandler"

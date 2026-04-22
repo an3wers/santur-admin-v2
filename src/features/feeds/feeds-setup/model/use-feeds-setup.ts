@@ -354,6 +354,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
     resetBrandsState,
     toggleExcludedBrand,
     savedKeyHandler,
-    removedKeyHandler
+    removedKeyHandler,
+    saveFeedStatus
   }
 }

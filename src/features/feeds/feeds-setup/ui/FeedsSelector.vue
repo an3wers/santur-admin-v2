@@ -32,6 +32,7 @@ const { ctx, currentFeedKeyWithPrefix, feedKeys, feedPermissions, feedLink, feed
     }
     feedLink: string
     feedFilePath: string
+    isSaveLoading: boolean
   }>()
 
 const currentFeedKeyWithoutPrefixValue = defineModel<string | null>('feedKey')
@@ -163,7 +164,7 @@ watch(isOpenKeyModal, () => {
               </n-button>
             </n-dropdown>
 
-            <n-button secondary type="primary" @click="saveFeedHandler"
+            <n-button secondary type="primary" :loading="isSaveLoading" @click="saveFeedHandler"
               >Обновить настройку</n-button
             >
           </div>
