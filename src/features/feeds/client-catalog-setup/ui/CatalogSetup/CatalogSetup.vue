@@ -11,12 +11,14 @@ import {
   NFormItem,
   NInput,
   NSwitch,
-  NPopover
+  NPopover,
+  NDropdown
 } from 'naive-ui'
 import type { SubjectItem } from '../../model/types'
 import { useCatalogSetup } from '../../model/use-catalog-setup'
 import CategoriesList from './CategoriesList.vue'
 import { X as XIcon, InfoCircle } from '@vicons/tabler'
+import { useCopyFilterDataStore } from '../../model/use-copy-filter-data-store'
 
 const { subject } = defineProps<{
   subject: SubjectItem
@@ -43,7 +45,9 @@ const {
   startDateFormatted,
   resetDateRange,
   clearDateRange,
-  isStrong
+  isStrong,
+  filterData,
+  pasteFilterData
 } = useCatalogSetup(() => subject)
 
 const message = useMessage()
@@ -76,6 +80,39 @@ function cancelPeriodSettingHandler() {
   resetDateRange()
   showPeriodSetting.value = false
 }
+
+const copyFilterDataStore = useCopyFilterDataStore()
+
+const moreMenu = computed(() => {
+  return [
+    {
+      label: 'Копировать настройку',
+      key: 'copy'
+    },
+    {
+      label: 'Вставить настройку',
+      key: 'paste',
+      disabled: copyFilterDataStore.copyFilterData == null
+    }
+  ]
+})
+
+function handleSelectMoreMenu(key: string | number) {
+  if (!filterData.value) {
+    return
+  }
+
+  if (key === 'copy') {
+    copyFilterDataStore.setCopyFilterData({
+      finishDate: filterData.value.data.finishDate,
+      startDate: filterData.value.data.startDate,
+      categories: filterData.value.data.categories,
+      isStrong: filterData.value.data.isStrong
+    })
+  } else if (key === 'paste') {
+    pasteFilterData()
+  }
+}
 </script>
 
 <template>
@@ -100,6 +137,9 @@ function cancelPeriodSettingHandler() {
           >
             Сохранить настройку
           </n-button>
+          <n-dropdown trigger="hover" :options="moreMenu" @select="handleSelectMoreMenu">
+            <n-button size="medium" secondary type="primary" strong>Go For a Trip</n-button>
+          </n-dropdown>
           <n-button
             size="medium"
             secondary

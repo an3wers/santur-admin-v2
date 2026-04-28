@@ -3,6 +3,7 @@ import type { BrandItem, CategoryId, CategoryItem, SubjectItem } from './types'
 import { useClientCatalogApi } from '~/entities/feeds'
 import type { AsyncDataRequestStatus } from '#app'
 import { formatDateForInput, formatDateForServer } from '~/shared/libs/format-date-for-server'
+import { useCopyFilterDataStore } from './use-copy-filter-data-store'
 
 export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
   // filter state
@@ -24,6 +25,24 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     } else {
       brandsFilter.value.set(categoryId, brands)
     }
+  }
+
+  const { copyFilterData } = storeToRefs(useCopyFilterDataStore())
+
+  function pasteFilterData() {
+    if (!filterData.value || !copyFilterData.value) {
+      return
+    }
+
+    filterData.value.data.categories = copyFilterData.value.categories
+    filterData.value.data.finishDate = copyFilterData.value.finishDate
+    filterData.value.data.startDate = copyFilterData.value.startDate
+    filterData.value.data.isStrong = copyFilterData.value.isStrong
+
+    categoriesExecute()
+    setupBrandsFilter()
+    resetDateRange()
+    isStrong.value = filterData.value?.data.isStrong ?? false
   }
 
   // dates state
@@ -212,6 +231,7 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
     finishDateFormatted,
     resetDateRange,
     clearDateRange,
-    isStrong
+    isStrong,
+    pasteFilterData
   }
 }

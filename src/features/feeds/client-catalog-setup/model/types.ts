@@ -42,3 +42,18 @@ export interface FilterSubjectKeyItem {
   finishDate: string
   subject: SubjectItem
 }
+
+export interface CopyFilterData {
+  finishDate: string
+  startDate: string
+  isStrong?: boolean
+  categories: {
+    id: number
+    title: string
+    brends: {
+      brend: string
+      priceType: string
+      discount: number
+    }[]
+  }[]
+}
