@@ -17,7 +17,7 @@ import {
 import type { SubjectItem } from '../../model/types'
 import { useCatalogSetup } from '../../model/use-catalog-setup'
 import CategoriesList from './CategoriesList.vue'
-import { X as XIcon, InfoCircle } from '@vicons/tabler'
+import { X as XIcon, InfoCircle, ChevronDown } from '@vicons/tabler'
 import { useCopyFilterDataStore } from '../../model/use-copy-filter-data-store'
 
 const { subject } = defineProps<{
@@ -109,8 +109,11 @@ function handleSelectMoreMenu(key: string | number) {
       categories: filterData.value.data.categories,
       isStrong: filterData.value.data.isStrong
     })
+
+    message.success('Настройка скопирована')
   } else if (key === 'paste') {
     pasteFilterData()
+    message.success('Настройка вставлена')
   }
 }
 </script>
@@ -138,7 +141,13 @@ function handleSelectMoreMenu(key: string | number) {
             Сохранить настройку
           </n-button>
           <n-dropdown trigger="hover" :options="moreMenu" @select="handleSelectMoreMenu">
-            <n-button size="medium" secondary type="primary" strong>Go For a Trip</n-button>
+            <n-button size="medium" secondary type="primary" strong class="icon-square">
+              <template #icon>
+                <n-icon size="24px">
+                  <ChevronDown />
+                </n-icon>
+              </template>
+            </n-button>
           </n-dropdown>
           <n-button
             size="medium"
@@ -229,6 +238,11 @@ function handleSelectMoreMenu(key: string | number) {
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
+}
+
+.icon-square {
+  width: 34px;
+  height: 34px;
 }
 
 .period-setting-container {
