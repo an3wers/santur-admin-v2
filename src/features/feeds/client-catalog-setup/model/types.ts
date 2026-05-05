@@ -44,6 +44,7 @@ export interface FilterSubjectKeyItem {
 }
 
 export interface CopyFilterData {
+  subjectName: string
   finishDate: string
   startDate: string
   isStrong?: boolean

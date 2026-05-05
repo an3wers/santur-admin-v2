@@ -104,6 +104,7 @@ function handleSelectMoreMenu(key: string | number) {
 
   if (key === 'copy') {
     copyFilterDataStore.setCopyFilterData({
+      subjectName: subject.name,
       finishDate: filterData.value.data.finishDate,
       startDate: filterData.value.data.startDate,
       categories: filterData.value.data.categories,
@@ -113,7 +114,7 @@ function handleSelectMoreMenu(key: string | number) {
     message.success('Настройка скопирована')
   } else if (key === 'paste') {
     pasteFilterData()
-    message.success('Настройка вставлена')
+    message.success('Настройка вставлена, не забудьте сохранить!')
   }
 }
 </script>
@@ -122,11 +123,23 @@ function handleSelectMoreMenu(key: string | number) {
   <n-space vertical>
     <div v-if="copyFilterDataStore.copyFilterData != null" class="copyfilter-container">
       <div class="copyfilter-container__title">
-        <n-text :depth="2">Скопирована настройка:</n-text>
+        <n-text :depth="2"
+          >Скопирована настройка:
+          <strong>{{ copyFilterDataStore.copyFilterData.subjectName }}</strong></n-text
+        >
       </div>
       <div class="copyfilter-container__actions">
-        <n-button quaternary size="small" type="primary"> Вставить настройку </n-button>
-        <n-button quaternary size="small" type="error"> Сбросить </n-button>
+        <n-button quaternary size="small" type="primary" @click="handleSelectMoreMenu('paste')">
+          Вставить настройку
+        </n-button>
+        <n-button
+          quaternary
+          size="small"
+          type="error"
+          @click="copyFilterDataStore.setCopyFilterData(null)"
+        >
+          Сбросить
+        </n-button>
       </div>
     </div>
 
@@ -306,7 +319,7 @@ function handleSelectMoreMenu(key: string | number) {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #afeeee;
+  background-color: #ffdab9;
   border-radius: 0.5rem;
 }
 
