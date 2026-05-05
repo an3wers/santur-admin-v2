@@ -119,117 +119,137 @@ function handleSelectMoreMenu(key: string | number) {
 </script>
 
 <template>
-  <n-card>
-    <n-space vertical>
-      <div class="subject-info-header" justify="space-between" align="start">
-        <div class="subject-info">
-          <h2>{{ subject.name }}</h2>
-          <div class="subject-info-details">
-            <n-text :depth="3">Код: {{ subject.code || '-' }}</n-text>
-            <n-text :depth="3">ИНН: {{ subject.inn || '-' }}</n-text>
-            <n-text :depth="3">ТА: {{ subject.taemail || '-' }}</n-text>
+  <n-space vertical>
+    <div v-if="copyFilterDataStore.copyFilterData != null" class="copyfilter-container">
+      <div class="copyfilter-container__title">
+        <n-text :depth="2">Скопирована настройка:</n-text>
+      </div>
+      <div class="copyfilter-container__actions">
+        <n-button quaternary size="small" type="primary"> Вставить настройку </n-button>
+        <n-button quaternary size="small" type="error"> Сбросить </n-button>
+      </div>
+    </div>
+
+    <n-card>
+      <n-space vertical>
+        <div class="subject-info-header" justify="space-between" align="start">
+          <div class="subject-info">
+            <h2>{{ subject.name }}</h2>
+            <div class="subject-info-details">
+              <n-text :depth="3">Код: {{ subject.code || '-' }}</n-text>
+              <n-text :depth="3">ИНН: {{ subject.inn || '-' }}</n-text>
+              <n-text :depth="3">ТА: {{ subject.taemail || '-' }}</n-text>
+            </div>
           </div>
-        </div>
-        <div class="action-group">
-          <n-button
-            size="medium"
-            type="primary"
-            :disabled="loading"
-            :loading="saveFilterSubjectStatus === 'pending'"
-            @click="saveFilterSubjectHandler"
-          >
-            Сохранить настройку
-          </n-button>
-          <n-dropdown trigger="hover" :options="moreMenu" @select="handleSelectMoreMenu">
-            <n-button size="medium" secondary type="primary" strong class="icon-square">
+
+          <div class="action-group">
+            <n-button
+              size="medium"
+              type="primary"
+              :disabled="loading"
+              :loading="saveFilterSubjectStatus === 'pending'"
+              @click="saveFilterSubjectHandler"
+            >
+              Сохранить настройку
+            </n-button>
+            <n-dropdown trigger="hover" :options="moreMenu" @select="handleSelectMoreMenu">
+              <n-button
+                size="medium"
+                secondary
+                type="primary"
+                strong
+                class="icon-square"
+                :disabled="saveFilterSubjectStatus === 'pending' || loading"
+              >
+                <template #icon>
+                  <n-icon size="24px">
+                    <ChevronDown />
+                  </n-icon>
+                </template>
+              </n-button>
+            </n-dropdown>
+            <n-button
+              size="medium"
+              secondary
+              type="primary"
+              strong
+              :disabled="saveFilterSubjectStatus === 'pending' || loading"
+              @click="$emit('onClose')"
+            >
               <template #icon>
-                <n-icon size="24px">
-                  <ChevronDown />
+                <n-icon>
+                  <XIcon />
                 </n-icon>
               </template>
+              Закрыть
             </n-button>
-          </n-dropdown>
-          <n-button
-            size="medium"
-            secondary
-            type="primary"
-            strong
-            :disabled="saveFilterSubjectStatus === 'pending' || loading"
-            @click="$emit('onClose')"
-          >
-            <template #icon>
-              <n-icon>
-                <XIcon />
-              </n-icon>
-            </template>
-            Закрыть
-          </n-button>
+          </div>
         </div>
-      </div>
 
-      <n-space style="margin-bottom: 1rem" size="large" :align="'center'">
-        <n-text style="font-size: 1rem" tag="p" strong>Персональный каталог</n-text>
-        <n-button size="small" ghost type="default" @click="showPeriodSetting = true">{{
-          startDate && finishDate
-            ? `Период действия: ${startDateFormatted} - ${finishDateFormatted}`
-            : 'Настроить период действия'
-        }}</n-button>
+        <n-space style="margin-bottom: 1rem" size="large" :align="'center'">
+          <n-text style="font-size: 1rem" tag="p" strong>Персональный каталог</n-text>
+          <n-button size="small" ghost type="default" @click="showPeriodSetting = true">{{
+            startDate && finishDate
+              ? `Период действия: ${startDateFormatted} - ${finishDateFormatted}`
+              : 'Настроить период действия'
+          }}</n-button>
 
-        <div class="limit-catalog-container">
-          <n-popover style="width: 280px" trigger="hover" placement="bottom">
-            <template #trigger>
-              <div class="limit-catalog-info">
-                <n-icon size="20px" :component="InfoCircle" />
-                <n-text>Ограничить каталог</n-text>
-              </div>
-            </template>
-            <n-text
-              >При включении этой опции, каталог клиента будет ограничен только теми категориями и
-              брендами, которые выбраны в настройке.
-              <strong>Общий каталог будет недоступен.</strong></n-text
-            >
-          </n-popover>
+          <div class="limit-catalog-container">
+            <n-popover style="width: 280px" trigger="hover" placement="bottom">
+              <template #trigger>
+                <div class="limit-catalog-info">
+                  <n-icon size="20px" :component="InfoCircle" />
+                  <n-text>Ограничить каталог</n-text>
+                </div>
+              </template>
+              <n-text
+                >При включении этой опции, каталог клиента будет ограничен только теми категориями и
+                брендами, которые выбраны в настройке.
+                <strong>Общий каталог будет недоступен.</strong></n-text
+              >
+            </n-popover>
 
-          <n-switch v-model:value="isStrong" size="small" />
-        </div>
+            <n-switch v-model:value="isStrong" size="small" />
+          </div>
+        </n-space>
+
+        <n-spin :show="loading">
+          <CategoriesList
+            v-if="categoriesData?.data"
+            :subject-id="subject.id"
+            :expanded-all="isExpanded"
+            :brands-filter="brandsFilter"
+            @on-update-brands-filter="updateBrandsFilter"
+          />
+          <div v-else style="height: 100px"></div>
+        </n-spin>
       </n-space>
 
-      <n-spin :show="loading">
-        <CategoriesList
-          v-if="categoriesData?.data"
-          :subject-id="subject.id"
-          :expanded-all="isExpanded"
-          :brands-filter="brandsFilter"
-          @on-update-brands-filter="updateBrandsFilter"
-        />
-        <div v-else style="height: 100px"></div>
-      </n-spin>
-    </n-space>
-
-    <n-modal v-model:show="showPeriodSetting" style="max-width: 500px" :mask-closable="false">
-      <n-card size="medium" title="Настроить период действия">
-        <div class="period-setting-container">
-          <n-form-item label="Начало периода">
-            <n-input v-model:value="startDate" :input-props="{ type: 'date' }" placeholder="" />
-          </n-form-item>
-          <n-form-item label="Конец периода">
-            <n-input v-model:value="finishDate" :input-props="{ type: 'date' }" placeholder="" />
-          </n-form-item>
-        </div>
-        <template #footer>
-          <n-space justify="space-between">
-            <n-button type="error" @click="clearDateRange">Сбросить</n-button>
-            <n-space justify="end">
-              <n-button secondary type="primary" @click="cancelPeriodSettingHandler"
-                >Отменить</n-button
-              >
-              <n-button type="primary" @click="savePeriodSettingHandler">Сохранить</n-button>
+      <n-modal v-model:show="showPeriodSetting" style="max-width: 500px" :mask-closable="false">
+        <n-card size="medium" title="Настроить период действия">
+          <div class="period-setting-container">
+            <n-form-item label="Начало периода">
+              <n-input v-model:value="startDate" :input-props="{ type: 'date' }" placeholder="" />
+            </n-form-item>
+            <n-form-item label="Конец периода">
+              <n-input v-model:value="finishDate" :input-props="{ type: 'date' }" placeholder="" />
+            </n-form-item>
+          </div>
+          <template #footer>
+            <n-space justify="space-between">
+              <n-button type="error" @click="clearDateRange">Сбросить</n-button>
+              <n-space justify="end">
+                <n-button secondary type="primary" @click="cancelPeriodSettingHandler"
+                  >Отменить</n-button
+                >
+                <n-button type="primary" @click="savePeriodSettingHandler">Сохранить</n-button>
+              </n-space>
             </n-space>
-          </n-space>
-        </template>
-      </n-card>
-    </n-modal>
-  </n-card>
+          </template>
+        </n-card>
+      </n-modal>
+    </n-card>
+  </n-space>
 </template>
 
 <style scoped>
@@ -278,6 +298,25 @@ function handleSelectMoreMenu(key: string | number) {
 .limit-catalog-info {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.copyfilter-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #afeeee;
+  border-radius: 0.5rem;
+}
+
+.copyfilter-container__title {
+  font-size: 0.875rem; /* 14px */
+}
+
+.copyfilter-container__actions {
+  margin-left: auto;
+  display: flex;
   gap: 0.5rem;
 }
 </style>
