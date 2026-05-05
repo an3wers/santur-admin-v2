@@ -1,90 +1,33 @@
 <script setup lang="ts">
-import { NCard, NIcon, NButton, NSpace, NText, NSpin } from 'naive-ui'
+import { NCard, NIcon, NSpace, NText } from 'naive-ui'
 import type { ClientProjectDetailDto } from '../api/types'
 import { FileText } from '@vicons/tabler'
 
 const props = defineProps<{
   files: ClientProjectDetailDto['files']
 }>()
-const { apiBase, santurS3Url } = useRuntimeConfig().public
-
-const isDownloading = ref(false)
-
-async function downloadFile(file: ClientProjectDetailDto['files'][number]) {
-  try {
-    isDownloading.value = true
-    const replacedPath = file.getPath.replace(new RegExp(santurS3Url as string, 'i'), '')
-
-    const res = await $fetch<unknown>(`/s3${replacedPath}`, {
-      baseURL: apiBase as string
-    })
-
-    let blob: Blob | undefined
-
-    if (res instanceof Blob) {
-      blob = res
-    } else if (res instanceof ArrayBuffer) {
-      blob = new Blob([res])
-    } else if (typeof res === 'string') {
-      blob = new Blob([res])
-    } else if (res instanceof Object) {
-      blob = new Blob([JSON.stringify(res)])
-    }
-
-    if (!blob) {
-      throw new Error('Не удалось получить файл')
-    }
-
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = file.fileName
-    a.click()
-
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.log(error)
-  } finally {
-    isDownloading.value = false
-  }
-}
-
-function handleFileClick(event: Event) {
-  const target = event.target as HTMLElement
-  const button = target.closest('[data-file-uid]') as HTMLElement
-  if (button) {
-    const fileUID = button.dataset.fileUid
-    const file = props.files.find((f) => f.fileUID === fileUID)
-
-    if (file) {
-      downloadFile(file)
-    }
-  }
-}
 </script>
 
 <template>
   <n-card title="Файлы">
     <n-text v-if="files.length === 0"> Файлы не добавлены </n-text>
-    <n-spin size="small" :show="isDownloading">
-      <n-space v-if="files.length" vertical @click="handleFileClick">
-        <n-button
-          v-for="file in files"
-          type="primary"
-          text
-          attr-type="button"
-          :key="file.fileUID"
-          :data-file-uid="file.fileUID"
-        >
-          <template #icon>
+    <n-space v-else vertical>
+      <ul class="file-list">
+        <li v-for="file in files" :key="file.fileUID" class="file-list__item">
+          <nuxt-link
+            :to="file.staticPath"
+            target="_blank"
+            :download="file.fileName"
+            class="file-list__link"
+          >
             <n-icon size="24px">
               <FileText />
             </n-icon>
-          </template>
-          {{ file.fileName }}
-        </n-button>
-      </n-space>
-    </n-spin>
+            <span>{{ file.fileName }}</span>
+          </nuxt-link>
+        </li>
+      </ul>
+    </n-space>
   </n-card>
 </template>
 
@@ -98,5 +41,23 @@ function handleFileClick(event: Event) {
 .n-list-item-row .item-icon {
   flex-shrink: 0;
   line-height: 1;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-list__item {
+}
+
+.file-list__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
 }
 </style>
