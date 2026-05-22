@@ -383,6 +383,7 @@ export const useNavStore = defineStore('navigation', () => {
           })
           break
         case 'MRKT':
+        case 'GADM':
           items.forEach((item) => {
             if (
               item.modelName === 'analytics' ||
