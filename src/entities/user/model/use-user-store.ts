@@ -126,7 +126,8 @@ export const useUserStore = defineStore('user', () => {
   }
 
   // внешний пользователь для студии - 'EXTRMRKT'
-  const validRoles = ['ADM', 'MRKT', 'VCNADM', 'CLPADM', 'DEVLP', 'SADM', 'EXTRMRKT']
+  // TODO: НЕ ДОЛЖНО БЫТЬ ЗАХОРДКОЖЕННОГО СПИСКА, НУЖНО БРАТЬ ИЗ КОНСТАНТ С РОЛЯМИ
+  const validRoles = ['ADM', 'MRKT', 'GAMD', 'VCNADM', 'CLPADM', 'DEVLP', 'SADM', 'EXTRMRKT']
 
   function checkAllAdminRoles(payload?: User) {
     if (!payload) {
