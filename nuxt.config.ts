@@ -12,7 +12,8 @@ export default defineNuxtConfig({
 
   ssr: false,
   experimental: {
-    viteEnvironmentApi: true
+    viteEnvironmentApi: true,
+    appManifest: false
   },
   app: { head: { link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }] } },
   srcDir: 'src/',
