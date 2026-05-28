@@ -150,20 +150,6 @@ export const useCategoryStore = defineStore('category', () => {
     }
   }
 
-  // async function saveExtendField(payload: TExtFileds) {
-  //   try {
-  //     extFieldsStatus.value = 'pending'
-  //     extFieldsError.value = ''
-  //     await api.saveExtendField(payload.id, payload.categoryId, payload.title)
-  //   } catch (e) {
-  //     const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-  //     extFieldsError.value = errorText
-  //     extFieldsStatus.value = 'error'
-  //   } finally {
-  //     extFieldsStatus.value = 'success'
-  //   }
-  // }
-
   async function deleteExtendField(extendFieldId: number) {
     try {
       extFieldsStatus.value = 'pending'
@@ -177,20 +163,6 @@ export const useCategoryStore = defineStore('category', () => {
       extFieldsStatus.value = 'error'
     }
   }
-
-  // async function getCountChildRecord(extendFieldId: number, categoryId: number) {
-  //   try {
-  //     extFieldsStatus.value = 'pending'
-  //     extFieldsError.value = ''
-  //     return await api.checkForExistsExtFieldValue(extendFieldId, categoryId)
-  //   } catch (e) {
-  //     const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-  //     extFieldsError.value = errorText
-  //     extFieldsStatus.value = 'error'
-  //   } finally {
-  //     extFieldsStatus.value = 'success'
-  //   }
-  // }
 
   function $reset() {
     categoryStatus.value = 'idle'

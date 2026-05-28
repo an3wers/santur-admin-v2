@@ -6,6 +6,9 @@ export const useCategoryApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
   type CategoryIdResponse = number
+
+  //TODO: Ответ бэкенда {"data":134,"success":false,"message":"OK"} - почему "success":false????
+
   async function saveCategory(data: SaveCategoryDto) {
     const res = await fetchWithToken<CategoryIdResponse>('Admin/SaveCategory', {
       method: 'POST',
@@ -22,7 +25,7 @@ export const useCategoryApi = () => {
 
     const res = await fetchWithToken<CategoryIdResponse>(`Admin/DeleteCategory?${query.toString()}`)
     const _data = checkError(res).data
-    return z.number().parse(_data)
+    return _data // z.number().parse(_data) // С бэкенда не приходит id удаленной категории
   }
 
   async function getCategory(id: string | number) {
@@ -36,19 +39,6 @@ export const useCategoryApi = () => {
   }
 
   // TODO: добавить проверку Zod схемы
-  // async function saveExtendField(id: number, categoryId: number, title: string) {
-  //   const res = await fetchWithToken<unknown>('Admin/SaveExtendField', {
-  //     method: 'POST',
-  //     body: {
-  //       id,
-  //       categoryId,
-  //       title
-  //     }
-  //   })
-  //   return checkError(res)
-  // }
-
-  // TODO: добавить проверку Zod схемы
   async function removeExtendField(extendFieldId: number) {
     const query = new URLSearchParams({
       extendFieldId: extendFieldId.toString()
@@ -57,7 +47,7 @@ export const useCategoryApi = () => {
     const res = await fetchWithToken<unknown>(`Admin/DeleteExtendField?${query.toString()}`)
     /*
       Баг на серверной стороне, запрос возвращает 200 и выполняется успешно,
-      но в теле ответа "success":false, из-за чего пришлось делать кастомную проверка, а не использовать checkError(res).data 
+      но в теле ответа "success":false, из-за чего пришлось делать кастомную проверка, а не использовать checkError(res).data
     */
 
     if (!res.data) {
