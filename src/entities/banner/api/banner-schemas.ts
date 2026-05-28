@@ -1,4 +1,4 @@
-import {  z } from 'zod'
+import { z } from 'zod'
 
 export const bannerSchema = z.object({
   app: z.string(),
@@ -55,7 +55,7 @@ export interface SaveBannerReq {
   descr: string
   published: string
 }
-type DeviceType = 'desktop' | 'mobile';
+type DeviceType = 'desktop' | 'mobile'
 export interface BannerImage {
   device: DeviceType
   imgPath: string
