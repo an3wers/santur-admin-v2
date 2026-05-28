@@ -11,6 +11,9 @@ export default defineNuxtConfig({
   ],
 
   ssr: false,
+  experimental: {
+    viteEnvironmentApi: true
+  },
   app: { head: { link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }] } },
   srcDir: 'src/',
   spaLoadingTemplate: false,
@@ -24,23 +27,10 @@ export default defineNuxtConfig({
     plugins: '../plugins'
   },
   serverDir: 'server',
-  components: [
-    { path: '~/shared', extensions: ['.vue'], pathPrefix: false }
-    // {
-    //   path: '~/entities',
-    //   extensions: ['.vue'],
-    //   pathPrefix: false
-    // },
-    // {
-    //   path: '~/pages',
-    //   extensions: ['.vue'],
-    //   pathPrefix: false
-    // }
-  ],
-  imports: {
-    // dirs: ['~/shared/**/*.ts', '~/entities/**/*.ts', '~/pages/**/*.ts']
-  },
+  components: [{ path: '~/shared', extensions: ['.vue'], pathPrefix: false }],
+
   css: ['~/app/assets/styles/app.css'],
+
   $production: {
     sourcemap: {
       client: false,
@@ -52,9 +42,10 @@ export default defineNuxtConfig({
         minify: 'esbuild',
         target: ['es2018'],
         sourcemap: false
-      },
-
-      esbuild: {
+      }
+    },
+    esbuild: {
+      options: {
         pure: ['console.log']
       }
     },

@@ -1,5 +1,5 @@
-// @ts-check
 import withNuxt from './.nuxt/eslint.config.mjs'
+// @ts-check
 import prettierPlugin from 'eslint-plugin-prettier'
 import eslintConfigPrettier from 'eslint-config-prettier'
 
@@ -31,6 +31,7 @@ export default withNuxt(
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-dynamic-delete': 'warn',
       '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unnecessary-type-constraint': 'warn',
       'prettier/prettier': [
         'warn',
         {
