@@ -2,6 +2,7 @@ import type { Category } from './category-types'
 import { useCategoryApi } from '../api/category-api'
 import { useNavStore } from '~/shared/navigation'
 import { generateAlias } from '~/shared/libs/generate-alias'
+import { useRequest } from '~/shared/api/use-request'
 
 export const useCategoryStore = defineStore('category', () => {
   const api = useCategoryApi()
@@ -20,17 +21,11 @@ export const useCategoryStore = defineStore('category', () => {
   const showConfirmForRemoveField = ref(false)
   const _fieldIdForRemove = ref(-1)
 
-  const categoryStatus = ref<ProcessStatus>('idle')
-  const categoryError = ref('')
-
-  const saveStatus = ref<ProcessStatus>('idle')
-  const saveError = ref('')
-
-  const removeStatus = ref<ProcessStatus>('idle')
-  const removeError = ref('')
-
-  const extFieldsStatus = ref<ProcessStatus>('idle')
-  const extFieldsError = ref('')
+  const categoryRequest = useRequest()
+  const saveRequest = useRequest()
+  const removeRequest = useRequest()
+  const extFieldsRequest = useRequest()
+  const checkExtFieldRequest = useRequest()
 
   function addExtendFieldInput() {
     category.extFields.push({
@@ -48,30 +43,34 @@ export const useCategoryStore = defineStore('category', () => {
       return true
     }
 
-    const childCount = await api.checkForExistsExtFieldValue(currFieldId, category.id)
+    const checkResult = await checkExtFieldRequest.handleRequest(() =>
+      api.checkForExistsExtFieldValue(currFieldId, category.id)
+    )
 
-    if (childCount > 0) {
+    if (!checkResult.ok) return false
+
+    if (checkResult.data > 0) {
       showConfirmForRemoveField.value = true
       _fieldIdForRemove.value = currFieldId
       return false
-    } else {
-      await deleteExtendField(currFieldId)
-
-      if (extFieldsStatus.value === 'success') {
-        category.extFields.splice(index, 1)
-        return true
-      }
-
-      return false
     }
+
+    const deleteResult = await deleteExtendField(currFieldId)
+
+    if (deleteResult.ok) {
+      category.extFields.splice(index, 1)
+      return true
+    }
+
+    return false
   }
 
   async function removeAfterConfirm() {
     if (_fieldIdForRemove.value === -1) return
 
-    await deleteExtendField(_fieldIdForRemove.value)
+    const result = await deleteExtendField(_fieldIdForRemove.value)
 
-    if (extFieldsStatus.value === 'success') {
+    if (result.ok) {
       category.extFields = category.extFields.filter((f) => f.id !== _fieldIdForRemove.value)
       _fieldIdForRemove.value = -1
       showConfirmForRemoveField.value = false
@@ -83,40 +82,29 @@ export const useCategoryStore = defineStore('category', () => {
     showConfirmForRemoveField.value = false
   }
 
-  async function loadCategory(catId: number): Promise<void> {
-    if (catId === 0) {
-      return
+  async function loadCategory(catId: number) {
+    if (catId === 0) return
+
+    const result = await categoryRequest.handleRequest(() => api.getCategory(catId))
+
+    if (result.ok) {
+      category.id = result.data.id
+      category.alias = result.data.alias
+      category.app = result.data.app
+      category.name = result.data.name
+      category.type = result.data.type
+      category.menuOrder = result.data.menuOrder
+      category.extFields = result.data.extFields
     }
 
-    try {
-      categoryStatus.value = 'pending'
-      categoryError.value = ''
-      const data = await api.getCategory(catId)
-
-      category.id = data.id
-      category.alias = data.alias
-      category.app = data.app
-      category.name = data.name
-      category.type = data.type
-      category.menuOrder = data.menuOrder
-      category.extFields = data.extFields
-
-      categoryStatus.value = 'success'
-    } catch (e) {
-      const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-      categoryError.value = errorText
-      categoryStatus.value = 'error'
-    }
+    return result
   }
 
   async function saveCategory(type: string) {
-    try {
-      saveStatus.value = 'pending'
-      saveError.value = ''
+    const filteredExtFields = category.extFields.filter((f) => f.title !== '')
 
-      const filteredExtFields = category.extFields.filter((f) => f.title !== '')
-
-      await api.saveCategory({
+    return saveRequest.handleRequest(() =>
+      api.saveCategory({
         type,
         id: category.id,
         alias: category.alias ? category.alias : generateAlias(category.name),
@@ -125,56 +113,30 @@ export const useCategoryStore = defineStore('category', () => {
         title: category.name,
         menuOrder: category.menuOrder
       })
-      saveStatus.value = 'success'
-    } catch (e) {
-      const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-      saveError.value = errorText
-      saveStatus.value = 'error'
-    }
+    )
   }
 
   async function removeCategory() {
     if (category.id === 0) return
 
-    try {
-      removeStatus.value = 'pending'
-      removeError.value = ''
-
-      await api.removeCategory(category.id)
-
-      removeStatus.value = 'success'
-    } catch (e) {
-      const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-      removeError.value = errorText
-      removeStatus.value = 'error'
-    }
+    return removeRequest.handleRequest(() => api.removeCategory(category.id))
   }
 
   async function deleteExtendField(extendFieldId: number) {
-    try {
-      extFieldsStatus.value = 'pending'
-      extFieldsError.value = ''
-      await api.removeExtendField(extendFieldId)
-
-      extFieldsStatus.value = 'success'
-    } catch (e) {
-      const errorText = e instanceof Error ? e.message : JSON.stringify(e)
-      extFieldsError.value = errorText
-      extFieldsStatus.value = 'error'
-    }
+    return extFieldsRequest.handleRequest(() => api.removeExtendField(extendFieldId))
   }
 
   function $reset() {
-    categoryStatus.value = 'idle'
-    saveStatus.value = 'idle'
-    removeStatus.value = 'idle'
-
-    categoryError.value = ''
-    saveError.value = ''
-    removeError.value = ''
-
-    extFieldsStatus.value = 'idle'
-    extFieldsError.value = ''
+    categoryRequest.status.value = 'idle'
+    categoryRequest.error.value = null
+    saveRequest.status.value = 'idle'
+    saveRequest.error.value = null
+    removeRequest.status.value = 'idle'
+    removeRequest.error.value = null
+    extFieldsRequest.status.value = 'idle'
+    extFieldsRequest.error.value = null
+    checkExtFieldRequest.status.value = 'idle'
+    checkExtFieldRequest.error.value = null
 
     category.alias = ''
     category.app = navStore.activeResource
@@ -189,15 +151,11 @@ export const useCategoryStore = defineStore('category', () => {
   }
 
   return {
-    categoryStatus,
-    saveStatus,
-    removeStatus,
     category,
-    categoryError,
-    saveError,
-    removeError,
-    extFieldsStatus,
-    extFieldsError,
+    categoryStatus: categoryRequest.status,
+    saveStatus: saveRequest.status,
+    removeStatus: removeRequest.status,
+    extFieldsStatus: extFieldsRequest.status,
     showConfirmForRemoveField,
     removeAfterConfirm,
     cancelRemoveConfirm,

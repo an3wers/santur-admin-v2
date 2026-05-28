@@ -34,15 +34,8 @@ categoryStore.$reset()
 
 categoryStore.loadCategory(id)
 
-const {
-  category,
-  categoryStatus,
-  removeStatus,
-  removeError,
-  saveStatus,
-  saveError,
-  showConfirmForRemoveField
-} = storeToRefs(categoryStore)
+const { category, categoryStatus, removeStatus, saveStatus, showConfirmForRemoveField } =
+  storeToRefs(categoryStore)
 
 const getType = computed(() => {
   switch (firstLevelName) {
@@ -56,32 +49,31 @@ const getType = computed(() => {
 })
 
 async function saveCategory() {
-  await categoryStore.saveCategory(getType.value)
+  const result = await categoryStore.saveCategory(getType.value)
 
-  if (saveStatus.value === 'success') {
+  if (result.ok) {
     emits('onUpdate')
     emits('onCancel')
     message.success('Категория сохранена')
+    return
   }
 
-  if (saveStatus.value === 'error') {
-    message.error(saveError.value)
-  }
+  message.error(result.error.message)
 }
 
 async function removeCategory() {
-  await categoryStore.removeCategory()
+  const result = await categoryStore.removeCategory()
 
-  if (removeStatus.value === 'success') {
+  if (!result) return
+
+  if (result.ok) {
     emits('onUpdate')
     emits('onCancel')
     message.success('Категория удалена')
     return navigateTo({ name: firstLevelName, replace: true })
   }
 
-  if (removeStatus.value === 'error') {
-    message.error(removeError.value)
-  }
+  message.error(result.error.message)
 }
 </script>
 
