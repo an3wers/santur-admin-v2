@@ -1,3 +1,5 @@
+import type { PresetItem } from '../api/catalog-schemas'
+
 export interface CatalogItem {
   id: number
   parent_id: number
@@ -17,6 +19,7 @@ export interface CatalogItem {
     url: string
   }
   gimg: string | null
+  presets?: PresetItem[]
   child: Omit<CatalogItem, 'child'>[]
 }
 

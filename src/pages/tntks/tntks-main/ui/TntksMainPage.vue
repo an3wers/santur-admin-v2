@@ -3,8 +3,10 @@ import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem, NIcon } from '
 import {
   CatalogList,
   getCatalogQueryKey,
+  getPresetsQueryKey,
   useCatalogApi,
   groupCatalogItems,
+  attachPresetsToCatalog,
   UploadCatalogItemData
 } from '~/entities/catalog'
 import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
@@ -18,7 +20,8 @@ const api = useCatalogApi()
 
 const { data, status } = await useAsyncData(getCatalogQueryKey(), api.getCatalog)
 
-// fetch all presets
+// fetch all presets (подфильтровые страницы) — опционально, ошибку обрабатываем мягко
+const { data: presetsData } = await useAsyncData(getPresetsQueryKey(), api.getPresetsFilters)
 
 // const message = useMessage()
 
@@ -113,10 +116,9 @@ const filteredByDescr = computed(() => {
 })
 
 const groupedCatalogItems = computed(() => {
-  return groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
+  const grouped = groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
+  return attachPresetsToCatalog(grouped, presetsData.value ?? [])
 })
-
-// TODO: group presets
 
 const showUploadFileModal = ref(false)
 

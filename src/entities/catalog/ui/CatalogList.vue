@@ -13,9 +13,10 @@ import {
   NModal,
   NSpin,
   useMessage,
-  NPopover
+  NPopover,
+  NSpace
 } from 'naive-ui'
-import { Copy, Edit, FileDownload } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, ListDetails } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
@@ -121,9 +122,67 @@ function copyCategoryId(id: number) {
           </div>
         </template>
         <div class="child-container">
-          <n-list hoverable>
+          <n-list>
             <n-list-item v-for="child in item.child" :key="child.id">
-              <div class="row">
+              <!-- Категория с подфильтровыми страницами — третий раскрывающийся уровень -->
+              <n-collapse v-if="child.presets?.length" :trigger-areas="['main', 'arrow']">
+                <n-collapse-item :name="child.name">
+                  <template #header>
+                    <div class="row-name">
+                      <div style="display: flex; gap: 0.25rem; align-items: center">
+                        <n-text tag="p" :depth="3" style="font-size: 12px">{{ child.id }}</n-text>
+                        <n-button text size="small" @click.stop="copyCategoryId(child.id)"
+                          ><NIcon><Copy /></NIcon
+                        ></n-button>
+                      </div>
+                      {{ child.name }}
+                    </div>
+                  </template>
+                  <template #header-extra>
+                    <div class="btn-group">
+                      <n-popover placement="bottom" trigger="hover">
+                        <template #trigger>
+                          <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
+                            <n-icon size="24px">
+                              <ListDetails />
+                            </n-icon>
+                          </n-button>
+                        </template>
+                        <span> Добавить подвильтровую страницу фильтр </span>
+                      </n-popover>
+                      <n-popover placement="bottom" trigger="hover">
+                        <template #trigger>
+                          <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
+                            <n-icon size="24px">
+                              <Edit />
+                            </n-icon>
+                          </n-button>
+                        </template>
+                        <span> Редактировать </span>
+                      </n-popover>
+                    </div>
+                  </template>
+                  <div class="preset-container">
+                    <n-list>
+                      <n-list-item v-for="preset in child.presets" :key="preset.id">
+                        <div class="row-name">
+                          <div style="display: flex; gap: 0.25rem; align-items: center">
+                            <n-text tag="p" :depth="3" style="font-size: 12px">{{
+                              preset.id
+                            }}</n-text>
+                          </div>
+                          <n-text tag="p">{{ preset.title }}</n-text>
+                          <n-text tag="p" :depth="3" style="font-size: 12px">{{
+                            preset.alias
+                          }}</n-text>
+                        </div>
+                      </n-list-item>
+                    </n-list>
+                  </div>
+                </n-collapse-item>
+              </n-collapse>
+              <!-- Категория без подфильтров — обычная строка -->
+              <div v-else class="row">
                 <div class="row-name">
                   <div style="display: flex; gap: 0.25rem; align-items: center">
                     <n-text tag="p" :depth="3" style="font-size: 12px">{{ child.id }}</n-text>
@@ -172,8 +231,15 @@ function copyCategoryId(id: number) {
 </template>
 
 <style scoped>
+:deep(.n-collapse .n-collapse-item .n-collapse-item) {
+  margin-left: 0;
+}
+
 .child-container {
-  margin-left: 2rem;
+  margin-left: 3rem;
+}
+.preset-container {
+  margin-left: 3rem;
 }
 .row {
   display: flex;

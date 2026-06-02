@@ -1,7 +1,9 @@
 export { useCatalogApi } from './api/catalog-api'
-export { getCatalogQueryKey } from './api/query-keys'
+export { getCatalogQueryKey, getPresetsQueryKey } from './api/query-keys'
 export { groupCatalogItems } from './libs/group-catalog-items'
+export { attachPresetsToCatalog } from './libs/attach-presets-to-catalog'
 export type { CatalogItem } from './model/catalog-types'
+export type { PresetItem, GetPresetsFilters } from './api/catalog-schemas'
 
 export { default as CatalogList } from './ui/CatalogList.vue'
 export { default as UploadCatalogItemData } from './ui/UploadCatalogItemData.vue'

@@ -46,12 +46,39 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
+  //  2) GET: api/admingoods/GetPresetFiltersByCatalogItem?id=100824
+  //  где id - id товарной категории
+
+  async function getPresetFiltersByCatalogItem(tkId: number) {
+    const res = await fetchWithToken<unknown>('admin/catalog/GetPresetFiltersByCatalogItem', {
+      query: { id: tkId }
+    })
+    return checkError(res).data
+  }
+
+  //  3) POST:api/admingoods/SavePresetFilterForCatalogItem
+  //  в боди структура:
+  //  {
+  //      "id":100001,
+  //      "catalogItemId":100824,
+  //      "title" : "Гидры больше 500 литров",
+  //      "descr":"<p>самые огромные гидроаккумы</p>",
+  //      "shortDescr":"Очень крупные",
+  //      "presets": [{ "name":"Объем","selected":"500л;750л","minSelect":"","maxSelect":""}],
+  //      "alias":"ochkrupnyie"
+  //  }
+
+  //  поле presets - массив, т.е. например  [
+  // { "name":"Объем","selected":"500л;750л","minSelect":"","maxSelect":""},{"name":"Цена","selected":"","minSelect":"50000","MaxSelect":"400000"}
+  //  ]
+
   return {
     getCatalog,
     uploadCategoryDescriptionFromXls,
     getCatalogItem,
     saveCatalogItem,
     downloadDescriptionTemplate,
-    getPresetsFilters
+    getPresetsFilters,
+    getPresetFiltersByCatalogItem
   }
 }
