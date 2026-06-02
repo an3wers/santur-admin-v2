@@ -20,3 +20,29 @@ export interface GetCatalogItemDto {
 }
 
 export type DownloadTemplateOption = 'all' | 'full' | 'empty'
+
+export interface PresetFilter {
+  name: string
+  minLimit: string
+  maxLimit: string
+  minSelect: string
+  maxSelect: string
+  selected: string
+}
+
+export interface PresetItem {
+  id: number
+  catalogItemId: number
+  title: string
+  descr: string
+  shortDescr: string
+  presets: PresetFilter[]
+  alias: string
+}
+
+export interface GetPresetsFilters {
+  catalogItemId: number
+  catalogItemVid: string
+  catalogItemName: string
+  presets: PresetItem[]
+}

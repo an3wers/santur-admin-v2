@@ -1,5 +1,9 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
-import type { DownloadTemplateOption, GetCatalogItemDto } from './catalog-schemas'
+import type {
+  DownloadTemplateOption,
+  GetCatalogItemDto,
+  GetPresetsFilters
+} from './catalog-schemas'
 
 export const useCatalogApi = () => {
   const { fetchWithToken, checkError } = useAppRequest()
@@ -37,11 +41,17 @@ export const useCatalogApi = () => {
     return res as unknown as Blob
   }
 
+  async function getPresetsFilters() {
+    const res = await fetchWithToken<GetPresetsFilters[]>('admin/catalog/GetPresetFilters')
+    return checkError(res).data
+  }
+
   return {
     getCatalog,
     uploadCategoryDescriptionFromXls,
     getCatalogItem,
     saveCatalogItem,
-    downloadDescriptionTemplate
+    downloadDescriptionTemplate,
+    getPresetsFilters
   }
 }

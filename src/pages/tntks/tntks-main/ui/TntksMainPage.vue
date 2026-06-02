@@ -5,8 +5,7 @@ import {
   getCatalogQueryKey,
   useCatalogApi,
   groupCatalogItems,
-  UploadCatalogItemData,
-  type CatalogItem
+  UploadCatalogItemData
 } from '~/entities/catalog'
 import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
 import { useNavStore } from '~/shared/navigation'
@@ -16,10 +15,14 @@ import type { GetCatalogItemDto } from '~/entities/catalog/api/catalog-schemas'
 const navStore = useNavStore()
 
 const api = useCatalogApi()
+
 const { data, status } = await useAsyncData(getCatalogQueryKey(), api.getCatalog)
+
+// fetch all presets
 
 // const message = useMessage()
 
+// TODO: refactor
 if (status.value === 'error') {
   throw createError({ statusCode: 400, statusMessage: 'Ошибка при загрузке каталога', fatal: true })
 }
@@ -112,6 +115,8 @@ const filteredByDescr = computed(() => {
 const groupedCatalogItems = computed(() => {
   return groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
 })
+
+// TODO: group presets
 
 const showUploadFileModal = ref(false)
 
