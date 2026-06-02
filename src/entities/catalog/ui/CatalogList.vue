@@ -13,8 +13,7 @@ import {
   NModal,
   NSpin,
   useMessage,
-  NPopover,
-  NSpace
+  NPopover
 } from 'naive-ui'
 import { Copy, Edit, FileDownload, ListDetails } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
@@ -22,9 +21,18 @@ import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
-const props = defineProps<{
+defineProps<{
   items: CatalogItem[]
 }>()
+
+const emit = defineEmits<{
+  (e: 'addPreset', payload: { catalogItemId: number; categoryName: string }): void
+  (
+    e: 'editPreset',
+    payload: { catalogItemId: number; categoryName: string; presetId: number }
+  ): void
+}>()
+
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
 }
@@ -142,13 +150,23 @@ function copyCategoryId(id: number) {
                     <div class="btn-group">
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
-                          <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
+                          <n-button
+                            quaternary
+                            circle
+                            size="small"
+                            @click.stop="
+                              emit('addPreset', {
+                                catalogItemId: child.id,
+                                categoryName: child.name
+                              })
+                            "
+                          >
                             <n-icon size="20px">
                               <ListDetails />
                             </n-icon>
                           </n-button>
                         </template>
-                        <span> Добавить подвильтровую страницу фильтр </span>
+                        <span> Добавить подфильтровую страницу </span>
                       </n-popover>
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
@@ -180,7 +198,18 @@ function copyCategoryId(id: number) {
                           <div class="row-button">
                             <n-popover placement="bottom" trigger="hover">
                               <template #trigger>
-                                <n-button quaternary circle size="small" @click="() => {}">
+                                <n-button
+                                  quaternary
+                                  circle
+                                  size="small"
+                                  @click.stop="
+                                    emit('editPreset', {
+                                      catalogItemId: child.id,
+                                      categoryName: child.name,
+                                      presetId: preset.id
+                                    })
+                                  "
+                                >
                                   <n-icon size="20px">
                                     <Edit />
                                   </n-icon>
@@ -206,7 +235,24 @@ function copyCategoryId(id: number) {
                   </div>
                   {{ child.name }}
                 </div>
-                <div class="row-button">
+                <div class="row-button btn-group">
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button
+                        quaternary
+                        circle
+                        size="small"
+                        @click.stop="
+                          emit('addPreset', { catalogItemId: child.id, categoryName: child.name })
+                        "
+                      >
+                        <n-icon size="20px">
+                          <ListDetails />
+                        </n-icon>
+                      </n-button>
+                    </template>
+                    <span> Добавить подфильтровую страницу </span>
+                  </n-popover>
                   <n-popover placement="bottom" trigger="hover">
                     <template #trigger>
                       <n-button quaternary circle size="small" @click="moveEdit(child.id)">

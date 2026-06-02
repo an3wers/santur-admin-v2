@@ -6,6 +6,7 @@ export type { CatalogItem } from './model/catalog-types'
 export type { PresetItem, GetPresetsFilters } from './api/catalog-schemas'
 
 export { default as CatalogList } from './ui/CatalogList.vue'
+export { default as PresetFilterForm } from './ui/PresetFilterForm.vue'
 export { default as UploadCatalogItemData } from './ui/UploadCatalogItemData.vue'
 export { default as CatalogItemCard } from './ui/CatalogItemCard.vue'
 

@@ -2,6 +2,7 @@
 import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem, NIcon } from 'naive-ui'
 import {
   CatalogList,
+  PresetFilterForm,
   getCatalogQueryKey,
   getPresetsQueryKey,
   useCatalogApi,
@@ -21,7 +22,10 @@ const api = useCatalogApi()
 const { data, status } = await useAsyncData(getCatalogQueryKey(), api.getCatalog)
 
 // fetch all presets (подфильтровые страницы) — опционально, ошибку обрабатываем мягко
-const { data: presetsData } = await useAsyncData(getPresetsQueryKey(), api.getPresetsFilters)
+const { data: presetsData, refresh: refreshPresets } = await useAsyncData(
+  getPresetsQueryKey(),
+  api.getPresetsFilters
+)
 
 // const message = useMessage()
 
@@ -122,6 +126,33 @@ const groupedCatalogItems = computed(() => {
 
 const showUploadFileModal = ref(false)
 
+// Модалка создания/редактирования подфильтровой страницы
+const showPresetModal = ref(false)
+const presetModalParams = ref<{
+  catalogItemId: number
+  categoryName: string
+  presetId: number | null
+} | null>(null)
+
+function openAddPreset(payload: { catalogItemId: number; categoryName: string }) {
+  presetModalParams.value = { ...payload, presetId: null }
+  showPresetModal.value = true
+}
+
+function openEditPreset(payload: {
+  catalogItemId: number
+  categoryName: string
+  presetId: number
+}) {
+  presetModalParams.value = payload
+  showPresetModal.value = true
+}
+
+async function onPresetSaved() {
+  showPresetModal.value = false
+  await refreshPresets()
+}
+
 const { downloadTemplate, status: downloadStatus, downloadFile } = useDownloadTemplate()
 async function downloadCatalog() {
   await downloadTemplate('', 'all')
@@ -148,7 +179,11 @@ async function downloadCatalog() {
         </template>
       </page-title>
       <div class="layout">
-        <CatalogList :items="groupedCatalogItems" />
+        <CatalogList
+          :items="groupedCatalogItems"
+          @add-preset="openAddPreset"
+          @edit-preset="openEditPreset"
+        />
         <n-space vertical>
           <n-card>
             <n-button quaternary block @click="downloadCatalog" icon-placement="left">
@@ -199,6 +234,28 @@ async function downloadCatalog() {
       :bordered="false"
     >
       <UploadCatalogItemData @on-cancel="showUploadFileModal = false" />
+    </n-modal>
+
+    <n-modal
+      preset="card"
+      v-model:show="showPresetModal"
+      :title="
+        presetModalParams?.presetId
+          ? 'Редактировать подфильтровую страницу'
+          : 'Новая подфильтровая страница'
+      "
+      style="max-width: 720px"
+      size="medium"
+      :bordered="false"
+    >
+      <PresetFilterForm
+        v-if="showPresetModal && presetModalParams"
+        :catalog-item-id="presetModalParams.catalogItemId"
+        :category-name="presetModalParams.categoryName"
+        :preset-id="presetModalParams.presetId"
+        @on-saved="onPresetSaved"
+        @on-cancel="showPresetModal = false"
+      />
     </n-modal>
   </div>
 </template>

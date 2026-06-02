@@ -766,6 +766,7 @@ export interface GetPresetFiltersByCatalogItemRes {
 */
 
 export interface SaveNewPresetFilterItem {
+  id?: number
   catalogItemId: number
   title: string
   descr: string
