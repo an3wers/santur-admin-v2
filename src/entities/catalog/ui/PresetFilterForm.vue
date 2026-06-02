@@ -10,6 +10,7 @@ import {
   NCheckbox,
   NCheckboxGroup,
   NText,
+  NAlert,
   useMessage
 } from 'naive-ui'
 import { MediaList } from '@/entities/media'
@@ -35,6 +36,8 @@ const {
   saveStatus,
   generatedTitle,
   generatedAlias,
+  isDuplicate,
+  duplicatePreset,
   open,
   save
 } = usePresetFilterForm()
@@ -69,6 +72,10 @@ const saveDisabled = computed(() => !generatedAlias.value)
         <n-form-item label="Название">
           <n-input :value="generatedTitle" readonly placeholder="Отметьте фильтры" />
         </n-form-item>
+        <n-alert v-if="isDuplicate" type="warning" :show-icon="true" style="margin-bottom: 1.5rem">
+          Подфильтровая страница с таким же набором фильтров уже существует в этой
+          категории<template v-if="duplicatePreset"> — «{{ duplicatePreset.title }}»</template>.
+        </n-alert>
         <n-form-item label="Alias">
           <n-input :value="generatedAlias" readonly placeholder="Формируется автоматически" />
         </n-form-item>
