@@ -13,9 +13,10 @@ import {
   NModal,
   NSpin,
   useMessage,
-  NPopover
+  NPopover,
+  NTag
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, ListDetails } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
@@ -162,7 +163,7 @@ function copyCategoryId(id: number) {
                             "
                           >
                             <n-icon size="20px">
-                              <ListDetails />
+                              <SquarePlus />
                             </n-icon>
                           </n-button>
                         </template>
@@ -189,11 +190,9 @@ function copyCategoryId(id: number) {
                               <n-text tag="p" :depth="3" style="font-size: 12px">{{
                                 preset.id
                               }}</n-text>
+                              <n-tag type="info" size="tiny"> подфильтр </n-tag>
                             </div>
-                            <n-text tag="p">{{ preset.title }}</n-text>
-                            <n-text tag="p" :depth="3" style="font-size: 12px">{{
-                              preset.alias
-                            }}</n-text>
+                            <n-text tag="p" :title="preset.alias">{{ preset.title }}</n-text>
                           </div>
                           <div class="row-button">
                             <n-popover placement="bottom" trigger="hover">
@@ -247,7 +246,7 @@ function copyCategoryId(id: number) {
                         "
                       >
                         <n-icon size="20px">
-                          <ListDetails />
+                          <SquarePlus />
                         </n-icon>
                       </n-button>
                     </template>

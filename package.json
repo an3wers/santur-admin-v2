@@ -43,20 +43,20 @@
     "tiptap-extension-resize-image": "^1.4.0",
     "vue": "latest",
     "vue-router": "latest",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@vicons/tabler": "^0.13.0",
+    "sass": "^1.100.0"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^4.0.3",
     "@types/eslint-config-prettier": "^6.11.3",
     "@types/node": "^25.9.1",
-    "@vicons/tabler": "^0.13.0",
     "@vue/test-utils": "^2.4.10",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
-    "sass": "^1.100.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.7",
     "vue-tsc": "^3.3.2"
