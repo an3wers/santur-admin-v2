@@ -7,6 +7,7 @@ import {
   NSpace,
   NSpin,
   NButton,
+  NCheckbox,
   NCheckboxGroup,
   NText,
   useMessage
@@ -59,10 +60,6 @@ watch(saveStatus, (value) => {
 })
 
 const saveDisabled = computed(() => !generatedAlias.value)
-
-function filterOptions(items: { name: string; qtyRecords: number }[]) {
-  return items.map((item) => ({ label: `${item.name} (${item.qtyRecords})`, value: item.name }))
-}
 </script>
 
 <template>
@@ -89,10 +86,16 @@ function filterOptions(items: { name: string; qtyRecords: number }[]) {
         <n-space vertical size="large">
           <div v-for="charFilter in charFilters" :key="charFilter.nn" class="filter-group">
             <n-text tag="p" strong>{{ charFilter.name }}</n-text>
-            <n-checkbox-group
-              v-model:value="selections[charFilter.name]"
-              :options="filterOptions(charFilter.items)"
-            />
+            <n-checkbox-group v-model:value="selections[charFilter.name]">
+              <n-space item-style="display: flex;">
+                <n-checkbox
+                  v-for="item in charFilter.items"
+                  :key="item.nn"
+                  :value="item.name"
+                  :label="`${item.name} (${item.qtyRecords})`"
+                />
+              </n-space>
+            </n-checkbox-group>
           </div>
         </n-space>
       </n-form>
