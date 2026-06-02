@@ -22,7 +22,7 @@ import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
-defineProps<{
+const props = defineProps<{
   items: CatalogItem[]
 }>()
 function moveEdit(itemId: number) {
@@ -100,7 +100,7 @@ function copyCategoryId(id: number) {
               <n-popover placement="bottom" trigger="hover">
                 <template #trigger>
                   <n-button quaternary circle size="small">
-                    <n-icon size="24px">
+                    <n-icon size="20px">
                       <FileDownload />
                     </n-icon>
                   </n-button>
@@ -112,7 +112,7 @@ function copyCategoryId(id: number) {
             <n-popover placement="bottom" trigger="hover">
               <template #trigger>
                 <n-button quaternary circle size="small" @click="moveEdit(item.id)">
-                  <n-icon size="24px">
+                  <n-icon size="20px">
                     <Edit />
                   </n-icon>
                 </n-button>
@@ -143,7 +143,7 @@ function copyCategoryId(id: number) {
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
                           <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
-                            <n-icon size="24px">
+                            <n-icon size="20px">
                               <ListDetails />
                             </n-icon>
                           </n-button>
@@ -153,7 +153,7 @@ function copyCategoryId(id: number) {
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
                           <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
-                            <n-icon size="24px">
+                            <n-icon size="20px">
                               <Edit />
                             </n-icon>
                           </n-button>
@@ -165,16 +165,30 @@ function copyCategoryId(id: number) {
                   <div class="preset-container">
                     <n-list>
                       <n-list-item v-for="preset in child.presets" :key="preset.id">
-                        <div class="row-name">
-                          <div style="display: flex; gap: 0.25rem; align-items: center">
+                        <div class="row">
+                          <div class="row-name">
+                            <div style="display: flex; gap: 0.25rem; align-items: center">
+                              <n-text tag="p" :depth="3" style="font-size: 12px">{{
+                                preset.id
+                              }}</n-text>
+                            </div>
+                            <n-text tag="p">{{ preset.title }}</n-text>
                             <n-text tag="p" :depth="3" style="font-size: 12px">{{
-                              preset.id
+                              preset.alias
                             }}</n-text>
                           </div>
-                          <n-text tag="p">{{ preset.title }}</n-text>
-                          <n-text tag="p" :depth="3" style="font-size: 12px">{{
-                            preset.alias
-                          }}</n-text>
+                          <div class="row-button">
+                            <n-popover placement="bottom" trigger="hover">
+                              <template #trigger>
+                                <n-button quaternary circle size="small" @click="() => {}">
+                                  <n-icon size="20px">
+                                    <Edit />
+                                  </n-icon>
+                                </n-button>
+                              </template>
+                              <span> Редактировать </span>
+                            </n-popover>
+                          </div>
                         </div>
                       </n-list-item>
                     </n-list>
@@ -196,7 +210,7 @@ function copyCategoryId(id: number) {
                   <n-popover placement="bottom" trigger="hover">
                     <template #trigger>
                       <n-button quaternary circle size="small" @click="moveEdit(child.id)">
-                        <n-icon size="24px">
+                        <n-icon size="20px">
                           <Edit />
                         </n-icon>
                       </n-button>

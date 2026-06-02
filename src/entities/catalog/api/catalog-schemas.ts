@@ -764,3 +764,12 @@ export interface GetPresetFiltersByCatalogItemRes {
         ]
     }
 */
+
+export interface SaveNewPresetFilterItem {
+  catalogItemId: number
+  title: string
+  descr: string
+  shortDescr: string
+  presets: { name: string; selected: string; minSelect: string; maxSelect: string }[]
+  alias: string
+}

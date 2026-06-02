@@ -2,7 +2,9 @@ import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 import type {
   DownloadTemplateOption,
   GetCatalogItemDto,
-  GetPresetsFilters
+  GetPresetFiltersByCatalogItemRes,
+  GetPresetsFilters,
+  SaveNewPresetFilterItem
 } from './catalog-schemas'
 
 export const useCatalogApi = () => {
@@ -50,9 +52,12 @@ export const useCatalogApi = () => {
   //  где id - id товарной категории
 
   async function getPresetFiltersByCatalogItem(tkId: number) {
-    const res = await fetchWithToken<unknown>('admin/catalog/GetPresetFiltersByCatalogItem', {
-      query: { id: tkId }
-    })
+    const res = await fetchWithToken<GetPresetFiltersByCatalogItemRes>(
+      'admin/catalog/GetPresetFiltersByCatalogItem',
+      {
+        query: { id: tkId }
+      }
+    )
     return checkError(res).data
   }
 
@@ -71,6 +76,14 @@ export const useCatalogApi = () => {
   //  поле presets - массив, т.е. например  [
   // { "name":"Объем","selected":"500л;750л","minSelect":"","maxSelect":""},{"name":"Цена","selected":"","minSelect":"50000","MaxSelect":"400000"}
   //  ]
+  //
+  async function savePresetFilterForCatalogItem(data: SaveNewPresetFilterItem) {
+    const res = await fetchWithToken<unknown>('admin/catalog/SavePresetFilterForCatalogItem', {
+      method: 'POST',
+      body: data
+    })
+    return checkError(res).data
+  }
 
   return {
     getCatalog,
@@ -79,6 +92,7 @@ export const useCatalogApi = () => {
     saveCatalogItem,
     downloadDescriptionTemplate,
     getPresetsFilters,
-    getPresetFiltersByCatalogItem
+    getPresetFiltersByCatalogItem,
+    savePresetFilterForCatalogItem
   }
 }
