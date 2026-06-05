@@ -8,7 +8,7 @@ const { pvzs, ownertId } = defineProps<{
   pvzs: PvzsListItem[]
   ownertId: number
 }>()
-
+console.log(pvzs)
 // TODO: добавить label для удаления
 const moreMenu = [{ label: 'Изменить', key: 'edit' }] as const
 type MenuKeys = (typeof moreMenu)[number]['key']
@@ -39,6 +39,7 @@ function handleDropdown(key: MenuKeys, itemId: number) {
             <div class="item-descr">
               <n-text depth="3">{{ item.city }}, {{ item.address }}</n-text>
               <n-text depth="3">{{ item.times }}</n-text>
+              <n-text depth="3">{{ item.holidayTimes }}</n-text>
               <n-text depth="3">{{ item.phones }}</n-text>
               <n-text depth="3">{{ item.gpscoords }}</n-text>
             </div>
