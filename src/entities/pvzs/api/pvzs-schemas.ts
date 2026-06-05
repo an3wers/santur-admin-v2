@@ -20,7 +20,8 @@ export const pvzSchema = z.object({
   payVariants: z.string().optional(),
   payvariants: z.string().optional(),
   phones: z.string(),
-  times: z.string()
+  times: z.string(),
+  holidayTimes: z.string().optional()
 })
 
 export type PvzDto = z.infer<typeof pvzSchema>
@@ -44,4 +45,5 @@ export interface SavePvzsItemDto {
   gpsLat: string
   gpsLng: string
   isActive: boolean
+  holidayTimes?: string
 }

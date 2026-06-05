@@ -18,11 +18,20 @@ export interface Pvz {
   payvariants: string
   phones: string
   times: string
+  holidayTimes?: string
 }
 
 export type PvzsListItem = Pick<
   Pvz,
-  'id' | 'name' | 'address' | 'phones' | 'isActive' | 'gpscoords' | 'city' | 'times'
+  | 'id'
+  | 'name'
+  | 'address'
+  | 'phones'
+  | 'isActive'
+  | 'gpscoords'
+  | 'city'
+  | 'times'
+  | 'holidayTimes'
 >
 
 export type PvzsItem = Omit<Pvz, 'currentTaEmail' | 'currentTaReg' | 'gpscoords' | 'ownerid'>

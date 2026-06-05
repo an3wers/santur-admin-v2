@@ -13,7 +13,8 @@ export const usePvzs = (ownerId: string) => {
           phones: el.phones,
           isActive: el.isActive,
           gpscoords: el.gpscoords,
-          city: el.city
+          city: el.city,
+          holidayTimes: el.holidayTimes
         }
       })
     },
