@@ -193,7 +193,6 @@ function copyCategoryId(id: number) {
                               <n-tag type="info" size="tiny"> подфильтр </n-tag>
                             </div>
                             <n-text tag="p" :title="preset.alias">
-                              <n-text tag="span" :depth="3">{{ child.name }} / </n-text>
                               {{ preset.title }}
                             </n-text>
                           </div>

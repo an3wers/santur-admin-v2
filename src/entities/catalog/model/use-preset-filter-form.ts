@@ -28,6 +28,7 @@ export const usePresetFilterForm = () => {
 
   const generatedTitle = computed(() => {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
+    return [categoryName.value, ...checked].filter(Boolean).join(' ')
     return checked.filter(Boolean).join(' ')
   })
 
@@ -42,8 +43,8 @@ export const usePresetFilterForm = () => {
 
   // const generatedAlias = computed(() => generateAlias(generatedTitle.value))
   const generatedAlias = computed(() => {
-    const name = `${categoryName.value}--${generatedTitle.value}`
-    return generateAlias(name)
+    // const name = `${categoryName.value}--${generatedTitle.value}`
+    return generateAlias(generatedTitle.value)
   })
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
