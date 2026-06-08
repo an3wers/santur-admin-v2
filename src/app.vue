@@ -3,12 +3,12 @@ import ConfigProvider from './app/provider/ConfigProvider.vue'
 </script>
 
 <template>
+  <NuxtLoadingIndicator color="#1976d2" />
   <ConfigProvider>
     <div class="app">
-      <NuxtLoadingIndicator color="#1976d2" />
       <!-- TODO: Error Boundary -->
       <NuxtLayout>
-        <NuxtPage :page-key="(route: any) => route.fullPath" />
+        <NuxtPage />
       </NuxtLayout>
     </div>
   </ConfigProvider>
