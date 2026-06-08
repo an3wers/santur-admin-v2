@@ -10,6 +10,10 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module'
   ],
 
+  devServer: {
+    port: 3001
+  },
+
   ssr: false,
   experimental: {
     viteEnvironmentApi: true,

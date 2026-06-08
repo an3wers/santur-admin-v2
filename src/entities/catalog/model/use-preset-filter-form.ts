@@ -24,12 +24,27 @@ export const usePresetFilterForm = () => {
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
 
+  // const _title = ref('')
+
   const generatedTitle = computed(() => {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
-    return [categoryName.value, ...checked].filter(Boolean).join(' ')
+    return checked.filter(Boolean).join(' ')
   })
 
-  const generatedAlias = computed(() => generateAlias(generatedTitle.value))
+  // const generatedTitle2 = computed({
+  //     get: () => {
+  //         return _title
+  //     },
+  //     set: () => {
+
+  //     }
+  // })
+
+  // const generatedAlias = computed(() => generateAlias(generatedTitle.value))
+  const generatedAlias = computed(() => {
+    const name = `${categoryName.value}--${generatedTitle.value}`
+    return generateAlias(name)
+  })
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
   function canonicalize(groups: Record<string, string[]>): string {

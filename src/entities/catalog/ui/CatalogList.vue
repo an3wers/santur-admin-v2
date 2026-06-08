@@ -192,7 +192,10 @@ function copyCategoryId(id: number) {
                               }}</n-text>
                               <n-tag type="info" size="tiny"> подфильтр </n-tag>
                             </div>
-                            <n-text tag="p" :title="preset.alias">{{ preset.title }}</n-text>
+                            <n-text tag="p" :title="preset.alias">
+                              <n-text tag="span" :depth="3">{{ child.name }} / </n-text>
+                              {{ preset.title }}
+                            </n-text>
                           </div>
                           <div class="row-button">
                             <n-popover placement="bottom" trigger="hover">

@@ -69,17 +69,17 @@ const saveDisabled = computed(() => !generatedAlias.value)
   <n-card>
     <n-spin :show="loadStatus === 'pending'">
       <n-form>
-        <n-form-item label="Название">
-          <n-input :value="generatedTitle" readonly placeholder="Отметьте фильтры" />
+        <n-form-item label="Название" feedback="Формируется автоматически">
+          <n-input :value="generatedTitle" placeholder="Отметьте фильтры" />
         </n-form-item>
         <n-alert v-if="isDuplicate" type="warning" :show-icon="true" style="margin-bottom: 1.5rem">
           Подфильтровая страница с таким же набором фильтров уже существует в этой
           категории<template v-if="duplicatePreset"> — «{{ duplicatePreset.title }}»</template>.
         </n-alert>
-        <n-form-item label="Alias">
+        <n-form-item label="Alias" feedback="Формируется автоматически">
           <n-input :value="generatedAlias" readonly placeholder="Формируется автоматически" />
         </n-form-item>
-        <n-form-item label="Description">
+        <n-form-item label="Meta: description">
           <n-input v-model:value="shortDescr" type="textarea" placeholder="Введите description" />
         </n-form-item>
         <n-form-item label="Описание">

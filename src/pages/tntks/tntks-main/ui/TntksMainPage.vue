@@ -21,13 +21,11 @@ const api = useCatalogApi()
 
 const { data, status } = await useAsyncData(getCatalogQueryKey(), api.getCatalog)
 
-// fetch all presets (подфильтровые страницы) — опционально, ошибку обрабатываем мягко
+// fetch all presets (подфильтровые страницы)
 const { data: presetsData, refresh: refreshPresets } = await useAsyncData(
   getPresetsQueryKey(),
   api.getPresetsFilters
 )
-
-// const message = useMessage()
 
 // TODO: refactor
 if (status.value === 'error') {
@@ -119,6 +117,7 @@ const filteredByDescr = computed(() => {
   return filteredByShortDescr.value
 })
 
+// group float struct with attach presets
 const groupedCatalogItems = computed(() => {
   const grouped = groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
   return attachPresetsToCatalog(grouped, presetsData.value ?? [])
@@ -126,7 +125,7 @@ const groupedCatalogItems = computed(() => {
 
 const showUploadFileModal = ref(false)
 
-// Модалка создания/редактирования подфильтровой страницы
+// modal edit or add preset filter
 const showPresetModal = ref(false)
 const presetModalParams = ref<{
   catalogItemId: number
@@ -153,7 +152,9 @@ async function onPresetSaved() {
   await refreshPresets()
 }
 
+// templates
 const { downloadTemplate, status: downloadStatus, downloadFile } = useDownloadTemplate()
+
 async function downloadCatalog() {
   await downloadTemplate('', 'all')
 
