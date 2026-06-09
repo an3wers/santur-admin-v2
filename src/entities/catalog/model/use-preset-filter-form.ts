@@ -93,7 +93,9 @@ export const usePresetFilterForm = () => {
       loadStatus.value = 'pending'
       const data = await api.getPresetFiltersByCatalogItem(params.catalogItemId)
 
-      charFilters.value = data.charFilters
+      const [brands, names, ...others] = data.charFilters
+
+      charFilters.value = [names, ...others, brands] // data.charFilters
       existingPresets.value = data.presets
       const nextSelections: Record<string, string[]> = {}
       data.charFilters.forEach((cf) => {
