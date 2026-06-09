@@ -17,10 +17,11 @@ export interface CatalogItem {
     id: number
     mediaType: string
     url: string
-  }
+  } | null
   gimg: string | null
   presets?: PresetItem[]
   child: Omit<CatalogItem, 'child'>[]
+  vids: string[]
 }
 
 export interface CatalogItemModel {
