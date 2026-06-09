@@ -133,8 +133,11 @@ function copyCategoryId(id: number) {
         <div class="child-container">
           <n-list>
             <n-list-item v-for="child in item.child" :key="child.id">
-              <!-- Категория с подфильтровыми страницами — третий раскрывающийся уровень -->
-              <n-collapse v-if="child.presets?.length" :trigger-areas="['main', 'arrow']">
+              <!-- Категория с видами / подфильтровыми страницами — третий раскрывающийся уровень -->
+              <n-collapse
+                v-if="child.presets?.length || child.categoryVids?.length"
+                :trigger-areas="['main', 'arrow']"
+              >
                 <n-collapse-item :name="child.name">
                   <template #header>
                     <div class="row-name">
@@ -183,6 +186,36 @@ function copyCategoryId(id: number) {
                   </template>
                   <div class="preset-container">
                     <n-list>
+                      <n-list-item v-for="vid in child.categoryVids" :key="`vid-${vid.id}`">
+                        <div class="row">
+                          <div class="row-name">
+                            <div style="display: flex; gap: 0.25rem; align-items: center">
+                              <n-text tag="p" :depth="3" style="font-size: 12px">{{ vid.id }}</n-text>
+                              <n-tag type="success" size="tiny"> вид </n-tag>
+                            </div>
+                            <n-text tag="p" :title="vid.alias">
+                              {{ vid.name }}
+                            </n-text>
+                          </div>
+                          <div class="row-button">
+                            <n-popover placement="bottom" trigger="hover">
+                              <template #trigger>
+                                <n-button
+                                  quaternary
+                                  circle
+                                  size="small"
+                                  @click.stop="moveEdit(vid.id)"
+                                >
+                                  <n-icon size="20px">
+                                    <Edit />
+                                  </n-icon>
+                                </n-button>
+                              </template>
+                              <span> Редактировать </span>
+                            </n-popover>
+                          </div>
+                        </div>
+                      </n-list-item>
                       <n-list-item v-for="preset in child.presets" :key="preset.id">
                         <div class="row">
                           <div class="row-name">

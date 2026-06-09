@@ -5,9 +5,11 @@ import {
   PresetFilterForm,
   getCatalogQueryKey,
   getPresetsQueryKey,
+  getVidsQueryKey,
   useCatalogApi,
   groupCatalogItems,
   attachPresetsToCatalog,
+  attachVidsToCatalog,
   UploadCatalogItemData
 } from '~/entities/catalog'
 import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
@@ -26,6 +28,9 @@ const { data: presetsData, refresh: refreshPresets } = await useAsyncData(
   getPresetsQueryKey(),
   api.getPresetsFilters
 )
+
+// fetch all vids (виды категорий — третий уровень)
+const { data: vidsData } = await useAsyncData(getVidsQueryKey(), () => api.getCatalogVids())
 
 // TODO: refactor
 if (status.value === 'error') {
@@ -117,10 +122,11 @@ const filteredByDescr = computed(() => {
   return filteredByShortDescr.value
 })
 
-// group float struct with attach presets
+// group float struct with attach presets and vids
 const groupedCatalogItems = computed(() => {
   const grouped = groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
-  return attachPresetsToCatalog(grouped, presetsData.value ?? [])
+  const withPresets = attachPresetsToCatalog(grouped, presetsData.value ?? [])
+  return attachVidsToCatalog(withPresets, vidsData.value ?? [])
 })
 
 const showUploadFileModal = ref(false)

@@ -20,6 +20,7 @@ export interface CatalogItem {
   } | null
   gimg: string | null
   presets?: PresetItem[]
+  categoryVids?: CatalogVidsItem[]
   child: Omit<CatalogItem, 'child'>[]
   vids: string[]
 }
