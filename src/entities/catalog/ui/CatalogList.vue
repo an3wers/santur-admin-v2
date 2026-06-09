@@ -147,7 +147,12 @@ function copyCategoryId(id: number) {
                           ><NIcon><Copy /></NIcon
                         ></n-button>
                       </div>
-                      {{ child.name }}
+
+                      <n-text tag="p">{{ child.name }}</n-text>
+                      <n-text tag="p" :depth="3" style="font-size: 12px"
+                        >Виды: {{ child.vids.length ?? 0 }} | Подфильтры:
+                        {{ child.presets?.length ?? 0 }}</n-text
+                      >
                     </div>
                   </template>
                   <template #header-extra>
@@ -190,7 +195,9 @@ function copyCategoryId(id: number) {
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
-                              <n-text tag="p" :depth="3" style="font-size: 12px">{{ vid.id }}</n-text>
+                              <n-text tag="p" :depth="3" style="font-size: 12px">{{
+                                vid.id
+                              }}</n-text>
                               <n-tag type="success" size="tiny"> вид </n-tag>
                             </div>
                             <n-text tag="p" :title="vid.alias">
