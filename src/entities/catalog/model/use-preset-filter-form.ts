@@ -24,15 +24,17 @@ export const usePresetFilterForm = () => {
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
 
+  const includeCategoryInTitle = ref(true)
+
   const generatedTitle = computed(() => {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
-    return [categoryName.value, ...checked].filter(Boolean).join(' ')
+    const prefix = includeCategoryInTitle.value ? categoryName.value : ''
+    return [prefix, ...checked].filter(Boolean).join(' ')
   })
 
-  // const generatedAlias = computed(() => generateAlias(generatedTitle.value))
   const generatedAlias = computed(() => {
-    // const name = `${categoryName.value}--${generatedTitle.value}`
-    return generateAlias(generatedTitle.value)
+    const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
+    return generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
   })
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
@@ -157,6 +159,7 @@ export const usePresetFilterForm = () => {
     saveStatus,
     generatedTitle,
     generatedAlias,
+    includeCategoryInTitle,
     isDuplicate,
     duplicatePreset,
     open,

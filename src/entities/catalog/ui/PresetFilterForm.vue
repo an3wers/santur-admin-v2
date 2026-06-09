@@ -11,6 +11,7 @@ import {
   NCheckboxGroup,
   NText,
   NAlert,
+  NSwitch,
   useMessage
 } from 'naive-ui'
 import { MediaList } from '@/entities/media'
@@ -36,6 +37,7 @@ const {
   saveStatus,
   generatedTitle,
   generatedAlias,
+  includeCategoryInTitle,
   isDuplicate,
   duplicatePreset,
   open,
@@ -70,7 +72,13 @@ const saveDisabled = computed(() => !generatedAlias.value)
     <n-spin :show="loadStatus === 'pending'">
       <n-form>
         <n-form-item label="Заголовок страницы" feedback="Формируется автоматически">
-          <n-input :value="generatedTitle" placeholder="Отметьте фильтры" />
+          <n-space vertical style="width: 100%">
+            <n-space align="center">
+              <n-switch v-model:value="includeCategoryInTitle" size="small" />
+              <n-text> Добавить название категории </n-text>
+            </n-space>
+            <n-input :value="generatedTitle" readonly placeholder="Отметьте фильтры" />
+          </n-space>
         </n-form-item>
         <n-alert v-if="isDuplicate" type="warning" :show-icon="true" style="margin-bottom: 1.5rem">
           Подфильтровая страница с таким же набором фильтров уже существует в этой
@@ -115,7 +123,7 @@ const saveDisabled = computed(() => !generatedAlias.value)
         <n-button
           attr-type="button"
           type="primary"
-          :disabled="saveDisabled"
+          :disabled="saveDisabled || isDuplicate"
           :loading="saveStatus === 'pending'"
           @click="save"
           >Сохранить</n-button
