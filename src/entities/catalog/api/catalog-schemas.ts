@@ -15,8 +15,9 @@ export interface GetCatalogItemDto {
     id: number
     mediaType: string
     url: string
-  }
+  } | null
   gimg: string | null
+  vids: string[]
 }
 
 export type DownloadTemplateOption = 'all' | 'full' | 'empty'

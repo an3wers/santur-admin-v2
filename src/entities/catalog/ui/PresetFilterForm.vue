@@ -69,7 +69,7 @@ const saveDisabled = computed(() => !generatedAlias.value)
   <n-card>
     <n-spin :show="loadStatus === 'pending'">
       <n-form>
-        <n-form-item label="Название" feedback="Формируется автоматически">
+        <n-form-item label="Заголовок страницы" feedback="Формируется автоматически">
           <n-input :value="generatedTitle" placeholder="Отметьте фильтры" />
         </n-form-item>
         <n-alert v-if="isDuplicate" type="warning" :show-icon="true" style="margin-bottom: 1.5rem">
