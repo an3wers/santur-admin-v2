@@ -199,7 +199,7 @@ async function downloadCatalog() {
                   <FileDownload />
                 </n-icon>
               </template>
-              Скачать весь каталог
+              Скачать шаблон каталога
             </n-button>
           </n-card>
           <n-card title="Фильтр">

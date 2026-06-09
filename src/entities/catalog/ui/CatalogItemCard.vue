@@ -58,64 +58,72 @@ watchEffect(() => {
 </script>
 
 <template>
-  <n-card>
-    <n-form ref="formRef" :model="model" :rules="formRules">
-      <n-form-item label="Название" path="name">
-        <n-input v-model:value="model.name" readonly placeholder="Введите название" />
-      </n-form-item>
-      <n-form-item label="Alias" path="alias">
-        <n-input-group>
-          <n-input v-model:value="model.alias" placeholder="Введите алиас" />
-          <n-button
-            ghost
-            :disabled="model.name.length === 0"
-            @click.stop="$emit('onCreateAlias', model.name)"
-          >
-            <n-icon size="20px" :component="Refresh" />
-          </n-button>
-        </n-input-group>
-      </n-form-item>
-      <n-form-item label="Title" path="title">
-        <n-input v-model:value="model.seotitle" placeholder="Введите title" />
-      </n-form-item>
-      <n-grid :cols="2" :x-gap="24" :y-gap="16">
-        <n-form-item-gi label="Keywords" path="keywords">
-          <n-input v-model:value="model.keywords" placeholder="Введите keywords" type="textarea" />
-        </n-form-item-gi>
-        <n-form-item-gi label="Description" path="description">
-          <n-input
-            v-model:value="model.shortDescr"
-            placeholder="Введите description"
-            type="textarea"
-          />
-        </n-form-item-gi>
-      </n-grid>
-      <n-form-item label="Описание">
-        <AppEditor v-model="model.descr">
-          <template #media-manager="{ onMediaSelect }">
-            <media-list media-view-mode="select" @on-media-select="onMediaSelect"></media-list>
-          </template>
-        </AppEditor>
-      </n-form-item>
-    </n-form>
-    <template #action>
-      <n-space justify="end">
-        <n-button
-          attr-type="button"
-          @click="cancelHandler"
-          :dashed="saveStatus === 'pending'"
-          secondary
-          type="primary"
-          >Отменить</n-button
-        >
-        <n-button
-          attr-type="button"
-          @click="saveHandler"
-          :loading="saveStatus === 'pending'"
-          type="primary"
-          >Сохранить</n-button
-        >
-      </n-space>
-    </template>
-  </n-card>
+  <n-form ref="formRef" :model="model" :rules="formRules">
+    <n-space vertical>
+      <n-card>
+        <n-form-item label="Название" path="name">
+          <n-input v-model:value="model.name" readonly placeholder="Введите название" />
+        </n-form-item>
+        <n-form-item label="Alias" path="alias">
+          <n-input-group>
+            <n-input v-model:value="model.alias" placeholder="Введите алиас" />
+            <n-button
+              ghost
+              :disabled="model.name.length === 0"
+              @click.stop="$emit('onCreateAlias', model.name)"
+            >
+              <n-icon size="20px" :component="Refresh" />
+            </n-button>
+          </n-input-group>
+        </n-form-item>
+        <n-form-item label="Описание">
+          <AppEditor v-model="model.descr">
+            <template #media-manager="{ onMediaSelect }">
+              <media-list media-view-mode="select" @on-media-select="onMediaSelect"></media-list>
+            </template>
+          </AppEditor>
+        </n-form-item>
+        <template #action>
+          <n-space justify="end">
+            <n-button
+              attr-type="button"
+              @click="cancelHandler"
+              :dashed="saveStatus === 'pending'"
+              secondary
+              type="primary"
+              >Отменить</n-button
+            >
+            <n-button
+              attr-type="button"
+              @click="saveHandler"
+              :loading="saveStatus === 'pending'"
+              type="primary"
+              >Сохранить</n-button
+            >
+          </n-space>
+        </template>
+      </n-card>
+      <n-card title="Метатеги">
+        <n-form-item label="Title" path="title">
+          <n-input v-model:value="model.seotitle" placeholder="Введите title" />
+        </n-form-item>
+        <n-grid :cols="2" :x-gap="24" :y-gap="16">
+          <n-form-item-gi label="Keywords" path="keywords">
+            <n-input
+              v-model:value="model.keywords"
+              placeholder="Введите keywords"
+              type="textarea"
+            />
+          </n-form-item-gi>
+          <n-form-item-gi label="Description" path="description">
+            <n-input
+              v-model:value="model.shortDescr"
+              placeholder="Введите description"
+              type="textarea"
+            />
+          </n-form-item-gi>
+        </n-grid>
+      </n-card>
+    </n-space>
+  </n-form>
 </template>
