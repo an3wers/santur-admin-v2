@@ -59,7 +59,7 @@ watchEffect(() => {
 
 <template>
   <n-form ref="formRef" :model="model" :rules="formRules">
-    <n-space vertical>
+    <n-space vertical size="large">
       <n-card>
         <n-form-item label="Название" path="name">
           <n-input v-model:value="model.name" readonly placeholder="Введите название" />

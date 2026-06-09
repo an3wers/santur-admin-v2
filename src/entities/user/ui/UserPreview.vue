@@ -41,7 +41,7 @@ async function logoutUser() {
   <div class="user-container">
     <div class="user__body">
       <div class="user__status">
-        <NText depth="3"> Вы авторизованы</NText>
+        <NText depth="3">Профиль</NText>
       </div>
       <div class="user__info">{{ cropString(userStore.user?.email || '', 18) }}</div>
     </div>
