@@ -150,7 +150,7 @@ function copyCategoryId(id: number) {
 
                       <n-text tag="p">{{ child.name }}</n-text>
                       <n-text tag="p" :depth="3" style="font-size: 12px"
-                        >Виды: {{ child.vids.length ?? 0 }} | Подфильтры:
+                        >Виды: {{ child.vids.length ?? 0 }} | Фильтры:
                         {{ child.presets?.length ?? 0 }}</n-text
                       >
                     </div>
@@ -230,7 +230,7 @@ function copyCategoryId(id: number) {
                               <n-text tag="p" :depth="3" style="font-size: 12px">{{
                                 preset.id
                               }}</n-text>
-                              <n-tag type="info" size="tiny"> подфильтр </n-tag>
+                              <n-tag type="info" size="tiny"> фильтр </n-tag>
                             </div>
                             <n-text tag="p" :title="preset.alias">
                               {{ preset.title }}
