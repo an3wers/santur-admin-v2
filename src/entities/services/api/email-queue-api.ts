@@ -1,21 +1,20 @@
 import { useAppRequest } from '~/shared/libs/api/use-app-requests'
 
 interface EmailQueueItem {
-  msgGuid: string;
-  files: string[];
-  title: string;
-  toEmail: string;
+  msgGuid: string
+  files: string[]
+  title: string
+  toEmail: string
 }
 interface EmailQueueData {
-  queye: EmailQueueItem[];
-  errors: EmailQueueItem[];
+  queye: EmailQueueItem[]
+  errors: EmailQueueItem[]
 }
-
 
 export const useEmailQueueApi = () => {
   const { checkError, fetchWithToken } = useAppRequest()
 
-  async function getEmailQueue(): Promise<EmailQueueData>  {
+  async function getEmailQueue(): Promise<EmailQueueData> {
     const res = await fetchWithToken('admin/system/GetEmailQueye')
     const data = checkError(res).data as EmailQueueData
     return data

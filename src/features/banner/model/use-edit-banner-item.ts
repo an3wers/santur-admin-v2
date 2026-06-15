@@ -43,7 +43,6 @@ export const userEditBannerItem = (
           updatedImages.push({ device: 'mobile', imgPath: '' })
         }
 
-
         banner.value = {
           ...initial,
           images: updatedImages,

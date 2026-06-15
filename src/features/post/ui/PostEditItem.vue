@@ -81,7 +81,7 @@ const formRules = {
     required: false,
     message: 'Добавьте описание',
     trigger: ['change', 'blur']
-  },
+  }
 }
 
 const message = useMessage()

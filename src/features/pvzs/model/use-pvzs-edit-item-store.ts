@@ -18,7 +18,8 @@ export const usePvzsEditItemStore = defineStore('pvzs-edit-item', () => {
     name: '',
     phones: '',
     times: '',
-    payvariants: ''
+    payvariants: '',
+    holidayTimes: ''
   })
 
   type SecondaryFields = Pick<Pvz, 'currentTaEmail' | 'currentTaReg' | 'ownerid'>
@@ -56,6 +57,7 @@ export const usePvzsEditItemStore = defineStore('pvzs-edit-item', () => {
     pvzsItem.phones = item.phones
     pvzsItem.times = item.times
     pvzsItem.payvariants = item.payvariants
+    pvzsItem.holidayTimes = item.holidayTimes
   }
 
   function setPvzsItemSecondaryFileds(fields: Pvz) {
@@ -147,7 +149,8 @@ export const usePvzsEditItemStore = defineStore('pvzs-edit-item', () => {
       name: '',
       phones: '',
       times: '',
-      payvariants: ''
+      payvariants: '',
+      holidayTimes: ''
     })
 
     Object.assign(pvzsItemSecondaryFields, { currentTaEmail: '', currentTaReg: '', ownerid: 0 })

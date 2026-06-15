@@ -3,8 +3,6 @@ import { NSpace, NH1, useMessage } from 'naive-ui'
 import { usePvzsEditItemStore } from '@/features/pvzs'
 import PvzsEditItem from '~/features/pvzs/ui/PvzsEditItem.vue'
 
-const title = ref('')
-
 const route = useRoute()
 
 const { itemId } = route.params
@@ -12,18 +10,21 @@ const { itemId } = route.params
 const pvzsItemStore = usePvzsEditItemStore()
 
 pvzsItemStore.$reset()
+
 await pvzsItemStore.loadPvzsItem(itemId as string)
 
 const message = useMessage()
 
-if (pvzsItemStore.loadStatus === 'success') {
-  title.value = pvzsItemStore.pvzsItem.name
-}
+const title = computed(() => {
+  return pvzsItemStore.pvzsItem.name ?? ''
+})
 
-if (pvzsItemStore.loadStatus === 'error') {
-  console.error(pvzsItemStore.loadError)
-  message.error(pvzsItemStore.loadError || 'На странице произошла ошибка')
-}
+watchEffect(() => {
+  if (pvzsItemStore.loadStatus === 'error') {
+    console.error(pvzsItemStore.loadError)
+    message.error(pvzsItemStore.loadError || 'На странице произошла ошибка')
+  }
+})
 </script>
 
 <template>

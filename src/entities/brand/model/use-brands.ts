@@ -37,7 +37,6 @@ export const useBrands = async (queryKey = getBrandsKey(), options?: Options) =>
 
   const api = useBrandApi()
 
-
   const { data, status, execute, error } = await useAsyncData(
     queryKey,
     () => api.getBrands(brandsOptions),

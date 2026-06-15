@@ -142,7 +142,11 @@ async function cancelHandler() {
           :input-props="{ name: 'pvz-times', id: 'pvz-times' }"
         />
       </n-form-item>
-            <n-form-item label="Время работы в праздники" path="times" :label-props="{ for: 'pvz-times' }">
+      <n-form-item
+        label="Время работы в праздники"
+        path="times"
+        :label-props="{ for: 'pvz-times' }"
+      >
         <n-input
           v-model:value="pvzsItem.holidayTimes"
           placeholder="Время работы  в праздники"

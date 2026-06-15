@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { NInput, NIcon } from 'naive-ui'
-import type { Size } from 'naive-ui/es/input/src/interface'
 import { Search } from '@vicons/tabler'
 
 const {
@@ -11,7 +10,7 @@ const {
   modelValue
 } = defineProps<{
   modelValue: string
-  size?: Size
+  size?: 'small' | 'medium' | 'large'
   disabled?: boolean
   placeholder?: string
   delay?: number

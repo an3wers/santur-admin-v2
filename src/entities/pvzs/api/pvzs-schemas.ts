@@ -21,7 +21,7 @@ export const pvzSchema = z.object({
   payvariants: z.string().optional(),
   phones: z.string(),
   times: z.string(),
-  holidayTimes: z.string().optional()
+  holidayTimes: z.string()
 })
 
 export type PvzDto = z.infer<typeof pvzSchema>

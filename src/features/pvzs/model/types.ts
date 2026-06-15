@@ -18,7 +18,7 @@ export interface Pvz {
   payvariants: string
   phones: string
   times: string
-  holidayTimes?: string
+  holidayTimes: string
 }
 
 export type PvzsListItem = Pick<
