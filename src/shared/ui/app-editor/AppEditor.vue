@@ -45,9 +45,9 @@ import {
   AlignRight,
   AlignJustified,
   AlignCenter,
-  Movie
+  Movie,
+  Code
 } from '@vicons/tabler'
-import { set } from 'zod'
 
 interface Props {
   modelValue: string
@@ -57,6 +57,9 @@ const isMediaModal = ref(false)
 
 const isVideoFrameModal = ref(false)
 const videoFrameValue = ref('')
+
+const isHtmlModal = ref(false)
+const htmlValue = ref('')
 
 const props = defineProps<Props>()
 // const refHtml = ref(null)
@@ -374,6 +377,28 @@ watch(isVideoFrameModal, () => {
   }
 })
 
+const openHtmlModal = () => {
+  if (!editor.value) {
+    return null
+  }
+  htmlValue.value = editor.value.getHTML()
+  isHtmlModal.value = true
+}
+
+const applyHtml = () => {
+  if (!editor.value) {
+    return null
+  }
+  editor.value.commands.setContent(htmlValue.value, true)
+  isHtmlModal.value = false
+}
+
+watch(isHtmlModal, () => {
+  if (!isHtmlModal.value) {
+    htmlValue.value = ''
+  }
+})
+
 watchEffect(() => {
   if (!editor.value) return null
   if (editor.value.isActive('paragraph')) {
@@ -651,6 +676,18 @@ onUnmounted(() => {
           </n-icon>
         </template>
       </n-button>
+      <n-button
+        secondary
+        size="small"
+        style="padding-left: 8px; padding-right: 8px"
+        @click="openHtmlModal"
+      >
+        <template #icon>
+          <n-icon size="20px">
+            <Code />
+          </n-icon>
+        </template>
+      </n-button>
     </div>
     <editor-content class="editor__content" :editor="editor" />
   </div>
@@ -668,6 +705,27 @@ onUnmounted(() => {
         <n-text :depth="3">Код вставки видео может иметь формат: &lt;iframe...&gt; </n-text>
         <n-input v-model:value="videoFrameValue" type="textarea" placeholder="" />
         <NButton type="primary" @click="setVideoFrame(videoFrameValue)">Добавить видео</NButton>
+      </n-space>
+    </n-modal>
+
+    <n-modal
+      style="width: 100%; max-width: 720px"
+      :show="isHtmlModal"
+      preset="dialog"
+      title="Редактировать HTML"
+      :show-icon="false"
+      @esc="isHtmlModal = false"
+      @close="isHtmlModal = false"
+    >
+      <n-space vertical>
+        <n-text :depth="3">Изменение HTML-разметки содержания редактора</n-text>
+        <n-input
+          v-model:value="htmlValue"
+          type="textarea"
+          :autosize="{ minRows: 12, maxRows: 24 }"
+          placeholder="<p>...</p>"
+        />
+        <NButton type="primary" @click="applyHtml">Применить</NButton>
       </n-space>
     </n-modal>
 
