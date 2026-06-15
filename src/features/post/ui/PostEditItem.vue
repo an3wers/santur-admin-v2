@@ -9,6 +9,7 @@ import {
   NFormItem,
   NSelect,
   NInput,
+  NInputGroup,
   NDatePicker,
   NSwitch,
   NButton,
@@ -24,9 +25,10 @@ import { useNavStore } from '~/shared/navigation'
 import { useRemovePost } from '../model/use-remove-post'
 import { useSavePost } from '../model/use-save-post'
 import type { PostItem } from '@/entities/post'
-import { Check, Trash, Plus } from '@vicons/tabler'
+import { Check, Trash, Plus, Refresh } from '@vicons/tabler'
 import { MediaList } from '@/entities/media'
 import { usePostEditItem } from '../model/use-edit-post-item'
+import { generateAlias } from '~/shared/libs/generate-alias'
 
 const { ownerId, postItem = undefined } = defineProps<{
   ownerId: number
@@ -41,7 +43,7 @@ const {
   cityOptions,
   removeImage
 } = usePostEditItem(ownerId, postItem)
-console.log('postItemModel', postItemModel)
+
 const handleUploadChange = (file: UploadFileInfo) => {
   if (file.file) {
     previewImage.value = file.file
@@ -124,6 +126,10 @@ async function removeHandler() {
   }
 }
 
+function generateAliasHandler() {
+  postItemModel.value.alias = generateAlias(postItemModel.value.title)
+}
+
 const { savePost, status: saveSatus } = useSavePost()
 
 async function saveHandler() {
@@ -133,7 +139,11 @@ async function saveHandler() {
     if (errors?.warnings) {
       throw new Error('Проверьте корректность заполнения полей')
     }
-    console.log('errors', errors)
+
+    if (!postItemModel.value.alias) {
+      postItemModel.value.alias = generateAlias(postItemModel.value.title)
+    }
+
     await savePost({ ...postItemModel.value, previewImage: previewImage.value })
 
     if (saveSatus.value === 'error') {
@@ -163,6 +173,18 @@ async function saveHandler() {
       <n-card :title="postItemModel.id ? 'Редактировать запись' : 'Создать запись'">
         <n-form-item label="Заголовок" path="title">
           <n-input v-model:value="postItemModel.title" placeholder="Введите заголовок" />
+        </n-form-item>
+        <n-form-item label="Алиас" path="alias">
+          <n-input-group>
+            <n-input
+              :value="postItemModel.alias"
+              placeholder="Введите алиас"
+              @update:value="(v) => (postItemModel.alias = generateAlias(v))"
+            />
+            <n-button ghost @click.stop="generateAliasHandler">
+              <n-icon size="20px" :component="Refresh" />
+            </n-button>
+          </n-input-group>
         </n-form-item>
         <n-form-item label="Категория" path="categoryId">
           <n-select

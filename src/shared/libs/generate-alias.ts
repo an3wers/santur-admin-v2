@@ -74,7 +74,7 @@ export const generateAlias = (str: string) => {
     .replace(/[\u0300-\u036F]/g, '')
     .trim()
     .toLowerCase()
-    .replace(/[^a-zа-яё0-9 -]/g, '')
+    .replace(/[^a-zа-яё0-9 _-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
 }
