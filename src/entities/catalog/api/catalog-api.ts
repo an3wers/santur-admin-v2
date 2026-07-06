@@ -5,7 +5,7 @@ import type {
   GetCatalogVidsItemRes,
   GetPresetFiltersByCatalogItemRes,
   GetPresetsFilters,
-  SaveNewPresetFilterItem
+  SavePresetFilterItem
 } from './catalog-schemas'
 
 export const useCatalogApi = () => {
@@ -60,7 +60,7 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
-  async function savePresetFilterForCatalogItem(data: SaveNewPresetFilterItem) {
+  async function savePresetFilterForCatalogItem(data: SavePresetFilterItem) {
     const res = await fetchWithToken<unknown>('admin/catalog/SavePresetFilterForCatalogItem', {
       method: 'POST',
       body: data

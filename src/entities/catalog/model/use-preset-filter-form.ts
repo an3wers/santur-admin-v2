@@ -1,6 +1,6 @@
 import { generateAlias } from '~/shared/libs/generate-alias'
 import { useCatalogApi } from '../api/catalog-api'
-import type { CharFilter, PresetItem, SaveNewPresetFilterItem } from '../api/catalog-schemas'
+import type { CharFilter, PresetItem, SavePresetFilterItem } from '../api/catalog-schemas'
 
 interface OpenPresetFormParams {
   catalogItemId: number
@@ -26,6 +26,9 @@ export const usePresetFilterForm = () => {
 
   const includeCategoryInTitle = ref(true)
 
+  const titleReadeble = ref('')
+  const aliasReadeble = ref('')
+
   const generatedTitle = computed(() => {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
     const prefix = includeCategoryInTitle.value ? categoryName.value : ''
@@ -36,6 +39,24 @@ export const usePresetFilterForm = () => {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
     return generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
   })
+
+  watch(
+    charFilters,
+    (filters) => {
+      const checked = filters.flatMap((cf) => selections.value[cf.name] ?? [])
+      const prefix = includeCategoryInTitle.value ? categoryName.value : ''
+      const title = [prefix, ...checked].filter(Boolean).join(' ')
+      const alias = generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
+
+      console.log({
+        title,
+        alias
+      })
+    },
+    {
+      immediate: true
+    }
+  )
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
   function canonicalize(groups: Record<string, string[]>): string {
@@ -126,7 +147,7 @@ export const usePresetFilterForm = () => {
     try {
       saveStatus.value = 'pending'
 
-      const payload: SaveNewPresetFilterItem = {
+      const payload: SavePresetFilterItem = {
         id: editingId.value ?? undefined,
         catalogItemId: catalogItemId.value,
         title: generatedTitle.value,
