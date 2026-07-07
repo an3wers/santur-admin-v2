@@ -85,9 +85,20 @@ export const usePresetFilterForm = () => {
     title.value = value
   }
 
+  function formatAliasInput(value: string) {
+    const slug = generateAlias(value)
+    // generateAlias обрезает завершающий пробел, из-за чего при вводе нельзя
+    // поставить разделитель между словами. Сохраняем его как дефис, чтобы
+    // пользователь мог продолжать ввод.
+    if (/\s$/.test(value) && slug && !slug.endsWith('-')) {
+      return `${slug}-`
+    }
+    return slug
+  }
+
   function onAliasInput(value: string) {
     isAliasManuallyEdited.value = true
-    alias.value = value
+    alias.value = formatAliasInput(value)
   }
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
