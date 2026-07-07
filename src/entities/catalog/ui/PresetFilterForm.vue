@@ -12,6 +12,7 @@ import {
   NText,
   NAlert,
   NSwitch,
+  NSelect,
   useMessage
 } from 'naive-ui'
 import { MediaList } from '@/entities/media'
@@ -35,13 +36,19 @@ const {
   descr,
   loadStatus,
   saveStatus,
-  generatedTitle,
-  generatedAlias,
+  title,
+  alias,
+  onTitleInput,
+  onAliasInput,
+  location,
+  locations,
   includeCategoryInTitle,
   isDuplicate,
   duplicatePreset,
   open,
-  save
+  save,
+  isTitleManuallyEdited,
+  isAliasManuallyEdited
 } = usePresetFilterForm()
 
 const message = useMessage()
@@ -64,28 +71,54 @@ watch(saveStatus, (value) => {
   }
 })
 
-const saveDisabled = computed(() => !generatedAlias.value)
+const saveDisabled = computed(() => !alias.value)
 </script>
 
 <template>
   <n-card>
     <n-spin :show="loadStatus === 'pending'">
       <n-form>
-        <n-form-item label="Заголовок страницы" feedback="Формируется автоматически">
+        <n-form-item
+          label="Заголовок страницы"
+          feedback="Формируется автоматически, можно отредактировать вручную"
+        >
           <n-space vertical style="width: 100%">
             <n-space align="center">
               <n-switch v-model:value="includeCategoryInTitle" size="small" />
               <n-text> Добавить название категории </n-text>
             </n-space>
-            <n-input :value="generatedTitle" readonly placeholder="Отметьте фильтры" />
+            <n-input :value="title" placeholder="Отметьте фильтры" @update:value="onTitleInput">
+              <template #suffix>
+                <span
+                  class="input-suffix"
+                  :class="isTitleManuallyEdited ? 'input-suffix--disabled' : 'input-suffix--active'"
+                  >auto</span
+                >
+              </template>
+            </n-input>
           </n-space>
         </n-form-item>
         <n-alert v-if="isDuplicate" type="warning" :show-icon="true" style="margin-bottom: 1.5rem">
           Подфильтровая страница с таким же набором фильтров уже существует в этой
           категории<template v-if="duplicatePreset"> — «{{ duplicatePreset.title }}»</template>.
         </n-alert>
-        <n-form-item label="Alias" feedback="Формируется автоматически">
-          <n-input :value="generatedAlias" readonly placeholder="Формируется автоматически" />
+        <n-form-item
+          label="Alias"
+          feedback="Формируется автоматически, можно отредактировать вручную"
+        >
+          <n-input
+            :value="alias"
+            placeholder="Формируется автоматически"
+            @update:value="onAliasInput"
+          >
+            <template #suffix>
+              <span
+                class="input-suffix"
+                :class="isAliasManuallyEdited ? 'input-suffix--disabled' : 'input-suffix--active'"
+                >auto</span
+              >
+            </template>
+          </n-input>
         </n-form-item>
         <n-form-item label="Meta: description">
           <n-input v-model:value="shortDescr" type="textarea" placeholder="Введите description" />
@@ -97,7 +130,9 @@ const saveDisabled = computed(() => !generatedAlias.value)
             </template>
           </AppEditor>
         </n-form-item>
-
+        <n-form-item label="Расположение на странице">
+          <n-select v-model:value="location" :options="locations" />
+        </n-form-item>
         <n-space vertical size="large">
           <div v-for="charFilter in charFilters" :key="charFilter.nn" class="filter-group">
             <n-text tag="p" strong>{{ charFilter.name }}</n-text>
@@ -138,5 +173,19 @@ const saveDisabled = computed(() => !generatedAlias.value)
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.input-suffix {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+}
+
+.input-suffix--active {
+  color: green;
+}
+
+.input-suffix--disabled {
+  color: inherit;
+  text-decoration: line-through;
 }
 </style>

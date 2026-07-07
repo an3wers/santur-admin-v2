@@ -28,37 +28,67 @@ export const usePresetFilterForm = () => {
 
   const location = ref<'top' | 'bottom' | 'top-bottom'>('top')
 
-  const titleReadeble = ref('')
-  const aliasReadeble = ref('')
+  const locations = [
+    {
+      label: 'Над товарами',
+      value: 'top'
+    },
+    {
+      label: 'Под товарами',
+      value: 'bottom'
+    },
+    {
+      label: 'Над и под товарами',
+      value: 'top-bottom'
+    }
+  ]
 
-  const generatedTitle = computed(() => {
+  // Заголовок и alias: по умолчанию генерируются автоматически, но пользователь
+  // может отредактировать их вручную. После ручного правки автогенерация для
+  // этого поля больше не применяется.
+  const title = ref('')
+  const alias = ref('')
+  const isTitleManuallyEdited = ref(false)
+  const isAliasManuallyEdited = ref(false)
+
+  function buildTitle() {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
     const prefix = includeCategoryInTitle.value ? categoryName.value : ''
     return [prefix, ...checked].filter(Boolean).join(' ')
-  })
+  }
 
-  const generatedAlias = computed(() => {
+  function buildAlias() {
     const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
     return generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
-  })
+  }
 
+  // Пока пользователь не редактировал поле вручную — держим его в актуальном
+  // сгенерированном состоянии при изменении фильтров/переключателя категории.
   watch(
-    charFilters,
-    (filters) => {
-      const checked = filters.flatMap((cf) => selections.value[cf.name] ?? [])
-      const prefix = includeCategoryInTitle.value ? categoryName.value : ''
-      const title = [prefix, ...checked].filter(Boolean).join(' ')
-      const alias = generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
-
-      console.log({
-        title,
-        alias
-      })
+    [selections, charFilters, includeCategoryInTitle, categoryName],
+    () => {
+      if (!isTitleManuallyEdited.value) {
+        title.value = buildTitle()
+      }
+      if (!isAliasManuallyEdited.value) {
+        alias.value = buildAlias()
+      }
     },
     {
+      deep: true,
       immediate: true
     }
   )
+
+  function onTitleInput(value: string) {
+    isTitleManuallyEdited.value = true
+    title.value = value
+  }
+
+  function onAliasInput(value: string) {
+    isAliasManuallyEdited.value = true
+    alias.value = value
+  }
 
   // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
   function canonicalize(groups: Record<string, string[]>): string {
@@ -102,6 +132,11 @@ export const usePresetFilterForm = () => {
     catalogItemId.value = 0
     categoryName.value = ''
     editingId.value = null
+    location.value = 'top'
+    title.value = ''
+    alias.value = ''
+    isTitleManuallyEdited.value = false
+    isAliasManuallyEdited.value = false
     loadStatus.value = 'idle'
     saveStatus.value = 'idle'
   }
@@ -130,9 +165,16 @@ export const usePresetFilterForm = () => {
         if (preset) {
           shortDescr.value = preset.shortDescr
           descr.value = preset.descr
+          location.value = preset.location ?? 'top'
           preset.presets.forEach((pf) => {
             nextSelections[pf.name] = pf.selected.split(';').filter(Boolean)
           })
+          // Сохранённые заголовок и alias считаем результатом ручного
+          // редактирования, чтобы не перезатирать их автогенерацией.
+          title.value = preset.title
+          alias.value = preset.alias
+          isTitleManuallyEdited.value = true
+          isAliasManuallyEdited.value = true
         }
       }
 
@@ -152,8 +194,9 @@ export const usePresetFilterForm = () => {
       const payload: SavePresetFilterItem = {
         id: editingId.value ?? undefined,
         catalogItemId: catalogItemId.value,
-        title: generatedTitle.value,
-        alias: generatedAlias.value,
+        title: title.value,
+        alias: alias.value,
+        location: location.value,
         descr: descr.value,
         shortDescr: shortDescr.value,
         presets: charFilters.value
@@ -182,13 +225,19 @@ export const usePresetFilterForm = () => {
     editingId,
     loadStatus,
     saveStatus,
-    generatedTitle,
-    generatedAlias,
+    title,
+    alias,
+    onTitleInput,
+    onAliasInput,
+    location,
+    locations,
     includeCategoryInTitle,
     isDuplicate,
     duplicatePreset,
     open,
     save,
-    reset
+    reset,
+    isTitleManuallyEdited,
+    isAliasManuallyEdited
   }
 }
