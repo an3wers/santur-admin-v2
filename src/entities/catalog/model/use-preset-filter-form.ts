@@ -26,7 +26,7 @@ export const usePresetFilterForm = () => {
 
   const includeCategoryInTitle = ref(true)
 
-  const location = ref<'top' | 'bottom' | 'both'>('top')
+  const location = ref<'top' | 'bottom' | 'top-bottom'>('top')
 
   const titleReadeble = ref('')
   const aliasReadeble = ref('')

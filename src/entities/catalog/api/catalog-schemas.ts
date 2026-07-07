@@ -39,9 +39,7 @@ export interface PresetItem {
   shortDescr: string
   presets: PresetFilter[]
   alias: string
-
-  // TODO:
-  location?: 'top' | 'bottom' | 'both'
+  location: 'top' | 'bottom' | 'top-bottom'
 }
 
 export interface GetPresetsFilters {
@@ -84,9 +82,7 @@ export interface SavePresetFilterItem {
   shortDescr: string
   presets: { name: string; selected: string; minSelect: string; maxSelect: string }[]
   alias: string
-
-  // TODO:
-  location?: 'top' | 'bottom' | 'both'
+  location: 'top' | 'bottom' | 'top-bottom'
 }
 
 export interface GetCatalogVidsItemRes {
