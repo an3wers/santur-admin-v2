@@ -34,6 +34,12 @@ const emit = defineEmits<{
   ): void
 }>()
 
+const locationMap = new Map<string, string>([
+  ['top', 'Над товарами'],
+  ['bottom', 'Под товарами'],
+  ['top-bottom', 'Над и под товарами']
+])
+
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
 }
@@ -235,6 +241,9 @@ function copyCategoryId(id: number) {
                             <n-text tag="p" :title="preset.alias">
                               {{ preset.title }}
                             </n-text>
+                            <n-tag v-if="preset.location" type="default" size="tiny">
+                              {{ locationMap.get(preset.location) ?? preset.location }}
+                            </n-tag>
                           </div>
                           <div class="row-button">
                             <n-popover placement="bottom" trigger="hover">
