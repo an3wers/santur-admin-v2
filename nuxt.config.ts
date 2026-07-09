@@ -60,6 +60,14 @@ export default defineNuxtConfig({
         apiGateway: process.env.BASE_URL_GATEWAY_PROD ?? '',
         santurS3Url: ''
       }
+    },
+
+    routeRules: {
+      '/api-logger/**': {
+        proxy: {
+          to: process.env.API_BFF + '**'
+        }
+      }
     }
   },
 
@@ -79,6 +87,11 @@ export default defineNuxtConfig({
       '/s3/**': {
         proxy: {
           to: `${process.env.NUXT_PUBLIC_SANTUR_S3_URL}/**`
+        }
+      },
+      '/api-logger/**': {
+        proxy: {
+          to: process.env.API_BFF + '**'
         }
       }
     }
