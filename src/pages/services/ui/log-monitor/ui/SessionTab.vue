@@ -95,11 +95,11 @@ watch(
             v-for="(ev, i) in events"
             :key="i"
             :type="timelineType(ev.level)"
-            :time="formatTime(ev.serverTs ?? ev.ts)"
+            :time="formatTime(ev._time ?? ev.ts)"
           >
             <template #header>
               <n-space align="center" size="small">
-                <span class="event-name">{{ ev.event }}</span>
+                <span class="event-name">{{ ev._msg }}</span>
                 <n-tag :type="levelTagType(ev.level)" size="tiny" :bordered="false">
                   {{ ev.level }}
                 </n-tag>

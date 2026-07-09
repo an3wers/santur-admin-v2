@@ -40,4 +40,17 @@ export function isErrorLevel(level?: string): boolean {
   return level === 'error'
 }
 
+// Число с разрядами через неразрывный пробел: 1284 → «1 284».
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat('ru-RU').format(value)
+}
+
+// Короткое время «чч:мм» для плотной оси X графика.
+export function formatShortTime(value?: string | null): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return String(value)
+  return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+}
+
 export { type LogLevel }

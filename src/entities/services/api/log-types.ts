@@ -3,9 +3,13 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 export type LogSource = 'client' | 'server'
 
 export interface LogEvent {
+  // Физические поля VictoriaLogs: имя события хранится в `_msg`, метка времени — в `_time`.
+  _msg?: string
+  _time?: string
+
   ts: string // ISO 8601, время источника
   level: LogLevel
-  event: string // таксономия domain.action[.result]
+  event?: string // логическое имя события; в хранилище лежит в `_msg`
   sessionId: string
   url?: string | null
   release?: string
@@ -44,9 +48,26 @@ export interface LogFilters {
   source: string
 }
 
-// Точка тайм-серии error rate (бакеты 5 мин).
+// Точка тайм-серии error rate (бакеты 5 мин): всего ошибок + разбивка по сериям.
 export interface ErrorRatePoint {
   time: string
+  total: number
+  network: number
+  js: number
+}
+
+// Точка KPI-тайм-серии (бакеты 1 ч): питает крупные числа и спарклайны карточек.
+export interface KpiPoint {
+  time: string
+  errors: number
+  network: number
+  payments: number
+  js: number
+}
+
+// Строка панели «Ошибки по доменам» (домен = префикс события).
+export interface DomainErrorRow {
+  domain: string
   count: number
 }
 
@@ -54,6 +75,7 @@ export interface ErrorRatePoint {
 export interface TopErrorRow {
   event: string
   count: number
+  level: string
 }
 
 // Счётчики обзора за период.

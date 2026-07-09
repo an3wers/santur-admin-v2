@@ -127,13 +127,13 @@ onBeforeUnmount(() => stopWatch())
             :class="{ 'row-error': isErrorLevel(ev.level), clickable: !!ev.sessionId }"
             @click="ev.sessionId && emit('open-session', String(ev.sessionId))"
           >
-            <td>{{ formatTime(ev.serverTs ?? ev.ts) }}</td>
+            <td>{{ formatTime(ev._time ?? ev.ts) }}</td>
             <td>
               <n-tag :type="levelTagType(ev.level)" size="small" :bordered="false">
                 {{ ev.level }}
               </n-tag>
             </td>
-            <td class="mono">{{ ev.event }}</td>
+            <td class="mono">{{ ev._msg }}</td>
             <td>
               <n-tag :type="sourceTagType(ev.source)" size="small" :bordered="false">
                 {{ ev.source }}

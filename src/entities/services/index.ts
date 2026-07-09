@@ -8,6 +8,8 @@ export type {
   LogQueryEndpoint,
   LogQueryParams,
   ErrorRatePoint,
+  KpiPoint,
+  DomainErrorRow,
   TopErrorRow,
   OverviewCounters
 } from './api/log-types'

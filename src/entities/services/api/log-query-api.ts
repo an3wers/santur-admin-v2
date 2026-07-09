@@ -3,6 +3,8 @@ import type {
   LogFilters,
   LogQueryParams,
   ErrorRatePoint,
+  KpiPoint,
+  DomainErrorRow,
   TopErrorRow,
   OverviewCounters
 } from './log-types'
@@ -40,7 +42,7 @@ function num(value: unknown): number {
 function buildFilterExpr(filters: Partial<LogFilters>): string {
   const parts: string[] = []
   if (filters.level) parts.push(`level:${ql(filters.level)}`)
-  if (filters.eventPrefix) parts.push(`event:${ql(filters.eventPrefix)}*`)
+  if (filters.eventPrefix) parts.push(`_msg:${ql(filters.eventPrefix)}*`)
   if (filters.sessionId) parts.push(`sessionId:${ql(filters.sessionId)}`)
   if (filters.userId) parts.push(`userId:${ql(filters.userId)}`)
   if (filters.release) parts.push(`release:${ql(filters.release)}`)
@@ -65,8 +67,8 @@ export const useLogQueryApi = () => {
     const query =
       '* | stats ' +
       'count() if (level:error) errors, ' +
-      'count() if (event:"network.error") network, ' +
-      'count() if (event:"checkout.payment.failed") payments'
+      'count() if (_msg:"network.error") network, ' +
+      'count() if (_msg:"checkout.payment.failed") payments'
     const text = await run({ endpoint: 'query', query, start, end })
     const row = parseNdjson<Record<string, unknown>>(text)[0] ?? {}
     return {
@@ -76,38 +78,99 @@ export const useLogQueryApi = () => {
     }
   }
 
-  // Error rate по 5-минутным бакетам для line-chart.
-  async function getErrorRate(start?: string, end?: string): Promise<ErrorRatePoint[]> {
-    const query = 'level:error | stats by (_time:5m) count() c | sort by (_time)'
+  // KPI-тайм-серия по 1-часовым бакетам: питает крупные числа и спарклайны карточек.
+  // Имя события хранится в `_msg` (VictoriaLogs), поле `event` в схеме отсутствует.
+  async function getKpiSeries(start?: string, end?: string): Promise<KpiPoint[]> {
+    const query =
+      '* | stats by (_time:1h) ' +
+      'count() if (level:error) errors, ' +
+      'count() if (_msg:"network.error") network, ' +
+      'count() if (_msg:"checkout.payment.failed") payments, ' +
+      'count() if (_msg:"js.error") js ' +
+      '| sort by (_time)'
     const text = await run({ endpoint: 'query', query, start, end })
     return parseNdjson<Record<string, unknown>>(text).map((r) => ({
       time: String(r._time ?? ''),
-      count: num(r.c)
+      errors: num(r.errors),
+      network: num(r.network),
+      payments: num(r.payments),
+      js: num(r.js)
     }))
   }
 
-  // Топ падающих событий.
-  async function getTopErrors(start?: string, end?: string, limit = 10): Promise<TopErrorRow[]> {
-    const query = `level:error | stats by (event) count() c | sort by (c desc) | limit ${limit}`
-    const text = await run({ endpoint: 'query', query, start, end, limit })
+  // Error rate по 5-минутным бакетам: всего ошибок + разбивка network/js для line-chart.
+  async function getErrorRate(start?: string, end?: string): Promise<ErrorRatePoint[]> {
+    const query =
+      'level:error | stats by (_time:5m) ' +
+      'count() total, ' +
+      'count() if (_msg:"network.error") network, ' +
+      'count() if (_msg:"js.error") js ' +
+      '| sort by (_time)'
+    const text = await run({ endpoint: 'query', query, start, end })
     return parseNdjson<Record<string, unknown>>(text).map((r) => ({
-      event: String(r.event ?? ''),
-      count: num(r.c)
+      time: String(r._time ?? ''),
+      total: num(r.total),
+      network: num(r.network),
+      js: num(r.js)
     }))
+  }
+
+  // Ошибки по доменам: домен = префикс события (`domain.action`), агрегируем на клиенте.
+  async function getErrorsByDomain(start?: string, end?: string): Promise<DomainErrorRow[]> {
+    const query = 'level:error | stats by (_msg) count() c | sort by (c desc)'
+    const text = await run({ endpoint: 'query', query, start, end })
+    const byDomain = new Map<string, number>()
+    for (const r of parseNdjson<Record<string, unknown>>(text)) {
+      const event = String(r._msg ?? '')
+      if (!event) continue
+      const domain = event.split('.')[0]
+      byDomain.set(domain, (byDomain.get(domain) ?? 0) + num(r.c))
+    }
+    return [...byDomain.entries()]
+      .map(([domain, count]) => ({ domain, count }))
+      .sort((a, b) => b.count - a.count)
+  }
+
+  // Топ падающих событий с доминирующим уровнем (для бейджа).
+  async function getTopErrors(start?: string, end?: string, limit = 10): Promise<TopErrorRow[]> {
+    const query = '* | stats by (_msg, level) count() c | sort by (c desc)'
+    const text = await run({ endpoint: 'query', query, start, end })
+    // Агрегируем сумму по событию и запоминаем уровень с наибольшим количеством.
+    const acc = new Map<string, { count: number; level: string; levelCount: number }>()
+    for (const r of parseNdjson<Record<string, unknown>>(text)) {
+      const event = String(r._msg ?? '')
+      if (!event) continue
+      const level = String(r.level ?? '')
+      const c = num(r.c)
+      const cur = acc.get(event)
+      if (!cur) {
+        acc.set(event, { count: c, level, levelCount: c })
+      } else {
+        cur.count += c
+        if (c > cur.levelCount) {
+          cur.level = level
+          cur.levelCount = c
+        }
+      }
+    }
+    return [...acc.entries()]
+      .map(([event, v]) => ({ event, count: v.count, level: v.level }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit)
   }
 
   // Последние события (Live tail) — скользящее окно 5 минут.
   async function getLiveTail(filters: Partial<LogFilters>, limit = 100): Promise<LogEvent[]> {
     const expr = buildFilterExpr(filters)
     const head = ['_time:5m', expr].filter(Boolean).join(' ')
-    const query = `${head} | sort by (serverTs desc) | limit ${limit}`
+    const query = `${head} | sort by (_time desc) | limit ${limit}`
     const text = await run({ endpoint: 'query', query, limit })
     return parseNdjson<LogEvent>(text)
   }
 
   // Полная хронология сессии (client + server).
   async function getSessionTrace(sessionId: string): Promise<LogEvent[]> {
-    const query = `sessionId:${ql(sessionId)} | sort by (serverTs)`
+    const query = `sessionId:${ql(sessionId)} | sort by (_time)`
     const text = await run({ endpoint: 'query', query })
     return parseNdjson<LogEvent>(text)
   }
@@ -116,7 +179,9 @@ export const useLogQueryApi = () => {
     run,
     parseNdjson,
     getOverviewCounters,
+    getKpiSeries,
     getErrorRate,
+    getErrorsByDomain,
     getTopErrors,
     getLiveTail,
     getSessionTrace
