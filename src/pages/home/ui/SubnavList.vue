@@ -19,7 +19,8 @@ const itemsWithPath = computed(() => {
   if (
     parentModelName == 'analytics' ||
     parentModelName == 'uploading' ||
-    parentModelName == 'feeds'
+    parentModelName == 'feeds' ||
+    parentModelName === 'services'
   ) {
     return items.value.map((item) => {
       return {

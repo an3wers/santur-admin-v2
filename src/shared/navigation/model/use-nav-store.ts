@@ -243,6 +243,15 @@ export const useNavStore = defineStore('navigation', () => {
             label: 'Очередь email-рассылок',
             modelName: 'services',
             needSubmenu: false
+          },
+          {
+            app: '',
+            categoryId: 0,
+            id: 2,
+            items: [],
+            label: 'Лог-монитор',
+            modelName: 'services',
+            needSubmenu: false
           }
         ],
         label: 'Сервисы',
