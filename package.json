@@ -19,6 +19,7 @@
   "dependencies": {
     "@nuxt/eslint": "^1.15.2",
     "@pinia/nuxt": "^0.11.3",
+    "@tiptap/core": "^2.27.2",
     "@tiptap/extension-image": "^2.27.2",
     "@tiptap/extension-link": "^2.27.2",
     "@tiptap/extension-placeholder": "^2.27.2",
@@ -32,20 +33,21 @@
     "@tiptap/pm": "^2.27.2",
     "@tiptap/starter-kit": "^2.27.2",
     "@tiptap/vue-3": "^2.27.2",
-    "@tiptap/core": "^2.27.2",
+    "@vicons/tabler": "^0.13.0",
     "@vueuse/nuxt": "^14.3.0",
+    "chart.js": "^4.5.1",
     "eslint": "^10.4.0",
     "naive-ui": "^2.44.1",
     "nanoid": "^5.1.11",
     "nuxt": "^3.21.6",
     "nuxtjs-naive-ui": "^1.0.2",
     "pinia": "^3.0.4",
+    "sass": "^1.100.0",
     "tiptap-extension-resize-image": "^1.4.0",
     "vue": "latest",
+    "vue-chartjs": "^5.3.4",
     "vue-router": "latest",
-    "zod": "^4.4.3",
-    "@vicons/tabler": "^0.13.0",
-    "sass": "^1.100.0"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^4.0.3",
