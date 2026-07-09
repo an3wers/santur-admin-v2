@@ -69,7 +69,12 @@ export const useNavStore = defineStore('navigation', () => {
   })
 
   const secondLevelId = computed(() => {
-    return route.params?.catId ? Number(route.params.catId) : -1
+    if (route.params?.catId) return Number(route.params.catId)
+    // Static nested routes (e.g. /services/2) have no [catId] param —
+    // derive the second-level id from the second path segment instead.
+    const segment = route.path.split('/')[2]
+    const id = Number(segment)
+    return segment && !Number.isNaN(id) ? id : -1
   })
 
   const currentSubmenu = computed(() => {
