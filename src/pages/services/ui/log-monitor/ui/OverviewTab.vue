@@ -44,7 +44,7 @@ const topErrors = ref<TopErrorRow[]>([])
 const KPIS = [
   { key: 'errors', label: 'level:error', color: '#d03050' },
   { key: 'network', label: 'network.error', color: '#f0a020' },
-  { key: 'payments', label: 'checkout.payment.failed', color: '#2080f0' },
+  { key: 'order', label: 'checkout.order.failed', color: '#2080f0' },
   { key: 'js', label: 'js.error', color: '#8a63d2' }
 ] as const
 
@@ -152,90 +152,92 @@ onMounted(load)
     </n-space>
 
     <n-spin :show="loading">
-      <n-grid :x-gap="12" :y-gap="12" cols="1 640:2 1024:4" class="kpi">
-        <n-gi v-for="kpi in KPIS" :key="kpi.key">
-          <KpiCard
-            :label="kpi.label"
-            :color="kpi.color"
-            :value="kpiTotal(kpi.key)"
-            :series="kpiSeriesValues(kpi.key)"
-            :footer="KPI_FOOTER"
-          />
-        </n-gi>
-      </n-grid>
+      <n-space vertical size="large">
+        <n-grid :x-gap="12" :y-gap="12" cols="1 640:2 1024:4" class="kpi">
+          <n-gi v-for="kpi in KPIS" :key="kpi.key">
+            <KpiCard
+              :label="kpi.label"
+              :color="kpi.color"
+              :value="kpiTotal(kpi.key)"
+              :series="kpiSeriesValues(kpi.key)"
+              :footer="KPI_FOOTER"
+            />
+          </n-gi>
+        </n-grid>
 
-      <n-grid :x-gap="12" :y-gap="12" cols="1 1024:3" class="mid">
-        <n-gi :span="2">
-          <n-card size="small" class="mid-card">
-            <template #header>
-              <div class="card-head">
-                <span class="card-head__title">Error rate</span>
-                <code class="card-head__query"
-                  >_time:24h level:error | stats by (_time:5m) count()</code
-                >
+        <n-grid :x-gap="12" :y-gap="12" cols="1 1024:3" class="mid">
+          <n-gi :span="2">
+            <n-card size="small" class="mid-card">
+              <template #header>
+                <div class="card-head">
+                  <span class="card-head__title">Error rate</span>
+                  <code class="card-head__query"
+                    >_time:24h level:error | stats by (_time:5m) count()</code
+                  >
+                </div>
+              </template>
+              <div v-if="hasChart" class="chart-wrap">
+                <LineChart :data="chartData" :options="chartOptions" />
               </div>
-            </template>
-            <div v-if="hasChart" class="chart-wrap">
-              <LineChart :data="chartData" :options="chartOptions" />
+              <n-empty v-else description="Нет данных за выбранный период" />
+            </n-card>
+          </n-gi>
+
+          <n-gi :span="1">
+            <n-card size="small" class="mid-card">
+              <template #header>
+                <div class="card-head">
+                  <span class="card-head__title">Ошибки по доменам</span>
+                  <code class="card-head__query">level:error | stats by (domain)</code>
+                </div>
+              </template>
+              <DomainBars v-if="domains.length" :rows="domains" />
+              <n-empty v-else description="Нет данных" />
+            </n-card>
+          </n-gi>
+        </n-grid>
+
+        <n-card size="small">
+          <template #header>
+            <div class="card-head card-head--row">
+              <span class="card-head__title">Топ ошибок за 24 ч</span>
+              <code class="card-head__query"
+                >stats by (event) count() | sort by (count desc) | limit 10</code
+              >
             </div>
-            <n-empty v-else description="Нет данных за выбранный период" />
-          </n-card>
-        </n-gi>
-
-        <n-gi :span="1">
-          <n-card size="small" class="mid-card">
-            <template #header>
-              <div class="card-head">
-                <span class="card-head__title">Ошибки по доменам</span>
-                <code class="card-head__query">level:error | stats by (domain)</code>
-              </div>
-            </template>
-            <DomainBars v-if="domains.length" :rows="domains" />
-            <n-empty v-else description="Нет данных" />
-          </n-card>
-        </n-gi>
-      </n-grid>
-
-      <n-card size="small">
-        <template #header>
-          <div class="card-head card-head--row">
-            <span class="card-head__title">Топ ошибок за 24 ч</span>
-            <code class="card-head__query"
-              >stats by (event) count() | sort by (count desc) | limit 10</code
-            >
-          </div>
-        </template>
-        <n-table v-if="topErrors.length" :single-line="false" size="small">
-          <thead>
-            <tr>
-              <th class="col-rank">#</th>
-              <th>Событие</th>
-              <th class="col-level">Уровень</th>
-              <th class="col-num">Кол-во</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(row, i) in topErrors"
-              :key="row.event"
-              class="clickable"
-              @click="emit('open-event', row.event)"
-            >
-              <td class="col-rank">{{ String(i + 1).padStart(2, '0') }}</td>
-              <td>
-                <code class="event">{{ row.event }}</code>
-              </td>
-              <td class="col-level">
-                <n-tag :type="levelTagType(row.level)" size="small" :bordered="false">
-                  {{ row.level.toUpperCase() }}
-                </n-tag>
-              </td>
-              <td class="col-num">{{ row.count }}</td>
-            </tr>
-          </tbody>
-        </n-table>
-        <n-empty v-else description="Ошибок за период не найдено" />
-      </n-card>
+          </template>
+          <n-table v-if="topErrors.length" :single-line="false" size="small">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th>Событие</th>
+                <th class="col-level">Уровень</th>
+                <th class="col-num">Кол-во</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(row, i) in topErrors"
+                :key="row.event"
+                class="clickable"
+                @click="emit('open-event', row.event)"
+              >
+                <td class="col-rank">{{ String(i + 1).padStart(2, '0') }}</td>
+                <td>
+                  <code class="event">{{ row.event }}</code>
+                </td>
+                <td class="col-level">
+                  <n-tag :type="levelTagType(row.level)" size="small" :bordered="false">
+                    {{ row.level.toUpperCase() }}
+                  </n-tag>
+                </td>
+                <td class="col-num">{{ row.count }}</td>
+              </tr>
+            </tbody>
+          </n-table>
+          <n-empty v-else description="Ошибок за период не найдено" />
+        </n-card>
+      </n-space>
     </n-spin>
   </n-space>
 </template>

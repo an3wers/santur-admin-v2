@@ -68,13 +68,13 @@ export const useLogQueryApi = () => {
       '* | stats ' +
       'count() if (level:error) errors, ' +
       'count() if (_msg:"network.error") network, ' +
-      'count() if (_msg:"checkout.payment.failed") payments'
+      'count() if (_msg:"checkout.order.failed") order'
     const text = await run({ endpoint: 'query', query, start, end })
     const row = parseNdjson<Record<string, unknown>>(text)[0] ?? {}
     return {
       errors: num(row.errors),
       network: num(row.network),
-      payments: num(row.payments)
+      order: num(row.order)
     }
   }
 
@@ -85,7 +85,7 @@ export const useLogQueryApi = () => {
       '* | stats by (_time:1h) ' +
       'count() if (level:error) errors, ' +
       'count() if (_msg:"network.error") network, ' +
-      'count() if (_msg:"checkout.payment.failed") payments, ' +
+      'count() if (_msg:"checkout.order.failed") order, ' +
       'count() if (_msg:"js.error") js ' +
       '| sort by (_time)'
     const text = await run({ endpoint: 'query', query, start, end })
@@ -93,7 +93,7 @@ export const useLogQueryApi = () => {
       time: String(r._time ?? ''),
       errors: num(r.errors),
       network: num(r.network),
-      payments: num(r.payments),
+      order: num(r.order),
       js: num(r.js)
     }))
   }

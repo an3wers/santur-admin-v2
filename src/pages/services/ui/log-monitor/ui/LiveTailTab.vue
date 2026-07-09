@@ -10,7 +10,6 @@ import {
   NTable,
   NSpin,
   NEmpty,
-  NText,
   useMessage
 } from 'naive-ui'
 import { Refresh, PlayerPlay, PlayerPause } from '@vicons/tabler'
@@ -18,7 +17,13 @@ import { useLogQueryApi } from '~/entities/services'
 import type { LogEvent } from '~/entities/services'
 import { useLogFilters } from '../model/use-log-filters'
 import { useLivePolling } from '../model/use-live-polling'
-import { levelTagType, sourceTagType, formatTime, isErrorLevel } from '../lib/log-format'
+import {
+  levelTagType,
+  sourceTagType,
+  formatTime,
+  formatCtx,
+  isErrorLevel
+} from '../lib/log-format'
 
 const emit = defineEmits<{
   (e: 'open-session', sessionId: string): void
@@ -32,10 +37,13 @@ const events = ref<LogEvent[]>([])
 const loading = ref(false)
 let wasOk = true
 
+const LIMIT = 100
+const POLL_MS = 5000
+
 async function load(manual = false) {
   loading.value = true
   try {
-    events.value = await api.getLiveTail(filters.value, 100)
+    events.value = await api.getLiveTail(filters.value, LIMIT)
     wasOk = true
   } catch (e) {
     // Показываем ошибку только при ручном обновлении или первом падении подряд.
@@ -47,13 +55,17 @@ async function load(manual = false) {
   }
 }
 
-const levelOptions = [
-  { label: 'Все уровни', value: '' },
-  { label: 'error', value: 'error' },
-  { label: 'warn', value: 'warn' },
-  { label: 'info', value: 'info' },
-  { label: 'debug', value: 'debug' }
-]
+// Уровни-пилюли (одиночный тумблер): клик по активной снимает фильтр.
+const levelPills = [
+  { value: 'debug', label: 'DEBUG' },
+  { value: 'info', label: 'INFO' },
+  { value: 'warn', label: 'WARN' },
+  { value: 'error', label: 'ERROR' }
+] as const
+
+function toggleLevel(value: string) {
+  level.value = level.value === value ? '' : value
+}
 
 const sourceOptions = [
   { label: 'Все источники', value: '' },
@@ -61,7 +73,7 @@ const sourceOptions = [
   { label: 'server', value: 'server' }
 ]
 
-const { enabled, toggle } = useLivePolling(() => load(false), 5000)
+const { enabled, toggle } = useLivePolling(() => load(false), POLL_MS)
 
 // Перезагрузка при изменении фильтров.
 const stopWatch = watch(filters, () => load(true), { deep: true })
@@ -73,51 +85,62 @@ onBeforeUnmount(() => stopWatch())
 <template>
   <n-space vertical size="large">
     <n-card size="small">
-      <n-space align="center">
-        <div style="width: 140px">
-          <n-select v-model:value="level" :options="levelOptions" placeholder="Уровень" />
-        </div>
-        <n-input v-model:value="eventPrefix" placeholder="Событие (префикс)" style="width: 200px" />
-        <n-input v-model:value="sessionId" placeholder="sessionId" style="width: 180px" />
-        <n-input v-model:value="userId" placeholder="userId" style="width: 120px" />
-        <n-input v-model:value="release" placeholder="release" style="width: 120px" />
-        <div style="width: 140px">
-          <n-select v-model:value="source" :options="sourceOptions" placeholder="Источник" />
+      <div class="toolbar">
+        <div class="toolbar-filters">
+          <div class="level-pills">
+            <button
+              v-for="p in levelPills"
+              :key="p.value"
+              type="button"
+              class="level-pill"
+              :class="[`level-pill--${p.value}`, { active: level === p.value }]"
+              @click="toggleLevel(p.value)"
+            >
+              {{ p.label }}
+            </button>
+          </div>
+
+          <n-input v-model:value="eventPrefix" placeholder="event: префикс*" style="width: 200px" />
+          <n-input v-model:value="sessionId" placeholder="sessionId" style="width: 170px" />
+          <n-input v-model:value="userId" placeholder="userId" style="width: 110px" />
+          <n-input v-model:value="release" placeholder="release" style="width: 110px" />
+          <div style="width: 150px">
+            <n-select v-model:value="source" :options="sourceOptions" placeholder="source: все" />
+          </div>
         </div>
 
-        <n-button :type="enabled ? 'warning' : 'success'" secondary @click="toggle">
-          <template #icon>
-            <n-icon><PlayerPause v-if="enabled" /><PlayerPlay v-else /></n-icon>
-          </template>
-          {{ enabled ? 'Пауза' : 'Играть' }}
-        </n-button>
-        <n-button secondary type="primary" @click="load(true)">
-          <template #icon>
-            <n-icon><Refresh /></n-icon>
-          </template>
-        </n-button>
-        <n-button quaternary @click="reset">Сбросить</n-button>
-      </n-space>
+        <div class="toolbar-status">
+          <span class="live" :class="{ paused: !enabled }">
+            <span class="live-dot" />
+            {{ enabled ? 'LIVE · 5с' : 'Пауза' }}
+          </span>
+          <n-button :type="enabled ? 'warning' : 'success'" secondary size="small" @click="toggle">
+            <template #icon>
+              <n-icon><PlayerPause v-if="enabled" /><PlayerPlay v-else /></n-icon>
+            </template>
+            {{ enabled ? 'Пауза' : 'Играть' }}
+          </n-button>
+          <n-button secondary type="primary" size="small" @click="load(true)">
+            <template #icon>
+              <n-icon><Refresh /></n-icon>
+            </template>
+          </n-button>
+          <n-button quaternary size="small" @click="reset">Сбросить</n-button>
+        </div>
+      </div>
     </n-card>
-
-    <n-space align="center" size="small">
-      <n-tag :type="enabled ? 'success' : 'default'" size="small" :bordered="false">
-        {{ enabled ? 'Автообновление 5с' : 'Остановлено' }}
-      </n-tag>
-      <n-text depth="3">Показано событий: {{ events.length }}</n-text>
-    </n-space>
 
     <n-spin :show="loading">
       <n-table v-if="events.length" :single-line="false" size="small" class="events-table">
         <thead>
           <tr>
-            <th style="width: 150px">Время</th>
-            <th style="width: 80px">Уровень</th>
-            <th>Событие</th>
-            <th style="width: 90px">Источник</th>
-            <th>URL</th>
-            <th style="width: 170px">sessionId</th>
-            <th style="width: 90px">userId</th>
+            <th style="width: 130px">Время</th>
+            <th style="width: 80px">Level</th>
+            <th style="width: 260px">Event</th>
+            <th style="width: 80px">Src</th>
+            <th style="width: 90px">UserId</th>
+            <th style="width: 200px">URL</th>
+            <th>Ctx</th>
           </tr>
         </thead>
         <tbody>
@@ -133,24 +156,128 @@ onBeforeUnmount(() => stopWatch())
                 {{ ev.level }}
               </n-tag>
             </td>
-            <td class="mono">{{ ev._msg }}</td>
+            <td class="mono event-cell">{{ ev._msg }}</td>
             <td>
               <n-tag :type="sourceTagType(ev.source)" size="small" :bordered="false">
                 {{ ev.source }}
               </n-tag>
             </td>
-            <td class="mono url-cell">{{ ev.url ?? '—' }}</td>
-            <td class="mono">{{ ev.sessionId }}</td>
             <td>{{ ev.userId ?? '—' }}</td>
+            <td class="mono url-cell">{{ ev.url ?? '—' }}</td>
+            <td class="mono ctx-cell">{{ formatCtx(ev.ctx) }}</td>
           </tr>
         </tbody>
       </n-table>
       <n-empty v-else description="Событий не найдено" style="padding: 2rem" />
     </n-spin>
+
+    <div class="tail-hint">↑ новые события сверху · polling 5с · limit {{ LIMIT }}</div>
   </n-space>
 </template>
 
 <style scoped>
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-filters,
+.toolbar-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Уровни-пилюли */
+.level-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.level-pill {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--n-border-color, #e0e0e6);
+  background: transparent;
+  color: #8a8a92;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.level-pill:hover {
+  border-color: currentColor;
+}
+
+.level-pill.active {
+  color: #fff;
+  border-color: transparent;
+}
+
+.level-pill--debug.active {
+  background: #8a8a92;
+}
+.level-pill--info.active {
+  background: #2080f0;
+}
+.level-pill--warn.active {
+  background: #8a6d00;
+}
+.level-pill--error.active {
+  background: #d03050;
+}
+
+/* LIVE-индикатор */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #18a058;
+  background: rgba(24, 160, 88, 0.12);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #18a058;
+  box-shadow: 0 0 0 0 rgba(24, 160, 88, 0.5);
+  animation: pulse 1.6s infinite;
+}
+
+.live.paused {
+  color: #8a8a92;
+  background: rgba(138, 138, 146, 0.12);
+}
+
+.live.paused .live-dot {
+  background: #8a8a92;
+  animation: none;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 160, 88, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(24, 160, 88, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 160, 88, 0);
+  }
+}
+
+/* Таблица */
 .events-table {
   font-size: 13px;
 }
@@ -160,11 +287,17 @@ onBeforeUnmount(() => stopWatch())
   font-size: 12px;
 }
 
-.url-cell {
-  max-width: 260px;
+.event-cell {
+  font-weight: 500;
+}
+
+.url-cell,
+.ctx-cell {
+  max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #8a8a92;
 }
 
 .row-error td {
@@ -181,5 +314,12 @@ onBeforeUnmount(() => stopWatch())
 
 .row-error.clickable:hover td {
   background-color: rgba(208, 48, 80, 0.14);
+}
+
+.tail-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #8a8a92;
+  padding: 4px 0;
 }
 </style>

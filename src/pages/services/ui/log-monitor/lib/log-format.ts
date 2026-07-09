@@ -40,6 +40,15 @@ export function isErrorLevel(level?: string): boolean {
   return level === 'error'
 }
 
+// Контекст события в строку «key=value key=value» для колонки CTX.
+export function formatCtx(ctx?: Record<string, unknown> | null): string {
+  if (!ctx || typeof ctx !== 'object') return ''
+  return Object.entries(ctx)
+    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => `${k}=${typeof v === 'object' ? JSON.stringify(v) : String(v)}`)
+    .join(' ')
+}
+
 // Число с разрядами через неразрывный пробел: 1284 → «1 284».
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat('ru-RU').format(value)

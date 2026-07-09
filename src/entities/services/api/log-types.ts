@@ -61,7 +61,7 @@ export interface KpiPoint {
   time: string
   errors: number
   network: number
-  payments: number
+  order: number
   js: number
 }
 
@@ -82,5 +82,5 @@ export interface TopErrorRow {
 export interface OverviewCounters {
   errors: number
   network: number
-  payments: number
+  order: number
 }
