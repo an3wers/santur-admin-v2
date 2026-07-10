@@ -18,6 +18,12 @@ function ql(value: string | number): string {
   return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 }
 
+// Домен «network» сплитнули на два события: network.error → network.error.req + network.error.res.
+// Считаем их одной метрикой (сумма req+res) и сохраняем legacy `network.error` для истории.
+// Точное совпадение `_msg:=` — чтобы не цеплять посторонние события с токенами network/error.
+const NETWORK_ERROR_FILTER =
+  '(_msg:="network.error" OR _msg:="network.error.req" OR _msg:="network.error.res")'
+
 // Построчный парсинг NDJSON (ТЗ Ф-5.3). Битые строки пропускаются — парсинг не падает.
 export function parseNdjson<T = Record<string, unknown>>(text: string): T[] {
   const out: T[] = []
@@ -67,7 +73,7 @@ export const useLogQueryApi = () => {
     const query =
       '* | stats ' +
       'count() if (level:error) errors, ' +
-      'count() if (_msg:"network.error") network, ' +
+      `count() if ${NETWORK_ERROR_FILTER} network, ` +
       'count() if (_msg:"checkout.order.failed") order'
     const text = await run({ endpoint: 'query', query, start, end })
     const row = parseNdjson<Record<string, unknown>>(text)[0] ?? {}
@@ -84,7 +90,7 @@ export const useLogQueryApi = () => {
     const query =
       '* | stats by (_time:1h) ' +
       'count() if (level:error) errors, ' +
-      'count() if (_msg:"network.error") network, ' +
+      `count() if ${NETWORK_ERROR_FILTER} network, ` +
       'count() if (_msg:"checkout.order.failed") order, ' +
       'count() if (_msg:"js.error") js ' +
       '| sort by (_time)'
@@ -103,7 +109,7 @@ export const useLogQueryApi = () => {
     const query =
       'level:error | stats by (_time:5m) ' +
       'count() total, ' +
-      'count() if (_msg:"network.error") network, ' +
+      `count() if ${NETWORK_ERROR_FILTER} network, ` +
       'count() if (_msg:"js.error") js ' +
       '| sort by (_time)'
     const text = await run({ endpoint: 'query', query, start, end })
