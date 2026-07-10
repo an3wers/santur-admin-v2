@@ -200,7 +200,7 @@ onMounted(load)
         <n-card size="small">
           <template #header>
             <div class="card-head card-head--row">
-              <span class="card-head__title">Топ ошибок за 24 ч</span>
+              <span class="card-head__title">Топ ошибок</span>
               <code class="card-head__query"
                 >stats by (event) count() | sort by (count desc) | limit 10</code
               >

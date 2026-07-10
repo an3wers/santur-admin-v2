@@ -10,13 +10,14 @@ import {
   NTable,
   NSpin,
   NEmpty,
+  NDatePicker,
+  NPagination,
   useMessage
 } from 'naive-ui'
-import { Refresh, PlayerPlay, PlayerPause } from '@vicons/tabler'
+import { Refresh } from '@vicons/tabler'
 import { useLogQueryApi } from '~/entities/services'
 import type { LogEvent } from '~/entities/services'
 import { useLogFilters } from '../model/use-log-filters'
-import { useLivePolling } from '../model/use-live-polling'
 import { levelTagType, sourceTagType, formatTime, formatCtx, isErrorLevel } from '../lib/log-format'
 
 const emit = defineEmits<{
@@ -29,24 +30,71 @@ const { level, eventPrefix, sessionId, userId, release, source, filters, reset }
 
 const events = ref<LogEvent[]>([])
 const loading = ref(false)
-let wasOk = true
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(50)
 
-const LIMIT = 100
-const POLL_MS = 5000
+// Диапазон по умолчанию — с начала текущих суток до «сейчас».
+function startOfToday(): number {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+const range = ref<[number, number]>([startOfToday(), Date.now()])
 
-async function load(manual = false) {
+const isoStart = computed(() => new Date(range.value[0]).toISOString())
+const isoEnd = computed(() => new Date(range.value[1]).toISOString())
+
+async function loadPage() {
   loading.value = true
   try {
-    events.value = await api.getLiveTail(filters.value, LIMIT)
-    wasOk = true
+    events.value = await api.getLogPage(
+      filters.value,
+      isoStart.value,
+      isoEnd.value,
+      page.value,
+      pageSize.value
+    )
   } catch (e) {
-    // Показываем ошибку только при ручном обновлении или первом падении подряд.
-    if (manual || wasOk) message.error('Не удалось загрузить события')
-    wasOk = false
-    console.error('[log-monitor] live tail load failed', e)
+    message.error('Не удалось загрузить логи')
+    console.error('[log-monitor] browse page load failed', e)
   } finally {
     loading.value = false
   }
+}
+
+async function loadCount() {
+  try {
+    total.value = await api.getLogCount(filters.value, isoStart.value, isoEnd.value)
+  } catch (e) {
+    total.value = 0
+    console.error('[log-monitor] browse count load failed', e)
+  }
+}
+
+// Новый поиск: сбрасываем на первую страницу и обновляем и счётчик, и данные.
+function search() {
+  page.value = 1
+  loadCount()
+  loadPage()
+}
+
+function onPageChange(p: number) {
+  page.value = p
+  loadPage()
+}
+
+function onPageSizeChange(size: number) {
+  pageSize.value = size
+  page.value = 1
+  loadPage()
+}
+
+function resetAll() {
+  reset()
+  range.value = [startOfToday(), Date.now()]
+  // reset() правит query string; ждём применения, затем ищем.
+  nextTick(search)
 }
 
 // Уровни-пилюли (одиночный тумблер): клик по активной снимает фильтр.
@@ -67,13 +115,10 @@ const sourceOptions = [
   { label: 'server', value: 'server' }
 ]
 
-const { enabled, toggle } = useLivePolling(() => load(false), POLL_MS)
+// Автопоиск при изменении фильтров — с задержкой, чтобы не бить по каждому символу.
+watchDebounced(filters, search, { deep: true, debounce: 500 })
 
-// Перезагрузка при изменении фильтров.
-const stopWatch = watch(filters, () => load(true), { deep: true })
-
-onMounted(() => load(true))
-onBeforeUnmount(() => stopWatch())
+onMounted(search)
 </script>
 
 <template>
@@ -81,6 +126,15 @@ onBeforeUnmount(() => stopWatch())
     <n-card size="small">
       <div class="toolbar">
         <div class="toolbar-filters">
+          <n-date-picker
+            v-model:value="range"
+            type="daterange"
+            format="dd-MM-yyyy HH:mm"
+            :first-day-of-week="0"
+            style="width: 340px"
+            @update:value="search"
+          />
+
           <div class="level-pills">
             <button
               v-for="p in levelPills"
@@ -94,7 +148,7 @@ onBeforeUnmount(() => stopWatch())
             </button>
           </div>
 
-          <n-input v-model:value="eventPrefix" placeholder="event: префикс*" style="width: 200px" />
+          <n-input v-model:value="eventPrefix" placeholder="event: префикс*" style="width: 190px" />
           <n-input v-model:value="sessionId" placeholder="sessionId" style="width: 170px" />
           <n-input v-model:value="userId" placeholder="userId" style="width: 110px" />
           <n-input v-model:value="release" placeholder="release" style="width: 110px" />
@@ -104,22 +158,12 @@ onBeforeUnmount(() => stopWatch())
         </div>
 
         <div class="toolbar-status">
-          <span class="live" :class="{ paused: !enabled }">
-            <span class="live-dot" />
-            {{ enabled ? 'LIVE · 5с' : 'Пауза' }}
-          </span>
-          <n-button :type="enabled ? 'warning' : 'success'" secondary size="small" @click="toggle">
-            <template #icon>
-              <n-icon><PlayerPause v-if="enabled" /><PlayerPlay v-else /></n-icon>
-            </template>
-            {{ enabled ? 'Пауза' : 'Играть' }}
-          </n-button>
-          <n-button secondary type="primary" size="small" @click="load(true)">
+          <n-button secondary type="primary" size="small" @click="search">
             <template #icon>
               <n-icon><Refresh /></n-icon>
             </template>
           </n-button>
-          <n-button quaternary size="small" @click="reset">Сбросить</n-button>
+          <n-button quaternary size="small" @click="resetAll">Сбросить</n-button>
         </div>
       </div>
     </n-card>
@@ -162,10 +206,23 @@ onBeforeUnmount(() => stopWatch())
           </tr>
         </tbody>
       </n-table>
-      <n-empty v-else description="Событий не найдено" style="padding: 2rem" />
+      <n-empty v-else description="Событий за период не найдено" style="padding: 2rem" />
     </n-spin>
 
-    <div class="tail-hint">↑ новые события сверху · polling 5с · limit {{ LIMIT }}</div>
+    <div v-if="total" class="pager">
+      <n-pagination
+        :page="page"
+        :page-size="pageSize"
+        :item-count="total"
+        :page-slot="7"
+        show-quick-jumper
+        show-size-picker
+        :page-sizes="[50, 100, 200]"
+        @update:page="onPageChange"
+        @update:page-size="onPageSizeChange"
+      />
+      <span class="pager-total">Всего: {{ total.toLocaleString('ru-RU') }}</span>
+    </div>
   </n-space>
 </template>
 
@@ -227,50 +284,6 @@ onBeforeUnmount(() => stopWatch())
   background: #d03050;
 }
 
-/* LIVE-индикатор */
-.live {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #18a058;
-  background: rgba(24, 160, 88, 0.12);
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #18a058;
-  box-shadow: 0 0 0 0 rgba(24, 160, 88, 0.5);
-  animation: pulse 1.6s infinite;
-}
-
-.live.paused {
-  color: #8a8a92;
-  background: rgba(138, 138, 146, 0.12);
-}
-
-.live.paused .live-dot {
-  background: #8a8a92;
-  animation: none;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(24, 160, 88, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(24, 160, 88, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(24, 160, 88, 0);
-  }
-}
-
 /* Таблица */
 .events-table {
   font-size: 13px;
@@ -310,10 +323,18 @@ onBeforeUnmount(() => stopWatch())
   background-color: rgba(208, 48, 80, 0.14);
 }
 
-.tail-hint {
-  text-align: center;
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.pager-total {
   font-size: 12px;
   color: #8a8a92;
-  padding: 4px 0;
+  white-space: nowrap;
 }
 </style>

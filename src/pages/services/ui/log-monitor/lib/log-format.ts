@@ -41,11 +41,17 @@ export function isErrorLevel(level?: string): boolean {
 }
 
 // Контекст события в строку «key=value key=value» для колонки CTX.
-export function formatCtx(ctx?: Record<string, unknown> | null): string {
-  if (!ctx || typeof ctx !== 'object') return ''
-  return Object.entries(ctx)
+// Поля контекста приходят из VictoriaLogs плоскими ключами с префиксом `ctx.`
+// (ctx.viewport, ctx.message, …), а не вложенным объектом `ctx`.
+export function formatCtx(event?: Record<string, unknown> | null): string {
+  if (!event || typeof event !== 'object') return ''
+  return Object.entries(event)
+    .filter(([k]) => k.startsWith('ctx.'))
     .filter(([, v]) => v !== undefined && v !== null && v !== '')
-    .map(([k, v]) => `${k}=${typeof v === 'object' ? JSON.stringify(v) : String(v)}`)
+    .map(([k, v]) => {
+      const key = k.slice(4)
+      return `${key}=${typeof v === 'object' ? JSON.stringify(v) : String(v)}`
+    })
     .join(' ')
 }
 

@@ -60,15 +60,15 @@ export default defineNuxtConfig({
         apiGateway: process.env.BASE_URL_GATEWAY_PROD ?? '',
         santurS3Url: ''
       }
-    },
-
-    routeRules: {
-      '/api-logger/**': {
-        proxy: {
-          to: process.env.API_BFF + '**'
-        }
-      }
     }
+
+    // routeRules: {
+    //   '/api-logger/**': {
+    //     proxy: {
+    //       to: process.env.API_BFF + '**'
+    //     }
+    //   }
+    // }
   },
 
   $development: {
@@ -91,7 +91,7 @@ export default defineNuxtConfig({
       },
       '/api-logger/**': {
         proxy: {
-          to: process.env.API_BFF + '**'
+          to: process.env.API_BFF + 'api-logger/**'
         }
       }
     }

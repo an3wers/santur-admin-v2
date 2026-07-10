@@ -3,6 +3,7 @@ import { NTabs, NTabPane } from 'naive-ui'
 import { useActiveTab, useLogFilters } from './log-monitor/model/use-log-filters'
 import OverviewTab from './log-monitor/ui/OverviewTab.vue'
 import LiveTailTab from './log-monitor/ui/LiveTailTab.vue'
+import BrowseTab from './log-monitor/ui/BrowseTab.vue'
 import SessionTab from './log-monitor/ui/SessionTab.vue'
 
 const activeTab = useActiveTab('overview')
@@ -36,6 +37,10 @@ function openLiveTailEvent(event: string) {
 
       <n-tab-pane name="livetail" tab="Live tail">
         <LiveTailTab @open-session="openSession" />
+      </n-tab-pane>
+
+      <n-tab-pane name="browse" tab="Журнал">
+        <BrowseTab @open-session="openSession" />
       </n-tab-pane>
 
       <n-tab-pane name="session" tab="Сессия">

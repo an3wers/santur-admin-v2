@@ -168,6 +168,38 @@ export const useLogQueryApi = () => {
     return parseNdjson<LogEvent>(text)
   }
 
+  // Страница журнала за произвольный период (вкладка «Журнал»).
+  // Пагинация целиком в LogsQL: sort по времени, затем offset/limit —
+  // так не зависим от того, какие body-параметры пропускает прокси.
+  async function getLogPage(
+    filters: Partial<LogFilters>,
+    start: string,
+    end: string,
+    page: number,
+    pageSize: number
+  ): Promise<LogEvent[]> {
+    const expr = buildFilterExpr(filters)
+    const head = expr || '*'
+    const offset = Math.max(0, (page - 1) * pageSize)
+    const query = `${head} | sort by (_time desc) | offset ${offset} | limit ${pageSize}`
+    const text = await run({ endpoint: 'query', query, start, end })
+    return parseNdjson<LogEvent>(text)
+  }
+
+  // Общее число событий за период с учётом фильтров — питает счётчик страниц.
+  async function getLogCount(
+    filters: Partial<LogFilters>,
+    start: string,
+    end: string
+  ): Promise<number> {
+    const expr = buildFilterExpr(filters)
+    const head = expr || '*'
+    const query = `${head} | stats count() rows`
+    const text = await run({ endpoint: 'query', query, start, end })
+    const row = parseNdjson<Record<string, unknown>>(text)[0] ?? {}
+    return num(row.rows)
+  }
+
   // Полная хронология сессии (client + server).
   async function getSessionTrace(sessionId: string): Promise<LogEvent[]> {
     const query = `sessionId:${ql(sessionId)} | sort by (_time)`
@@ -184,6 +216,8 @@ export const useLogQueryApi = () => {
     getErrorsByDomain,
     getTopErrors,
     getLiveTail,
+    getLogPage,
+    getLogCount,
     getSessionTrace
   }
 }

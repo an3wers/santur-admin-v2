@@ -50,6 +50,18 @@ function timelineType(level?: string) {
   return 'info'
 }
 
+// Поля контекста приходят плоскими ключами с префиксом `ctx.`,
+// собираем их обратно во вложенный объект для отображения.
+function pickCtx(event: Record<string, unknown>): Record<string, unknown> {
+  const ctx: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(event)) {
+    if (k.startsWith('ctx.') && v !== undefined && v !== null && v !== '') {
+      ctx[k.slice(4)] = v
+    }
+  }
+  return ctx
+}
+
 function formatCtx(ctx: unknown): string {
   if (ctx == null) return ''
   try {
@@ -109,8 +121,8 @@ watch(
               </n-space>
             </template>
             <div v-if="ev.url" class="event-url">{{ ev.url }}</div>
-            <pre v-if="ev.ctx && Object.keys(ev.ctx).length" class="event-ctx">{{
-              formatCtx(ev.ctx)
+            <pre v-if="Object.keys(pickCtx(ev)).length" class="event-ctx">{{
+              formatCtx(pickCtx(ev))
             }}</pre>
           </n-timeline-item>
         </n-timeline>
