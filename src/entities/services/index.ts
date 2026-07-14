@@ -11,5 +11,6 @@ export type {
   KpiPoint,
   DomainErrorRow,
   TopErrorRow,
+  NetworkErrorRow,
   OverviewCounters
 } from './api/log-types'

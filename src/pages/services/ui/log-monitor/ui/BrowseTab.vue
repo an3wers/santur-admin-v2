@@ -132,18 +132,18 @@ onMounted(search)
             style="width: 340px"
           />
 
-          <div class="level-pills">
-            <button
+          <n-space size="small" class="level-tags">
+            <n-tag
               v-for="p in levelPills"
               :key="p.value"
-              type="button"
-              class="level-pill"
-              :class="[`level-pill--${p.value}`, { active: level === p.value }]"
-              @click="toggleLevel(p.value)"
+              checkable
+              :checked="level === p.value"
+              size="small"
+              @update:checked="toggleLevel(p.value)"
             >
               {{ p.label }}
-            </button>
-          </div>
+            </n-tag>
+          </n-space>
 
           <n-input v-model:value="eventPrefix" placeholder="event: префикс*" style="width: 190px" />
           <n-input v-model:value="sessionId" placeholder="sessionId" style="width: 170px" />
@@ -238,47 +238,6 @@ onMounted(search)
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-}
-
-/* Уровни-пилюли */
-.level-pills {
-  display: flex;
-  gap: 6px;
-}
-
-.level-pill {
-  padding: 3px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--n-border-color, #e0e0e6);
-  background: transparent;
-  color: #8a8a92;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.level-pill:hover {
-  border-color: currentColor;
-}
-
-.level-pill.active {
-  color: #fff;
-  border-color: transparent;
-}
-
-.level-pill--debug.active {
-  background: #8a8a92;
-}
-.level-pill--info.active {
-  background: #2080f0;
-}
-.level-pill--warn.active {
-  background: #8a6d00;
-}
-.level-pill--error.active {
-  background: #d03050;
 }
 
 /* Таблица */

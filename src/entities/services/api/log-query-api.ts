@@ -6,6 +6,7 @@ import type {
   KpiPoint,
   DomainErrorRow,
   TopErrorRow,
+  NetworkErrorRow,
   OverviewCounters
 } from './log-types'
 
@@ -165,6 +166,29 @@ export const useLogQueryApi = () => {
       .slice(0, limit)
   }
 
+  // Сетевые ошибки: агрегат network.error по (метод × путь × статус).
+  // Считаем количество, среднее время ответа и время последнего события —
+  // питает таблицу «urlPath × status» и её KPI-карточки.
+  async function getNetworkErrors(
+    start?: string,
+    end?: string,
+    limit = 100
+  ): Promise<NetworkErrorRow[]> {
+    const query =
+      `${NETWORK_ERROR_FILTER} | stats by (ctx.method, ctx.urlPath, ctx.status) ` +
+      'count() c, avg(ctx.duration) avgMs, max(_time) lastTime ' +
+      `| sort by (c desc) | limit ${limit}`
+    const text = await run({ endpoint: 'query', query, start, end })
+    return parseNdjson<Record<string, unknown>>(text).map((r) => ({
+      method: String(r['ctx.method'] ?? ''),
+      urlPath: String(r['ctx.urlPath'] ?? ''),
+      status: num(r['ctx.status']),
+      count: num(r.c),
+      avgMs: num(r.avgMs),
+      lastTime: String(r.lastTime ?? '')
+    }))
+  }
+
   // Последние события (Live tail) — скользящее окно 5 минут.
   async function getLiveTail(filters: Partial<LogFilters>, limit = 100): Promise<LogEvent[]> {
     const expr = buildFilterExpr(filters)
@@ -221,6 +245,7 @@ export const useLogQueryApi = () => {
     getErrorRate,
     getErrorsByDomain,
     getTopErrors,
+    getNetworkErrors,
     getLiveTail,
     getLogPage,
     getLogCount,

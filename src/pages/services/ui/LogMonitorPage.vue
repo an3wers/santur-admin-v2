@@ -5,6 +5,7 @@ import OverviewTab from './log-monitor/ui/OverviewTab.vue'
 import LiveTailTab from './log-monitor/ui/LiveTailTab.vue'
 import BrowseTab from './log-monitor/ui/BrowseTab.vue'
 import SessionTab from './log-monitor/ui/SessionTab.vue'
+import NetworkErrorsTab from './log-monitor/ui/NetworkErrorsTab.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -54,6 +55,10 @@ function openBrowseEvent(payload: { event: string; level: string }) {
 
       <n-tab-pane name="session" tab="Сессия">
         <SessionTab v-model:session-id="sessionId" />
+      </n-tab-pane>
+
+      <n-tab-pane name="network" tab="Сетевые ошибки">
+        <NetworkErrorsTab />
       </n-tab-pane>
     </n-tabs>
   </div>

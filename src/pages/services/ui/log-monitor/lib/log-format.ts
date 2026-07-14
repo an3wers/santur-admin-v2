@@ -22,6 +22,27 @@ export function sourceTagType(source?: string): TagType {
   return source === 'server' ? 'warning' : 'success'
 }
 
+// Цвет бейджа HTTP-статуса: 5xx — красный, 429/4xx — янтарный, прочее — серый.
+export function statusTagType(status: number): TagType {
+  if (status >= 500) return 'error'
+  if (status === 429 || status === 401) return 'warning'
+  return 'default'
+}
+
+// Относительное «сколько назад» для колонки «Посл.»: «30 сек», «4 мин», «2 ч».
+export function formatAgo(value?: string | null): string {
+  if (!value) return '—'
+  const t = new Date(value).getTime()
+  if (Number.isNaN(t)) return '—'
+  const sec = Math.max(0, Math.round((Date.now() - t) / 1000))
+  if (sec < 60) return `${sec} сек`
+  const min = Math.round(sec / 60)
+  if (min < 60) return `${min} мин`
+  const hours = Math.round(min / 60)
+  if (hours < 24) return `${hours} ч`
+  return `${Math.round(hours / 24)} дн`
+}
+
 // Читаемое время «дд.мм чч:мм:сс» из ISO/строки.
 export function formatTime(value?: string | null): string {
   if (!value) return '—'

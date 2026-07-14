@@ -78,6 +78,16 @@ export interface TopErrorRow {
   level: string
 }
 
+// Строка таблицы «Сетевые ошибки»: агрегат network.error по (method × urlPath × status).
+export interface NetworkErrorRow {
+  method: string
+  urlPath: string
+  status: number
+  count: number
+  avgMs: number
+  lastTime: string
+}
+
 // Счётчики обзора за период.
 export interface OverviewCounters {
   errors: number
