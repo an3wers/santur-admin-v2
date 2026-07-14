@@ -50,6 +50,8 @@ const KPIS = [
 
 const KPI_FOOTER = 'за 24 ч · бакет 1 ч'
 
+const LIMIT = 30
+
 async function load() {
   loading.value = true
   failed.value = false
@@ -60,7 +62,7 @@ async function load() {
       api.getKpiSeries(start, end),
       api.getErrorRate(start, end),
       api.getErrorsByDomain(start, end),
-      api.getTopErrors(start, end, 10)
+      api.getTopErrors(start, end, LIMIT)
     ])
     kpiSeries.value = kpi
     errorRate.value = rate
@@ -200,9 +202,9 @@ onMounted(load)
         <n-card size="small">
           <template #header>
             <div class="card-head card-head--row">
-              <span class="card-head__title">Топ ошибок</span>
+              <span class="card-head__title">Топ событий</span>
               <code class="card-head__query"
-                >stats by (event) count() | sort by (count desc) | limit 10</code
+                >stats by (event) count() | sort by (count desc) | limit {{ LIMIT }}</code
               >
             </div>
           </template>
