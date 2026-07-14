@@ -20,6 +20,7 @@ import KpiCard from './KpiCard.vue'
 import DomainBars from './DomainBars.vue'
 import { useLogQueryApi } from '~/entities/services'
 import type { ErrorRatePoint, KpiPoint, DomainErrorRow, TopErrorRow } from '~/entities/services'
+import { useLogRange } from '../model/use-log-range'
 import { formatShortTime, levelTagType } from '../lib/log-format'
 
 const emit = defineEmits<{
@@ -30,8 +31,7 @@ const emit = defineEmits<{
 const api = useLogQueryApi()
 const message = useMessage()
 
-const DAY_MS = 24 * 60 * 60 * 1000
-const range = ref<[number, number]>([Date.now() - DAY_MS, Date.now()])
+const { range } = useLogRange()
 
 const loading = ref(false)
 const failed = ref(false)
@@ -131,6 +131,10 @@ const chartOptions: ChartOptions<'line'> = {
 
 const hasChart = computed(() => errorRate.value.length > 0)
 
+// Перезагружаем при смене общего диапазона — в т.ч. когда его меняют
+// на соседней вкладке.
+watch(range, load)
+
 onMounted(load)
 </script>
 
@@ -143,7 +147,6 @@ onMounted(load)
         format="dd-MM-yyyy HH:mm"
         :first-day-of-week="0"
         style="width: 360px"
-        @update:value="load"
       />
       <n-button secondary type="primary" @click="load">
         <template #icon>

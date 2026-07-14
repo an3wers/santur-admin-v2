@@ -18,6 +18,7 @@ import { Refresh } from '@vicons/tabler'
 import { useLogQueryApi } from '~/entities/services'
 import type { LogEvent } from '~/entities/services'
 import { useLogFilters } from '../model/use-log-filters'
+import { useLogRange } from '../model/use-log-range'
 import { levelTagType, sourceTagType, formatTime, formatCtx, isErrorLevel } from '../lib/log-format'
 
 const emit = defineEmits<{
@@ -27,20 +28,13 @@ const emit = defineEmits<{
 const api = useLogQueryApi()
 const message = useMessage()
 const { level, eventPrefix, sessionId, userId, release, source, filters, reset } = useLogFilters()
+const { range, resetRange } = useLogRange()
 
 const events = ref<LogEvent[]>([])
 const loading = ref(false)
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(50)
-
-// Диапазон по умолчанию — с начала текущих суток до «сейчас».
-function startOfToday(): number {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d.getTime()
-}
-const range = ref<[number, number]>([startOfToday(), Date.now()])
 
 const isoStart = computed(() => new Date(range.value[0]).toISOString())
 const isoEnd = computed(() => new Date(range.value[1]).toISOString())
@@ -92,7 +86,7 @@ function onPageSizeChange(size: number) {
 
 function resetAll() {
   reset()
-  range.value = [startOfToday(), Date.now()]
+  resetRange()
   // reset() правит query string; ждём применения, затем ищем.
   nextTick(search)
 }
@@ -118,6 +112,10 @@ const sourceOptions = [
 // Автопоиск при изменении фильтров — с задержкой, чтобы не бить по каждому символу.
 watchDebounced(filters, search, { deep: true, debounce: 500 })
 
+// Перезагружаем при смене общего диапазона — в т.ч. когда его меняют
+// на вкладке «Обзор».
+watch(range, search)
+
 onMounted(search)
 </script>
 
@@ -132,7 +130,6 @@ onMounted(search)
             format="dd-MM-yyyy HH:mm"
             :first-day-of-week="0"
             style="width: 340px"
-            @update:value="search"
           />
 
           <div class="level-pills">
