@@ -24,7 +24,7 @@ import { useLogRange } from '../model/use-log-range'
 import { formatShortTime, levelTagType } from '../lib/log-format'
 
 const emit = defineEmits<{
-  (e: 'open-event', event: string): void
+  (e: 'open-event', payload: { event: string; level: string }): void
   (e: 'open-session', sessionId: string): void
 }>()
 
@@ -225,7 +225,7 @@ onMounted(load)
                 v-for="(row, i) in topErrors"
                 :key="row.event"
                 class="clickable"
-                @click="emit('open-event', row.event)"
+                @click="emit('open-event', { event: row.event, level: row.level })"
               >
                 <td class="col-rank">{{ String(i + 1).padStart(2, '0') }}</td>
                 <td>

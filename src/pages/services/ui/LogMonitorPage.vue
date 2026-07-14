@@ -6,8 +6,11 @@ import LiveTailTab from './log-monitor/ui/LiveTailTab.vue'
 import BrowseTab from './log-monitor/ui/BrowseTab.vue'
 import SessionTab from './log-monitor/ui/SessionTab.vue'
 
+const route = useRoute()
+const router = useRouter()
+
 const activeTab = useActiveTab('overview')
-const { eventPrefix, sessionId: filterSessionId } = useLogFilters()
+const { sessionId: filterSessionId } = useLogFilters()
 
 // sessionId для экрана «Сессия» (из клика по строке в других вкладках).
 const sessionId = ref(filterSessionId.value)
@@ -19,10 +22,16 @@ function openSession(id: string) {
   activeTab.value = 'session'
 }
 
-// Провалиться в Live tail с фильтром по событию (клик из «Обзора»).
-function openLiveTailEvent(event: string) {
-  eventPrefix.value = event
-  activeTab.value = 'livetail'
+// Провалиться в «Журнал» с фильтром по событию и его уровню (клик из «Обзора»).
+// Пишем event/level/tab одним переходом: раздельные присваивания через
+// query-string ref'ы затирают друг друга (router.replace асинхронный).
+function openBrowseEvent(payload: { event: string; level: string }) {
+  const query = { ...route.query, tab: 'browse' } as Record<string, string>
+  if (payload.event) query.event = payload.event
+  else delete query.event
+  if (payload.level) query.level = payload.level
+  else delete query.level
+  router.replace({ query })
 }
 </script>
 
@@ -32,7 +41,7 @@ function openLiveTailEvent(event: string) {
 
     <n-tabs v-model:value="activeTab" type="line" animated>
       <n-tab-pane name="overview" tab="Обзор">
-        <OverviewTab @open-session="openSession" @open-event="openLiveTailEvent" />
+        <OverviewTab @open-session="openSession" @open-event="openBrowseEvent" />
       </n-tab-pane>
 
       <n-tab-pane name="livetail" tab="Live tail">
