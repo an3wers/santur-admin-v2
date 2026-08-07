@@ -13,12 +13,14 @@ export const useCatalogItem = () => {
     parent_name: '',
     vid: '',
     name: '',
+    num: 0,
     seotitle: '',
     keywords: '',
     alias: '',
     descr: '',
     shortDescr: '',
-    imgExist: false
+    imgExist: false,
+    imgUrl: ''
   })
 
   const status = ref<ProcessStatus>('idle')
@@ -46,12 +48,14 @@ export const useCatalogItem = () => {
     catalogItem.parent_name = data.parent_name
     catalogItem.vid = data.vid
     catalogItem.name = data.name
+    catalogItem.num = data.num
     catalogItem.seotitle = data.seotitle
     catalogItem.keywords = data.keywords
     catalogItem.alias = data.alias
     catalogItem.descr = data.descr
     catalogItem.shortDescr = data.shortDescr
     catalogItem.imgExist = data.imgExist
+    catalogItem.imgUrl = data.image?.url ?? ''
   }
 
   function reset() {
@@ -60,12 +64,14 @@ export const useCatalogItem = () => {
     catalogItem.parent_name = ''
     catalogItem.vid = ''
     catalogItem.name = ''
+    catalogItem.num = 0
     catalogItem.seotitle = ''
     catalogItem.keywords = ''
     catalogItem.alias = ''
     catalogItem.descr = ''
     catalogItem.shortDescr = ''
     catalogItem.imgExist = false
+    catalogItem.imgUrl = ''
 
     status.value = 'idle'
     isModified.value = false

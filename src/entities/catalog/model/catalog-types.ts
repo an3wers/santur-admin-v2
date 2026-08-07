@@ -31,12 +31,14 @@ export interface CatalogItemModel {
   parent_name: string
   vid: string
   name: string
+  num: number
   seotitle: string
   keywords: string
   alias: string
   descr: string
   shortDescr: string
   imgExist: boolean
+  imgUrl: string
 }
 
 export interface CatalogVidsItem {

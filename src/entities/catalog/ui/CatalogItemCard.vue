@@ -11,16 +11,21 @@ import {
   NButton,
   NIcon,
   NSpace,
+  NImage,
+  NUpload,
+  type UploadFileInfo,
   useMessage
 } from 'naive-ui'
 import { Refresh } from '@vicons/tabler'
 import type { CatalogItemModel } from '../model/catalog-types'
-import { MediaList } from '@/entities/media'
+import { MediaList, type OptionsType } from '@/entities/media'
 import { useSaveCatalogItem } from '../model/use-save-catalog-item'
+import { useRemoveCatalogItemImage } from '../model/use-remove-catalog-item-image'
 
 const model = defineModel<CatalogItemModel>('state', { required: true })
 
 const files = ref<File[]>([])
+const fileImageRef = ref<UploadFileInfo[]>([])
 
 defineProps<{
   isModified: boolean
@@ -34,10 +39,12 @@ const formRef = ref<FormInst | null>(null)
 
 const formRules = {}
 
+const message = useMessage()
+
 const { status: saveStatus, saveCatalogItem } = useSaveCatalogItem()
 
 function saveHandler() {
-  const { imgExist, ...data } = model.value
+  const { imgExist, imgUrl, ...data } = model.value
   saveCatalogItem({ ...data, files: files.value })
 }
 
@@ -45,7 +52,47 @@ async function cancelHandler() {
   return navigateTo('/tntks')
 }
 
-const message = useMessage()
+/*
+  IMAGE
+*/
+
+const MAX_SIZE_FILE = 20_000_000
+
+function imageChangeHandler({ file }: OptionsType) {
+  if (file.status === 'removed') {
+    fileImageRef.value = []
+    files.value = []
+    return
+  }
+
+  if (file.file && file.file.size > MAX_SIZE_FILE) {
+    message.error('Максимальный размер изображения 20 мб')
+    fileImageRef.value = []
+    files.value = []
+    return
+  }
+
+  fileImageRef.value = [{ ...file, status: 'finished' }]
+  files.value = file.file ? [file.file] : []
+}
+
+const { removeImage, status: removeImageStatus } = useRemoveCatalogItemImage()
+
+async function removeImageHandler() {
+  const { imgExist, imgUrl, ...data } = model.value
+
+  await removeImage(data)
+
+  if (removeImageStatus.value === 'success') {
+    model.value.imgExist = false
+    model.value.imgUrl = ''
+    message.success('Изображение удалено')
+  }
+
+  if (removeImageStatus.value === 'error') {
+    message.error('Произошла ошибка при удалении изображения')
+  }
+}
 
 watchEffect(() => {
   if (saveStatus.value === 'success') {
@@ -76,7 +123,32 @@ watchEffect(() => {
             </n-button>
           </n-input-group>
         </n-form-item>
-        <!-- TODO: Загрузка или отображение изображения с возможностью удаления -->
+        <n-form-item label="Изображение">
+          <n-space align="center">
+            <template v-if="model.imgExist">
+              <n-image width="100" height="60" object-fit="contain" :src="model.imgUrl" />
+              <n-button
+                tertiary
+                type="error"
+                size="small"
+                :loading="removeImageStatus === 'pending'"
+                @click="removeImageHandler"
+                >Удалить</n-button
+              >
+            </template>
+
+            <n-upload
+              v-else
+              :file-list="fileImageRef"
+              :default-upload="false"
+              :max="1"
+              accept="image/*"
+              @change="imageChangeHandler"
+            >
+              <n-button>Выбрать изображение</n-button>
+            </n-upload>
+          </n-space>
+        </n-form-item>
         <n-form-item label="Описание">
           <AppEditor v-model="model.descr">
             <template #media-manager="{ onMediaSelect }">

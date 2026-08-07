@@ -6,7 +6,9 @@ export const useSaveCatalogItem = () => {
 
   const api = useCatalogApi()
 
-  async function saveCatalogItem(item: Omit<CatalogItemModel, 'imgExist'> & { files?: File[] }) {
+  async function saveCatalogItem(
+    item: Omit<CatalogItemModel, 'imgExist' | 'imgUrl'> & { files?: File[] }
+  ) {
     try {
       const formData = new FormData()
 
