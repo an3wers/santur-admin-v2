@@ -76,6 +76,7 @@ watchEffect(() => {
             </n-button>
           </n-input-group>
         </n-form-item>
+        <!-- TODO: Загрузка или отображение изображения с возможностью удаления -->
         <n-form-item label="Описание">
           <AppEditor v-model="model.descr">
             <template #media-manager="{ onMediaSelect }">

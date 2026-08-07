@@ -75,6 +75,26 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
+  async function removeImageCatalogItem(data: {
+    id: number
+    parent_id: number
+    parent_name: string
+    vid: string
+    name: string
+    num: number
+    seotitle: string
+    keywords: string
+    alias: string
+    descr: string
+    shortDescr: string
+  }) {
+    const res = await fetchWithToken<unknown>('AdminGoods/RemoveTntkImage', {
+      method: 'POST',
+      body: data
+    })
+    return checkError(res).data
+  }
+
   return {
     getCatalog,
     uploadCategoryDescriptionFromXls,
@@ -84,6 +104,7 @@ export const useCatalogApi = () => {
     getPresetsFilters,
     getPresetFiltersByCatalogItem,
     savePresetFilterForCatalogItem,
-    getCatalogVids
+    getCatalogVids,
+    removeImageCatalogItem
   }
 }
