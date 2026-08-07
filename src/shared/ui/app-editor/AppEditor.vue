@@ -26,6 +26,8 @@ import { Iframe } from './iframe-extension'
 import { ResizableImage } from './image-extension'
 import { IdAttribute } from './id-extension'
 import { findUnsupportedTags } from './html-support'
+import { formatHtml } from './html-format'
+import AppCodeEditor from './AppCodeEditor.vue'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
 import {
@@ -382,7 +384,8 @@ const openHtmlModal = () => {
   if (!editor.value) {
     return null
   }
-  htmlValue.value = editor.value.getHTML()
+  // Tiptap отдаёт разметку одной строкой — разбиваем её по блокам, чтобы было удобно читать
+  htmlValue.value = formatHtml(editor.value.getHTML())
   isHtmlModal.value = true
 }
 
@@ -737,12 +740,7 @@ onUnmounted(() => {
           Изменение HTML-разметки содержания редактора. Разметка приводится к формату редактора:
           неизвестные теги (div, span и т.п.) и классы будут удалены. Атрибут id сохраняется
         </n-text>
-        <n-input
-          v-model:value="htmlValue"
-          type="textarea"
-          :autosize="{ minRows: 12, maxRows: 24 }"
-          placeholder="<p>...</p>"
-        />
+        <app-code-editor v-model="htmlValue" language="html" placeholder="<p>...</p>" />
         <NButton type="primary" @click="applyHtml">Применить</NButton>
       </n-space>
     </n-modal>
