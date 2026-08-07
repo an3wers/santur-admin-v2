@@ -16,15 +16,16 @@ import {
 } from 'naive-ui'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
 import Table from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
-import ImageResize from 'tiptap-extension-resize-image'
 import { Iframe } from './iframe-extension'
+import { ResizableImage } from './image-extension'
+import { IdAttribute } from './id-extension'
+import { findUnsupportedTags } from './html-support'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 
 import {
@@ -79,7 +80,7 @@ const editor = useEditor({
       placeholder: 'Начните писать здесь..'
     }),
     Link.configure({ openOnClick: false }),
-    Image.configure({ HTMLAttributes: { class: 'image-post' } }),
+    ResizableImage.configure({ HTMLAttributes: { class: 'image-post' } }),
     Table.configure({
       HTMLAttributes: { class: 'table' },
       resizable: true
@@ -89,10 +90,10 @@ const editor = useEditor({
     TableCell,
     Underline,
     TextAlign.configure({
-      types: ['paragraph', 'heading', 'image']
+      types: ['paragraph', 'heading', 'imageResize']
     }),
-    ImageResize,
-    Iframe
+    Iframe,
+    IdAttribute
   ],
   onUpdate: () => {
     emits('update:modelValue', editor.value ? editor.value.getHTML() : '')
@@ -389,7 +390,21 @@ const applyHtml = () => {
   if (!editor.value) {
     return null
   }
-  editor.value.commands.setContent(htmlValue.value, true)
+
+  const value = htmlValue.value.trim()
+
+  // Tiptap разбирает html по схеме редактора, поэтому неизвестные теги
+  // (div, span, section и т.п.) молча выбрасываются — предупреждаем об этом
+  const unsupportedTags = findUnsupportedTags(value)
+
+  editor.value.commands.setContent(value, true)
+
+  if (unsupportedTags.length) {
+    message.warning(
+      `Редактор не поддерживает теги: ${unsupportedTags.join(', ')}. Они удалены из содержания`
+    )
+  }
+
   isHtmlModal.value = false
 }
 
@@ -718,7 +733,10 @@ onUnmounted(() => {
       @close="isHtmlModal = false"
     >
       <n-space vertical>
-        <n-text :depth="3">Изменение HTML-разметки содержания редактора</n-text>
+        <n-text :depth="3">
+          Изменение HTML-разметки содержания редактора. Разметка приводится к формату редактора:
+          неизвестные теги (div, span и т.п.) и классы будут удалены. Атрибут id сохраняется
+        </n-text>
         <n-input
           v-model:value="htmlValue"
           type="textarea"
