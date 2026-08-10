@@ -25,6 +25,12 @@
       "skillPath": "skills/nuxt/SKILL.md",
       "computedHash": "9e8237ec92083db9a6f4c77d5e5bf4b1d9873d670671235bc75455ee1ca39c74"
     },
+    "nuxt-test-utils-skilld": {
+      "source": "nuxt/scripts",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/nuxt-test-utils-skilld/SKILL.md",
+      "computedHash": "5273c33e03ccd724dd3281662c480cd5148a98435fd8daa487c7780ff9082b6c"
+    },
     "pinia": {
       "source": "antfu/skills",
       "sourceType": "github",
@@ -36,6 +42,12 @@
       "sourceType": "github",
       "skillPath": "plugins/query/skills/victorialogs-query/SKILL.md",
       "computedHash": "eda343d87db7d46ab13e0c5d5236b8bd76d5daebb6add00694152845aea4fb6f"
+    },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "943d436114c677802426741980146c07560bf375297666b03062444f4b98a785"
     },
     "vue": {
       "source": "antfu/skills",

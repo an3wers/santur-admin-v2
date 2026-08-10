@@ -89,7 +89,11 @@ export const useUserStore = defineStore('user', () => {
         await loadUser()
       } catch (error) {
         console.error('[checkAuth]: ', error)
-        api.removeToken()
+        try {
+          await api.removeToken()
+        } catch (removeTokenError) {
+          console.error('[checkAuth] removeToken: ', removeTokenError)
+        }
         _removeDeviceId()
         user.value = null
       }
