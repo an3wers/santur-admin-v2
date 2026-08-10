@@ -15,26 +15,32 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
-  experimental: {
-    viteEnvironmentApi: true,
-    appManifest: false
-  },
+  // experimental: {
+  //   viteEnvironmentApi: true,
+  //   appManifest: false
+  // },
   app: { head: { link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }] } },
-  srcDir: 'src/',
   spaLoadingTemplate: false,
+
+  // dir: {
+  //   pages: 'app/routes',
+  //   layouts: 'app/layouts',
+  //   middleware: 'app/middleware',
+  //   assets: 'app/assets',
+  //   shared: 'app/shared',
+  //   public: '../public',
+  //   plugins: '../plugins'
+  // },
+
+  // serverDir: 'server',
+
   dir: {
-    pages: 'app/routes',
-    layouts: 'app/layouts',
-    middleware: 'app/middleware',
-    assets: 'app/assets',
-    shared: 'app/shared',
-    public: '../public',
-    plugins: '../plugins'
+    pages: '~/routes'
   },
-  serverDir: 'server',
+
   components: [{ path: '~/shared', extensions: ['.vue'], pathPrefix: false }],
 
-  css: ['~/app/assets/styles/app.css'],
+  css: ['~/assets/styles/app.css'],
 
   $production: {
     sourcemap: {

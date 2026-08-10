@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ConfigProvider from './app/provider/ConfigProvider.vue'
+import ConfigProvider from './provider/ConfigProvider.vue'
 </script>
 
 <template>
