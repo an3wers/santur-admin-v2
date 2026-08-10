@@ -37,7 +37,7 @@ COPY package.json package-lock.json ./
 # `--ignore-scripts` — чтобы postinstall (`nuxt prepare`) не запускался
 # до копирования исходника с nuxt.config.ts. prepare прогонит сам `nuxt build`.
 RUN --mount=type=cache,id=npm-cache,target=/root/.npm \
-    npm ci --ignore-scripts --no-audit --no-fund
+    npm i --ignore-scripts --no-audit --no-fund
 
     # TODO: разобраться в проблеме установки через ci и package-lock.json
     #npm ci --ignore-scripts
