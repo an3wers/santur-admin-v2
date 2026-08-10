@@ -1,0 +1,11 @@
+# Запускаем тесты только если пушим локальную ветку main.
+# Git передаёт в stdin строки вида: <local ref> <local sha> <remote ref> <remote sha>
+while read -r local_ref _local_sha _remote_ref _remote_sha; do
+  if [ "$local_ref" = "refs/heads/main" ]; then
+    echo "husky > push from main, running tests..."
+    npm run test -- --run
+    exit $?
+  fi
+done
+
+exit 0

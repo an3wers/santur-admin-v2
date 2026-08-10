@@ -1,0 +1,7 @@
+# Запускаем тесты только при мердже в ветку main
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$branch" = "main" ]; then
+  echo "husky > merge into main, running tests..."
+  npm run test -- --run
+fi

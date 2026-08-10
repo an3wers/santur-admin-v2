@@ -1,0 +1,2 @@
+echo "husky > running typecheck..."
+npm run typecheck
