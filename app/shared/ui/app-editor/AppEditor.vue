@@ -14,13 +14,8 @@ import {
   NInput,
   useMessage
 } from 'naive-ui'
-import Placeholder from '@tiptap/extension-placeholder'
-import Link from '@tiptap/extension-link'
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import Underline from '@tiptap/extension-underline'
+import { Placeholder } from '@tiptap/extensions'
+import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table'
 import TextAlign from '@tiptap/extension-text-align'
 import { Iframe } from './iframe-extension'
 import { ResizableImage } from './image-extension'
@@ -74,14 +69,22 @@ const emits = defineEmits<{
 const editor = useEditor({
   content: props.modelValue,
   extensions: [
+    // Начиная с tiptap v3 StarterKit сам подключает Link и Underline,
+    // отдельно их регистрировать нельзя — получим дубли имён расширений
     StarterKit.configure({
       bulletList: { HTMLAttributes: { class: 'bullet-list' } },
-      orderedList: { HTMLAttributes: { class: 'order-list' } }
+      orderedList: { HTMLAttributes: { class: 'order-list' } },
+      link: { openOnClick: false },
+      // В v3 StarterKit по умолчанию добавляет TrailingNode: после первой же правки
+      // он дописывает пустой <p> в конец, если документ заканчивается таблицей,
+      // картинкой или iframe, и этот <p> уходит в сохраняемый html.
+      // Выключаем, чтобы содержание не менялось само по себе.
+      // Курсор после блочных узлов ставится через Gapcursor, он в StarterKit есть
+      trailingNode: false
     }),
     Placeholder.configure({
       placeholder: 'Начните писать здесь..'
     }),
-    Link.configure({ openOnClick: false }),
     ResizableImage.configure({ HTMLAttributes: { class: 'image-post' } }),
     Table.configure({
       HTMLAttributes: { class: 'table' },
@@ -90,7 +93,6 @@ const editor = useEditor({
     TableRow,
     TableHeader,
     TableCell,
-    Underline,
     TextAlign.configure({
       types: ['paragraph', 'heading', 'imageResize']
     }),
@@ -111,7 +113,8 @@ watch(
       const isSame = editor.value.getHTML() === newVal
       if (isSame) return null
 
-      editor.value.commands.setContent(newVal, false)
+      // v3: второй аргумент — объект опций, а не флаг emitUpdate
+      editor.value.commands.setContent(newVal, { emitUpdate: false })
     }
   }
 )
@@ -400,7 +403,8 @@ const applyHtml = () => {
   // (div, span, section и т.п.) молча выбрасываются — предупреждаем об этом
   const unsupportedTags = findUnsupportedTags(value)
 
-  editor.value.commands.setContent(value, true)
+  // v3: setContent эмитит update по умолчанию, отдельный флаг не нужен
+  editor.value.commands.setContent(value)
 
   if (unsupportedTags.length) {
     message.warning(

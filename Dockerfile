@@ -26,10 +26,7 @@ ENV CI=true \
 
 WORKDIR /app
 
-# package-lock.json сгенерирован npm 11 (опускает опциональные peer-deps).
-# В node:22 идёт npm 10 — он из-за бага считает их обязательными и валит
-# `npm ci`. Фиксируем npm под версию, которой сгенерирован lock.
-RUN npm i -g npm@11
+RUN npm ci -g npm@11
 
 # Опциональная страховка: раскомментировать, если sharp/esbuild/oxc не найдут
 # prebuilt musl-бинарников (нужно начиная с sharp < 0.33).
