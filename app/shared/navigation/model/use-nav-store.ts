@@ -63,7 +63,7 @@ export const useNavStore = defineStore('navigation', () => {
   })
 
   const firstLevelName = computed(() => {
-    const slug = route.path.split('/')[1]
+    const slug = route.path.split('/')[1] ?? ''
     const currentName = navNameList.value.includes(slug) ? slug : ''
     return currentName
   })
@@ -72,7 +72,7 @@ export const useNavStore = defineStore('navigation', () => {
     if (route.params?.catId) return Number(route.params.catId)
     // Static nested routes (e.g. /services/2) have no [catId] param —
     // derive the second-level id from the second path segment instead.
-    const segment = route.path.split('/')[2]
+    const segment = route.path.split('/')[2] ?? ''
     const id = Number(segment)
     return segment && !Number.isNaN(id) ? id : -1
   })
@@ -138,7 +138,7 @@ export const useNavStore = defineStore('navigation', () => {
   function checkAndSetActiveResource() {
     let resLs = getActiveResourceFromLS()
     if (!resLs) {
-      resLs = resources.value && resources.value?.length > 0 ? resources.value[0].code : ''
+      resLs = resources.value && resources.value.length > 0 ? resources.value[0]!.code : ''
     }
     setActiveResource(resLs)
   }
@@ -165,7 +165,8 @@ export const useNavStore = defineStore('navigation', () => {
     })
 
     function createPath(item: MenuItem): string {
-      let result = ''
+      let result: string
+
       if (item.modelName === 'media') {
         result = `/${item.modelName}`
       } else if (
@@ -349,25 +350,36 @@ export const useNavStore = defineStore('navigation', () => {
         case 'brends':
         case 'tntks':
         case 'pvzs':
-          buckets['content'].items.push(item)
+          if (buckets['content']) {
+            buckets['content'].items.push(item)
+          }
           break
         case 'analytics':
-          buckets['analytics'].items.push(...item.items)
+          if (buckets['analytics']) {
+            buckets['analytics'].items.push(...item.items)
+          }
           break
         // case 'uploading':
         //   buckets['uploading'].items.push(...item.items)
         //   break
         case 'feeds':
-          buckets['feeds'].items.push(...item.items)
+          if (buckets['feeds']) {
+            buckets['feeds'].items.push(...item.items)
+          }
           break
         case 'client-projects':
-          buckets['projecting'].items.push(item)
+          if (buckets['projecting']) {
+            buckets['projecting'].items.push(item)
+          }
           break
-        case 'orders-clients':
-          // buckets['orders-clients'].items.push(item)
-          break
+        // case 'orders-clients':
+        //   buckets['orders-clients'].items.push(item)
+        //   break
         case 'services':
-          buckets['services'].items.push(...item.items)
+          if (buckets['services']) {
+            buckets['services'].items.push(...item.items)
+          }
+
           break
       }
     })

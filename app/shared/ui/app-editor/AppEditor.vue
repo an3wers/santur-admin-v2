@@ -325,9 +325,9 @@ function parseIframeCode(input: string): { src: string; width: number; height: n
     if (!srcMatch) return null
 
     return {
-      src: srcMatch[1],
-      width: widthMatch ? parseInt(widthMatch[1], 10) : 640,
-      height: heightMatch ? parseInt(heightMatch[1], 10) : 360
+      src: srcMatch[1] ?? '',
+      width: widthMatch && widthMatch[1] ? parseInt(widthMatch[1], 10) : 640,
+      height: heightMatch && heightMatch[1] ? parseInt(heightMatch[1], 10) : 360
     }
   }
 

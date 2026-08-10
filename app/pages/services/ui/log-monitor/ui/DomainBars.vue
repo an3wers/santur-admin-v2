@@ -6,13 +6,12 @@ const props = defineProps<{
   rows: DomainErrorRow[]
 }>()
 
-// Палитра баров (совпадает по духу с референсом).
 const PALETTE = ['#f0a020', '#8a63d2', '#64748b', '#2080f0', '#18a058', '#d03050', '#94a3b8']
 
 const max = computed(() => props.rows.reduce((m, r) => Math.max(m, r.count), 0) || 1)
 
 function color(index: number): string {
-  return PALETTE[index % PALETTE.length]
+  return PALETTE[index % PALETTE.length] ?? ''
 }
 
 function width(count: number): string {

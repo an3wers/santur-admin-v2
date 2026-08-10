@@ -96,8 +96,12 @@ async function changeOrder(value: number | null) {
           <n-tag size="small" v-if="item.published === 'Y'" type="success">Опубликовано</n-tag>
           <n-tag size="small" v-else type="error">Не опубликовано</n-tag>
           <div class="item-type">
-            <n-tag size="small" round v-if="item.images[0]?.imgPath.length > 1">D</n-tag>
-            <n-tag size="small" round v-if="item.images[1]?.imgPath.length > 1">M</n-tag>
+            <n-tag v-if="item.images[0] && item.images[0].imgPath.length > 1" size="small" round
+              >D</n-tag
+            >
+            <n-tag v-if="item.images[1] && item.images[1]?.imgPath.length > 1" size="small" round
+              >M</n-tag
+            >
           </div>
         </div>
       </div>

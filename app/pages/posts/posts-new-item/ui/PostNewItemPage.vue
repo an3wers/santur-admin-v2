@@ -10,7 +10,7 @@ const title = ref('Новая запись')
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title back-label="Страницы" has-back :back-path="`/posts/${$route.params.catId}`">
+      <page-title back-label="Страницы" has-back :back-path="`/posts/${route.params.catId}`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>

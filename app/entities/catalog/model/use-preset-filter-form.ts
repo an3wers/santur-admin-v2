@@ -164,9 +164,25 @@ export const usePresetFilterForm = () => {
 
       const [brands, names, ...others] = data.charFilters
 
-      charFilters.value = [names, ...others, brands] // data.charFilters
+      let filters: CharFilter[] = []
+
+      if (names) {
+        filters = filters.concat(names)
+      }
+
+      if (others && others.length) {
+        filters = filters.concat(others)
+      }
+
+      if (brands) {
+        filters = filters.concat(brands)
+      }
+
+      charFilters.value = filters
+
       existingPresets.value = data.presets
       const nextSelections: Record<string, string[]> = {}
+
       data.charFilters.forEach((cf) => {
         nextSelections[cf.name] = []
       })
@@ -214,7 +230,10 @@ export const usePresetFilterForm = () => {
           .filter((cf) => selections.value[cf.name]?.length)
           .map((cf) => ({
             name: cf.name,
-            selected: selections.value[cf.name].join(';'),
+            selected:
+              selections.value && selections.value[cf.name]
+                ? selections.value[cf.name]!.join(';')
+                : '',
             minSelect: '',
             maxSelect: ''
           }))

@@ -19,7 +19,7 @@ pvzsItemStore.pvzsItemSecondaryFields.ownerid = parseInt(catId as string)
       <page-title
         back-label="Все пункты выдачи"
         has-back
-        :back-path="`/pvzs/${$route.params.catId}`"
+        :back-path="`/pvzs/${route.params.catId}`"
       >
         <template #title>
           <n-h1>{{ title }}</n-h1>

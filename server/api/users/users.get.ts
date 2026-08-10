@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   // Если не передан id, то берем из токена
   if (!_id) {
     const [_, payloadEncoded] = cookieToken.split('.')
-    const payload = Buffer.from(payloadEncoded, 'base64').toString('utf-8')
+    const payload = payloadEncoded ? Buffer.from(payloadEncoded, 'base64').toString('utf-8') : ''
     _id = JSON.parse(payload).sub
   }
 

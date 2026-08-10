@@ -71,15 +71,23 @@ export const userEditBannerItem = (
   )
 
   function selectMedia(imagePath: string, mediaType: mediaType = 'desktop') {
-    if (mediaType === 'desktop') banner.value.images[0].imgPath = imagePath
-    if (mediaType === 'mobile') banner.value.images[1].imgPath = imagePath
+    if (mediaType === 'desktop' && banner.value.images[0]) {
+      banner.value.images[0].imgPath = imagePath
+    }
+    if (mediaType === 'mobile' && banner.value.images[1]) {
+      banner.value.images[1].imgPath = imagePath
+    }
     banner.value.imgPath = imagePath
   }
 
   function removeMedia(mediaType: mediaType) {
     banner.value.imgPath = ''
-    if (mediaType === 'desktop') banner.value.images[0].imgPath = ''
-    if (mediaType === 'mobile') banner.value.images[1].imgPath = ''
+    if (mediaType === 'desktop' && banner.value.images[0]) {
+      banner.value.images[0].imgPath = ''
+    }
+    if (mediaType === 'mobile' && banner.value.images[1]) {
+      banner.value.images[1].imgPath = ''
+    }
   }
 
   return { banner, selectMedia, removeMedia, isModified }

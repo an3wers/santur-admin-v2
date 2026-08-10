@@ -131,7 +131,9 @@ export const useLogQueryApi = () => {
       const event = String(r._msg ?? '')
       if (!event) continue
       const domain = event.split('.')[0]
-      byDomain.set(domain, (byDomain.get(domain) ?? 0) + num(r.c))
+      if (domain) {
+        byDomain.set(domain, (byDomain.get(domain) ?? 0) + num(r.c))
+      }
     }
     return [...byDomain.entries()]
       .map(([domain, count]) => ({ domain, count }))

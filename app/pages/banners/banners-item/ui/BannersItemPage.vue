@@ -34,7 +34,7 @@ if (status.value === 'success' && data.value) {
 <template>
   <div class="container">
     <n-space vertical size="large">
-      <page-title back-label="Баннеры" has-back :back-path="`/banners/${$route.params.catId}`">
+      <page-title back-label="Баннеры" has-back :back-path="`/banners/${route.params.catId}`">
         <template #title>
           <n-h1>{{ title }}</n-h1>
         </template>

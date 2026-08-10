@@ -35,7 +35,12 @@ export const useCategoryStore = defineStore('category', () => {
   }
 
   async function removeExtendFieldInput(index: number) {
-    const currFieldId = category.extFields[index].id
+    let currFieldId = 0
+
+    if (category.extFields[index]) {
+      currFieldId = category.extFields[index].id
+    }
+
     const unsavedField = currFieldId === 0
 
     if (unsavedField) {

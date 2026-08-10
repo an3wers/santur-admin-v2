@@ -1,9 +1,7 @@
-// declare module '#app' {
-//   interface PageMeta {
-//     ctx?: string
-//   }
-// }
-
-interface PageMeta {
-  ctx?: string
+declare module '#app' {
+  interface NuxtApp {
+    $apiBase: $Fetch<unknown, NitroFetchRequest>
+  }
 }
+
+export {}

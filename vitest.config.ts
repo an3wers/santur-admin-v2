@@ -5,11 +5,11 @@ export default defineVitestConfig({
     environment: 'nuxt',
     environmentOptions: {
       nuxt: {
-        domEnvironment: 'happy-dom'
+        domEnvironment: 'jsdom'
       }
     },
     coverage: {
-      enabled: true,
+      enabled: false,
       provider: 'v8',
       include: ['app/**/*.ts', 'app/**/*.vue'],
       exclude: ['node_modules/', 'nuxt/', '**/*.test.ts', '**/*.spec.ts']

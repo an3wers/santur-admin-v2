@@ -48,6 +48,10 @@ function updatePostsHandler() {
 async function updateCategoryHandler() {
   await navStore.loadMenu(navStore.activeResource)
 }
+
+function addHandler() {
+  return navigateTo({ path: `./${route.params.catId}/new-item` })
+}
 </script>
 
 <template>
@@ -58,11 +62,7 @@ async function updateCategoryHandler() {
           <n-h1>{{ title }}</n-h1>
         </template>
         <template #actions>
-          <n-button
-            v-if="catId && Number(catId as string)"
-            type="primary"
-            @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
-          >
+          <n-button v-if="catId && Number(catId as string)" type="primary" @click="addHandler">
             <template #icon>
               <n-icon size="20px"><Plus /></n-icon>
             </template>

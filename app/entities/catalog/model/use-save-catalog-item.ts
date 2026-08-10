@@ -17,7 +17,7 @@ export const useSaveCatalogItem = () => {
         formData.append(key, String(data[key as keyof typeof data]))
       })
 
-      if (files?.length) {
+      if (files?.length && files[0] != null) {
         formData.append('img', files[0])
       }
 

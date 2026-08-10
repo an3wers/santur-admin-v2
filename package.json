@@ -13,8 +13,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"./**/*.{html,vue,ts,js}\"",
     "prepare": "husky install",
-    "typecheck": "vue-tsc --noEmit",
-    "typecheck:nuxt": "npx nuxi typecheck"
+    "typecheck": "npx nuxi typecheck"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.17.0",
@@ -54,6 +53,7 @@
     "@nuxt/test-utils": "^4.1.0",
     "@types/eslint-config-prettier": "^6.11.3",
     "@types/node": "^26.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vue/test-utils": "^2.4.11",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",

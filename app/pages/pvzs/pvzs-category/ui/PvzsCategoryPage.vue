@@ -22,6 +22,10 @@ if (status.value === 'error') {
   console.error(error.value?.message ?? 'На странице произошла ошибка')
   throw createError({ statusCode: 400, statusMessage: 'На странице произошла ошибка', fatal: true })
 }
+
+function addHandler() {
+  return navigateTo({ path: `./${route.params.catId}/new-item` })
+}
 </script>
 
 <template>
@@ -32,11 +36,7 @@ if (status.value === 'error') {
           <n-h1>{{ title }}</n-h1>
         </template>
         <template #actions>
-          <n-button
-            v-if="catId && parseInt(catId as string)"
-            type="primary"
-            @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
-          >
+          <n-button v-if="catId && parseInt(catId as string)" type="primary" @click="addHandler">
             <template #icon>
               <n-icon size="20px"><Plus /></n-icon>
             </template>

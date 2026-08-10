@@ -34,6 +34,10 @@ function toggleEditCategory() {
 async function updateCategoryHandler() {
   await navStore.loadMenu(navStore.activeResource)
 }
+
+function addHandler() {
+  return navigateTo({ path: `./${route.params.catId}/new-item` })
+}
 </script>
 
 <template>
@@ -45,10 +49,7 @@ async function updateCategoryHandler() {
         </template>
         <template #actions>
           <!-- v-if="catId && parseInt(catId as string)" -->
-          <n-button
-            type="primary"
-            @click="navigateTo({ path: `./${$route.params.catId}/new-item` })"
-          >
+          <n-button type="primary" @click="addHandler">
             <template #icon>
               <n-icon size="20px"><Plus /></n-icon>
             </template>

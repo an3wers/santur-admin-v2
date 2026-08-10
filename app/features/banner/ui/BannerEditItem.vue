@@ -188,7 +188,7 @@ const activeTab = ref<'Desktop' | 'Mobile'>('Desktop')
         <n-tab-pane name="Desktop" tab="Desktop">
           <div class="image-container">
             <div class="image-container__preview">
-              <img v-if="bannerItem.images[0].imgPath" :src="bannerItem.images[0].imgPath" />
+              <img v-if="bannerItem.images[0]?.imgPath" :src="bannerItem.images[0].imgPath" />
               <div v-else class="image-container__preview-empty">
                 <n-text depth="3">Изображение не выбрано</n-text>
               </div>
@@ -201,7 +201,7 @@ const activeTab = ref<'Desktop' | 'Mobile'>('Desktop')
               >
             </div>
             <div class="image-container__controls">
-              <n-form-item label="Ссылка на изображение" path="imgPath">
+              <n-form-item v-if="bannerItem.images[0]" label="Ссылка на изображение" path="imgPath">
                 <n-input-group>
                   <n-input
                     v-model:value="bannerItem.images[0].imgPath"
@@ -235,7 +235,7 @@ const activeTab = ref<'Desktop' | 'Mobile'>('Desktop')
         <n-tab-pane name="Mobile" tab="Mobile">
           <div class="image-container">
             <div class="image-container__preview">
-              <img v-if="bannerItem.images[1].imgPath" :src="bannerItem.images[1].imgPath" />
+              <img v-if="bannerItem.images[1]?.imgPath" :src="bannerItem.images[1].imgPath" />
               <div v-else class="image-container__preview-empty">
                 <n-text depth="3">Изображение не выбрано</n-text>
               </div>
@@ -248,7 +248,7 @@ const activeTab = ref<'Desktop' | 'Mobile'>('Desktop')
               >
             </div>
             <div class="image-container__controls">
-              <n-form-item label="Ссылка на изображение" path="imgPath">
+              <n-form-item v-if="bannerItem.images[1]" label="Ссылка на изображение" path="imgPath">
                 <n-input-group>
                   <n-input
                     v-model:value="bannerItem.images[1].imgPath"

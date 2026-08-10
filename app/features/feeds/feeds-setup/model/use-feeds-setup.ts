@@ -112,7 +112,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
   watch(
     feedsKeysData,
     () => {
-      if (feedsKeysData.value?.length) {
+      if (feedsKeysData.value?.length && feedsKeysData.value[0]) {
         setFeedKeyWithoutPrefix(feedsKeysData.value[0].value)
       } else {
         setFeedKey(null)
@@ -135,7 +135,7 @@ export const useFeedsSetup = (ctx: MaybeRefOrGetter<string>) => {
 
   async function removedKeyHandler() {
     await feedsKeysExecute()
-    if (feedsKeysData.value?.length) {
+    if (feedsKeysData.value?.length && feedsKeysData.value[0]) {
       setFeedKeyWithoutPrefix(feedsKeysData.value[0].value)
     } else {
       setFeedKey(null)

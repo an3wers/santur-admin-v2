@@ -33,5 +33,8 @@ export const formatDateForInput = (date: string) => {
   }
 
   const [dd, mm, yy] = date.split('.')
-  return `${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`
+  if (dd && mm && yy) {
+    return `${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`
+  }
+  return ''
 }

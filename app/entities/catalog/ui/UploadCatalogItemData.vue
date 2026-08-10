@@ -66,7 +66,7 @@ async function saveHandler() {
   try {
     uploadStatus.value = 'pending'
     const formData = new FormData()
-    if (!uploadFiles.value[0].file) return
+    if (!uploadFiles.value[0]?.file) return
     formData.append('files', uploadFiles.value[0].file)
     await api.uploadCategoryDescriptionFromXls(formData)
     uploadStatus.value = 'success'

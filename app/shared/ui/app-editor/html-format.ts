@@ -58,7 +58,13 @@ const VOID_TAGS = new Set([
 
 const INDENT = '  '
 
-const getTagName = (tag: string) => tag.match(/^<\/?\s*([a-z][a-z\d-]*)/i)?.[1].toLowerCase() ?? ''
+const getTagName = (tag: string) => {
+  const matched = tag.match(/^<\/?\s*([a-z][a-z\d-]*)/i)
+  if (matched && matched[1]) {
+    return matched[1].toLowerCase()
+  }
+  return ''
+}
 
 /**
  * Разбивает разметку на строки по блочным тегам и расставляет отступы
