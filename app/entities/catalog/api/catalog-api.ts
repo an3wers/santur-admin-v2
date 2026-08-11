@@ -68,6 +68,18 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
+  // Удаление пресета
+  // DeletePresetFilter
+  async function deletePresetFilter(presetId: number) {
+    const res = await fetchWithToken<unknown>('admin/catalog/DeletePresetFilter', {
+      method: 'DELETE',
+      query: {
+        id: presetId
+      }
+    })
+    return checkError(res).data
+  }
+
   async function getCatalogVids(tkId?: number) {
     const res = await fetchWithToken<GetCatalogVidsItemRes[]>('AdminGoods/GetVids', {
       query: { tk_id: tkId }
@@ -105,6 +117,7 @@ export const useCatalogApi = () => {
     getPresetFiltersByCatalogItem,
     savePresetFilterForCatalogItem,
     getCatalogVids,
-    removeImageCatalogItem
+    removeImageCatalogItem,
+    deletePresetFilter
   }
 }

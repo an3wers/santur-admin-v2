@@ -26,6 +26,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'onSaved'): void
+  (e: 'onRemoved'): void
   (e: 'onCancel'): void
 }>()
 
@@ -36,6 +37,8 @@ const {
   descr,
   loadStatus,
   saveStatus,
+  removeStatus,
+  isEditing,
   title,
   alias,
   onTitleInput,
@@ -47,6 +50,7 @@ const {
   duplicatePreset,
   open,
   save,
+  remove,
   isTitleManuallyEdited,
   isAliasManuallyEdited
 } = usePresetFilterForm()
@@ -71,15 +75,37 @@ watch(saveStatus, (value) => {
   }
 })
 
+watch(removeStatus, (value) => {
+  if (value === 'success') {
+    message.success('Подфильтровая страница удалена')
+    emit('onRemoved')
+  }
+  if (value === 'error') {
+    message.error('Произошла ошибка при удалении')
+  }
+})
+
+function removeHandler() {
+  if (!confirm('Вы действительно хотите удалить подфильтровую страницу?')) {
+    return
+  }
+  return remove()
+}
+
 // Кнопки формы вынесены в футер модального окна родителя, поэтому действие
 // сохранения и его состояния отдаём наружу через defineExpose.
-const saveDisabled = computed(() => !alias.value || isDuplicate.value)
+const saveDisabled = computed(
+  () => !alias.value || isDuplicate.value || removeStatus.value === 'pending'
+)
 
 defineExpose({
   save,
   saveStatus,
   saveDisabled,
-  loadStatus
+  loadStatus,
+  remove: removeHandler,
+  removeStatus,
+  isEditing
 })
 
 // Развёрнутые группы фильтров. При открытии формы раскрываем те группы, в которых

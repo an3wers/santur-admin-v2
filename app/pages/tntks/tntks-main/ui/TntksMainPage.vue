@@ -153,8 +153,15 @@ const presetSaveDisabled = computed(() => {
 })
 const presetSaveLoading = computed(() => presetFormRef.value?.saveStatus === 'pending')
 
+const presetRemoveVisible = computed(() => presetFormRef.value?.isEditing ?? false)
+const presetRemoveLoading = computed(() => presetFormRef.value?.removeStatus === 'pending')
+
 function savePreset() {
   presetFormRef.value?.save()
+}
+
+function removePreset() {
+  presetFormRef.value?.remove()
 }
 
 function openAddPreset(payload: { catalogItemId: number; categoryName: string }) {
@@ -172,6 +179,11 @@ function openEditPreset(payload: {
 }
 
 async function onPresetSaved() {
+  showPresetModal.value = false
+  await refreshPresets()
+}
+
+async function onPresetRemoved() {
   showPresetModal.value = false
   await refreshPresets()
 }
@@ -285,21 +297,35 @@ const calcHeight = computed(() => height.value - 40)
         :category-name="presetModalParams.categoryName"
         :preset-id="presetModalParams.presetId"
         @on-saved="onPresetSaved"
+        @on-removed="onPresetRemoved"
         @on-cancel="showPresetModal = false"
       />
       <template #footer>
-        <n-space justify="end">
-          <n-button attr-type="button" secondary type="primary" @click="showPresetModal = false"
-            >Отменить</n-button
-          >
+        <n-space justify="space-between">
           <n-button
+            v-if="presetRemoveVisible"
             attr-type="button"
-            type="primary"
-            :disabled="presetSaveDisabled"
-            :loading="presetSaveLoading"
-            @click="savePreset"
-            >Сохранить</n-button
+            secondary
+            type="error"
+            :disabled="presetRemoveLoading"
+            :loading="presetRemoveLoading"
+            @click="removePreset"
+            >Удалить</n-button
           >
+          <span v-else></span>
+          <n-space>
+            <n-button attr-type="button" secondary type="primary" @click="showPresetModal = false"
+              >Отменить</n-button
+            >
+            <n-button
+              attr-type="button"
+              type="primary"
+              :disabled="presetSaveDisabled"
+              :loading="presetSaveLoading"
+              @click="savePreset"
+              >Сохранить</n-button
+            >
+          </n-space>
         </n-space>
       </template>
     </n-modal>

@@ -23,6 +23,7 @@ export const usePresetFilterForm = () => {
 
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
+  const removeStatus = ref<ProcessStatus>('idle')
 
   const includeCategoryInTitle = ref(true)
 
@@ -134,6 +135,9 @@ export const usePresetFilterForm = () => {
 
   const isDuplicate = computed(() => duplicatePreset.value != null)
 
+  // Режим редактирования существующей подфильтровой страницы (её можно удалить)
+  const isEditing = computed(() => editingId.value != null)
+
   function reset() {
     charFilters.value = []
     existingPresets.value = []
@@ -150,6 +154,7 @@ export const usePresetFilterForm = () => {
     isAliasManuallyEdited.value = false
     loadStatus.value = 'idle'
     saveStatus.value = 'idle'
+    removeStatus.value = 'idle'
   }
 
   async function open(params: OpenPresetFormParams) {
@@ -247,14 +252,31 @@ export const usePresetFilterForm = () => {
     }
   }
 
+  async function remove() {
+    if (editingId.value == null || removeStatus.value === 'pending') {
+      return
+    }
+
+    try {
+      removeStatus.value = 'pending'
+      await api.deletePresetFilter(editingId.value)
+      removeStatus.value = 'success'
+    } catch (error) {
+      console.error(error)
+      removeStatus.value = 'error'
+    }
+  }
+
   return {
     charFilters,
     selections,
     shortDescr,
     descr,
     editingId,
+    isEditing,
     loadStatus,
     saveStatus,
+    removeStatus,
     title,
     alias,
     onTitleInput,
@@ -266,6 +288,7 @@ export const usePresetFilterForm = () => {
     duplicatePreset,
     open,
     save,
+    remove,
     reset,
     isTitleManuallyEdited,
     isAliasManuallyEdited
