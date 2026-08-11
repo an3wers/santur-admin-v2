@@ -237,13 +237,13 @@ function copyCategoryId(id: number) {
                                 preset.id
                               }}</n-text>
                               <n-tag type="info" size="tiny"> фильтр </n-tag>
+                              <n-tag v-if="preset.location" type="default" size="tiny">
+                                {{ locationMap.get(preset.location) ?? preset.location }}
+                              </n-tag>
                             </div>
                             <n-text tag="p" :title="preset.alias">
                               {{ preset.title }}
                             </n-text>
-                            <n-tag v-if="preset.location" type="default" size="tiny">
-                              {{ locationMap.get(preset.location) ?? preset.location }}
-                            </n-tag>
                           </div>
                           <div class="row-button">
                             <n-popover placement="bottom" trigger="hover">

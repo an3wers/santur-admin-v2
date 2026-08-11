@@ -16,6 +16,7 @@ import { useDownloadTemplate } from '~/entities/catalog/model/use-download-templ
 import { useNavStore } from '~/shared/navigation'
 import { FileDownload } from '@vicons/tabler'
 import type { GetCatalogItemDto } from '~/entities/catalog/api/catalog-schemas'
+import { useWindowSize } from '@vueuse/core'
 
 const navStore = useNavStore()
 
@@ -139,6 +140,23 @@ const presetModalParams = ref<{
   presetId: number | null
 } | null>(null)
 
+// Форма подфильтровой страницы отдаёт наружу действие сохранения и его статусы,
+// т.к. кнопки живут в футере модального окна.
+const presetFormRef = useTemplateRef<InstanceType<typeof PresetFilterForm>>('presetFormRef')
+
+const presetSaveDisabled = computed(() => {
+  const form = presetFormRef.value
+  if (!form) {
+    return true
+  }
+  return form.loadStatus !== 'success' || form.saveDisabled
+})
+const presetSaveLoading = computed(() => presetFormRef.value?.saveStatus === 'pending')
+
+function savePreset() {
+  presetFormRef.value?.save()
+}
+
 function openAddPreset(payload: { catalogItemId: number; categoryName: string }) {
   presetModalParams.value = { ...payload, presetId: null }
   showPresetModal.value = true
@@ -171,6 +189,9 @@ async function downloadCatalog() {
     a.click()
   }
 }
+
+const { height } = useWindowSize()
+const calcHeight = computed(() => height.value - 40)
 </script>
 <template>
   <div class="container">
@@ -251,18 +272,36 @@ async function downloadCatalog() {
           ? 'Редактировать подфильтровую страницу'
           : 'Новая подфильтровая страница'
       "
-      style="max-width: 720px"
+      :style="{ width: '720px', height: `${calcHeight}px` }"
+      content-scrollable
+      :segmented="{ content: true, footer: true }"
       size="medium"
       :bordered="false"
     >
       <PresetFilterForm
         v-if="showPresetModal && presetModalParams"
+        ref="presetFormRef"
         :catalog-item-id="presetModalParams.catalogItemId"
         :category-name="presetModalParams.categoryName"
         :preset-id="presetModalParams.presetId"
         @on-saved="onPresetSaved"
         @on-cancel="showPresetModal = false"
       />
+      <template #footer>
+        <n-space justify="end">
+          <n-button attr-type="button" secondary type="primary" @click="showPresetModal = false"
+            >Отменить</n-button
+          >
+          <n-button
+            attr-type="button"
+            type="primary"
+            :disabled="presetSaveDisabled"
+            :loading="presetSaveLoading"
+            @click="savePreset"
+            >Сохранить</n-button
+          >
+        </n-space>
+      </template>
     </n-modal>
   </div>
 </template>
