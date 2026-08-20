@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {
-  NCard,
   NForm,
   NFormItem,
   NInput,
   NSpace,
   NSpin,
-  NButton,
   NCheckbox,
   NCheckboxGroup,
   NText,
   NAlert,
   NSwitch,
   NSelect,
+  NCollapse,
+  NCollapseItem,
   useMessage
 } from 'naive-ui'
 import { MediaList } from '@/entities/media'
@@ -26,6 +26,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'onSaved'): void
+  (e: 'onRemoved'): void
   (e: 'onCancel'): void
 }>()
 
@@ -36,6 +37,8 @@ const {
   descr,
   loadStatus,
   saveStatus,
+  removeStatus,
+  isEditing,
   title,
   alias,
   onTitleInput,
@@ -47,6 +50,7 @@ const {
   duplicatePreset,
   open,
   save,
+  remove,
   isTitleManuallyEdited,
   isAliasManuallyEdited
 } = usePresetFilterForm()
@@ -71,16 +75,64 @@ watch(saveStatus, (value) => {
   }
 })
 
-const saveDisabled = computed(() => !alias.value)
+watch(removeStatus, (value) => {
+  if (value === 'success') {
+    message.success('Подфильтровая страница удалена')
+    emit('onRemoved')
+  }
+  if (value === 'error') {
+    message.error('Произошла ошибка при удалении')
+  }
+})
+
+function removeHandler() {
+  if (!confirm('Вы действительно хотите удалить подфильтровую страницу?')) {
+    return
+  }
+  return remove()
+}
+
+// Кнопки формы вынесены в футер модального окна родителя, поэтому действие
+// сохранения и его состояния отдаём наружу через defineExpose.
+const saveDisabled = computed(
+  () => !alias.value || isDuplicate.value || removeStatus.value === 'pending'
+)
+
+defineExpose({
+  save,
+  saveStatus,
+  saveDisabled,
+  loadStatus,
+  remove: removeHandler,
+  removeStatus,
+  isEditing
+})
+
+// Развёрнутые группы фильтров. При открытии формы раскрываем те группы, в которых
+// уже есть отмеченные значения (режим редактирования), иначе — первую группу.
+const expandedFilterGroups = ref<string[]>([])
+
+watch(loadStatus, (value) => {
+  if (value !== 'success') {
+    return
+  }
+  const withSelected = charFilters.value
+    .filter((charFilter) => selections.value[charFilter.name]?.length)
+    .map((charFilter) => charFilter.name)
+
+  expandedFilterGroups.value = withSelected.length
+    ? withSelected
+    : charFilters.value.slice(0, 1).map((charFilter) => charFilter.name)
+})
 </script>
 
 <template>
-  <n-card>
+  <div style="position: relative">
     <n-spin :show="loadStatus === 'pending'">
       <n-form>
         <n-form-item
           label="Заголовок страницы"
-          feedback="Формируется автоматически, можно отредактировать вручную"
+          feedback="Формируется автоматически, но можно отредактировать вручную"
         >
           <n-space vertical style="width: 100%">
             <n-space align="center">
@@ -104,7 +156,7 @@ const saveDisabled = computed(() => !alias.value)
         </n-alert>
         <n-form-item
           label="Alias"
-          feedback="Формируется автоматически, можно отредактировать вручную"
+          feedback="Формируется автоматически, но можно отредактировать вручную"
         >
           <n-input
             :value="alias"
@@ -133,48 +185,45 @@ const saveDisabled = computed(() => !alias.value)
         <n-form-item label="Расположение на странице">
           <n-select v-model:value="location" :options="locations" />
         </n-form-item>
-        <n-space vertical size="large">
-          <div v-for="charFilter in charFilters" :key="charFilter.nn" class="filter-group">
-            <n-text tag="p" strong>{{ charFilter.name }}</n-text>
-            <n-checkbox-group v-model:value="selections[charFilter.name]">
-              <n-space item-style="display: flex;">
-                <n-checkbox
-                  v-for="item in charFilter.items"
-                  :key="item.nn"
-                  :value="item.name"
-                  :label="`${item.name} (${item.qtyRecords})`"
-                />
-              </n-space>
-            </n-checkbox-group>
-          </div>
-        </n-space>
+        <n-text class="filter-label">Фильтры</n-text>
+        <n-form-item :show-feedback="false">
+          <n-collapse
+            v-model:expanded-names="expandedFilterGroups"
+            :trigger-areas="['main', 'arrow']"
+            style="width: 100%"
+          >
+            <n-collapse-item
+              v-for="charFilter in charFilters"
+              :key="charFilter.nn"
+              :name="charFilter.name"
+            >
+              <template #header>
+                <n-text strong>{{ charFilter.name }}</n-text>
+              </template>
+              <template #header-extra>
+                <n-text v-if="selections[charFilter.name]?.length" depth="3">
+                  выбрано: {{ selections[charFilter.name]?.length }}
+                </n-text>
+              </template>
+              <n-checkbox-group v-model:value="selections[charFilter.name]">
+                <n-space item-style="display: flex;">
+                  <n-checkbox
+                    v-for="item in charFilter.items"
+                    :key="item.nn"
+                    :value="item.name"
+                    :label="`${item.name} (${item.qtyRecords})`"
+                  />
+                </n-space>
+              </n-checkbox-group>
+            </n-collapse-item>
+          </n-collapse>
+        </n-form-item>
       </n-form>
     </n-spin>
-    <template #action>
-      <n-space justify="end">
-        <n-button attr-type="button" secondary type="primary" @click="emit('onCancel')"
-          >Отменить</n-button
-        >
-        <n-button
-          attr-type="button"
-          type="primary"
-          :disabled="saveDisabled || isDuplicate"
-          :loading="saveStatus === 'pending'"
-          @click="save"
-          >Сохранить</n-button
-        >
-      </n-space>
-    </template>
-  </n-card>
+  </div>
 </template>
 
 <style scoped>
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .input-suffix {
   font-size: 0.625rem;
   text-transform: uppercase;
@@ -187,5 +236,10 @@ const saveDisabled = computed(() => !alias.value)
 .input-suffix--disabled {
   color: inherit;
   text-decoration: line-through;
+}
+
+.filter-label {
+  font-size: 1rem;
+  font-weight: 600;
 }
 </style>

@@ -26,7 +26,7 @@ ENV CI=true \
 
 WORKDIR /app
 
-RUN npm ci -g npm@11
+RUN npm i -g npm@11
 
 # Опциональная страховка: раскомментировать, если sharp/esbuild/oxc не найдут
 # prebuilt musl-бинарников (нужно начиная с sharp < 0.33).
@@ -37,10 +37,7 @@ COPY package.json package-lock.json ./
 # `--ignore-scripts` — чтобы postinstall (`nuxt prepare`) не запускался
 # до копирования исходника с nuxt.config.ts. prepare прогонит сам `nuxt build`.
 RUN --mount=type=cache,id=npm-cache,target=/root/.npm \
-    npm install --ignore-scripts --no-audit --no-fund
-
-    # TODO: разобраться в проблеме установки через ci и package-lock.json
-    #npm ci --ignore-scripts
+    npm ci --ignore-scripts --no-audit --no-fund
 
 COPY . .
 

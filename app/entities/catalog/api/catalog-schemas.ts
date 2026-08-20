@@ -40,6 +40,8 @@ export interface PresetItem {
   presets: PresetFilter[]
   alias: string
   location: 'top' | 'bottom' | 'top-bottom'
+
+  // size: string // small | medium | large
 }
 
 export interface GetPresetsFilters {
