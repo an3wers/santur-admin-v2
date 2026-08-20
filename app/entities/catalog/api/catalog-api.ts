@@ -102,7 +102,10 @@ export const useCatalogApi = () => {
   }) {
     const res = await fetchWithToken<unknown>('AdminGoods/RemoveTntkImage', {
       method: 'POST',
-      body: data
+      query: {
+        id: data.id
+      }
+      // body: data
     })
     return checkError(res).data
   }
