@@ -26,7 +26,7 @@ export const usePresetFilterForm = () => {
 
   const includeCategoryInTitle = ref(true)
 
-  const location = ref<'top' | 'bottom' | 'top-bottom'>('top')
+  const location = ref<'top' | 'bottom' | 'top-bottom' | 'hidden'>('top')
 
   const locations = [
     {
@@ -40,6 +40,10 @@ export const usePresetFilterForm = () => {
     {
       label: 'Над и под товарами',
       value: 'top-bottom'
+    },
+    {
+      label: 'Не показывать',
+      value: 'hidden'
     }
   ]
 

@@ -82,7 +82,7 @@ export interface SavePresetFilterItem {
   shortDescr: string
   presets: { name: string; selected: string; minSelect: string; maxSelect: string }[]
   alias: string
-  location: 'top' | 'bottom' | 'top-bottom'
+  location: 'top' | 'bottom' | 'top-bottom' | 'hidden'
 }
 
 export interface GetCatalogVidsItemRes {
