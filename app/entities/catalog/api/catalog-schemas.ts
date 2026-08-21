@@ -42,8 +42,15 @@ export interface PresetItem {
   presets: PresetFilter[]
   alias: string
   location: 'top' | 'bottom' | 'top-bottom'
-
-  // size: string // small | medium | large
+  image: {
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
+  } | null
+  variantVisible: string
+  // variant: string // small | medium | large
 }
 
 export interface GetPresetsFilters {
@@ -104,9 +111,11 @@ export interface GetCatalogVidsItemRes {
   shortDescr: string
   imgExist: boolean
   image: {
-    id: number
-    mediaType: string
-    url: string
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
   } | null
   gimg: string
   vids: string[]

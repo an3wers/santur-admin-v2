@@ -57,9 +57,11 @@ export interface CatalogVidsItem {
   shortDescr: string
   imgExist: boolean
   image: {
-    id: number
-    mediaType: string
-    url: string
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
   } | null
   gimg: string
   vids: string[]

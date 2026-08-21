@@ -61,10 +61,27 @@ export const useCatalogApi = () => {
   }
 
   async function savePresetFilterForCatalogItem(data: SavePresetFilterItem) {
-    // TODO: Replace to form data and add image field for attach file
+    const { image, presets, id, ...rest } = data
+
+    const formData = new FormData()
+
+    if (id != null) {
+      formData.append('id', String(id))
+    }
+
+    Object.entries(rest).forEach(([key, value]) => {
+      formData.append(key, String(value))
+    })
+
+    formData.append('presets', JSON.stringify(presets))
+
+    if (image) {
+      formData.append('image', image)
+    }
+
     const res = await fetchWithToken<unknown>('admin/catalog/SavePresetFilterForCatalogItem', {
       method: 'POST',
-      body: data
+      body: formData
     })
     return checkError(res).data
   }
@@ -88,25 +105,22 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
-  async function removeImageCatalogItem(data: {
-    id: number
-    parent_id: number
-    parent_name: string
-    vid: string
-    name: string
-    num: number
-    seotitle: string
-    keywords: string
-    alias: string
-    descr: string
-    shortDescr: string
-  }) {
+  async function removeImageCatalogItem(data: { id: number }) {
     const res = await fetchWithToken<unknown>('AdminGoods/RemoveTntkImage', {
       method: 'POST',
       query: {
         id: data.id
       }
-      // body: data
+    })
+    return checkError(res).data
+  }
+
+  async function removeImagePresetItem(data: { id: number }) {
+    const res = await fetchWithToken<unknown>('admin/catalog/RemovePresetFilterImage', {
+      method: 'POST',
+      query: {
+        id: data.id
+      }
     })
     return checkError(res).data
   }
@@ -122,6 +136,7 @@ export const useCatalogApi = () => {
     savePresetFilterForCatalogItem,
     getCatalogVids,
     removeImageCatalogItem,
-    deletePresetFilter
+    deletePresetFilter,
+    removeImagePresetItem
   }
 }

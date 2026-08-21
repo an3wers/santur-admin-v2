@@ -16,7 +16,7 @@ import {
   NPopover,
   NTag
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, SquarePlus } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
@@ -163,6 +163,26 @@ function copyCategoryId(id: number) {
                   </template>
                   <template #header-extra>
                     <div class="btn-group">
+                      <n-popover placement="bottom" trigger="hover">
+                        <template #trigger>
+                          <n-button
+                            quaternary
+                            circle
+                            size="small"
+                            @click.stop="
+                              () => {
+                                // TODO: implement
+                              }
+                            "
+                          >
+                            <n-icon size="20px">
+                              <LayoutGridAdd />
+                            </n-icon>
+                          </n-button>
+                        </template>
+                        <span> Добавить множество подфильтровых страниц </span>
+                      </n-popover>
+
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
                           <n-button

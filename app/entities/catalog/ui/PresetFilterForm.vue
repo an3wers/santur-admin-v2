@@ -13,9 +13,13 @@ import {
   NSelect,
   NCollapse,
   NCollapseItem,
+  NButton,
+  NImage,
+  NUpload,
+  type UploadFileInfo,
   useMessage
 } from 'naive-ui'
-import { MediaList } from '@/entities/media'
+import { MediaList, type OptionsType } from '@/entities/media'
 import { usePresetFilterForm } from '../model/use-preset-filter-form'
 
 const props = defineProps<{
@@ -48,6 +52,11 @@ const {
   includeCategoryInTitle,
   isDuplicate,
   duplicatePreset,
+  imageUrl,
+  imageFile,
+  imgExist,
+  removeImage,
+  removeImageStatus,
   open,
   save,
   remove,
@@ -85,6 +94,45 @@ watch(removeStatus, (value) => {
   }
 })
 
+/*
+  IMAGE
+*/
+
+const MAX_SIZE_FILE = 20_000_000
+
+const fileImageRef = ref<UploadFileInfo[]>([])
+
+function imageChangeHandler({ file }: OptionsType) {
+  if (file.status === 'removed') {
+    fileImageRef.value = []
+    imageFile.value = null
+    return
+  }
+
+  if (file.file && file.file.size > MAX_SIZE_FILE) {
+    message.error('Максимальный размер изображения 20 мб')
+    fileImageRef.value = []
+    imageFile.value = null
+    return
+  }
+
+  fileImageRef.value = [{ ...file, status: 'finished' }]
+  imageFile.value = file.file ?? null
+}
+
+async function removeImageHandler() {
+  await removeImage()
+
+  if (removeImageStatus.value === 'success') {
+    fileImageRef.value = []
+    message.success('Изображение удалено')
+  }
+
+  if (removeImageStatus.value === 'error') {
+    message.error('Произошла ошибка при удалении изображения')
+  }
+}
+
 function removeHandler() {
   if (!confirm('Вы действительно хотите удалить подфильтровую страницу?')) {
     return
@@ -95,7 +143,11 @@ function removeHandler() {
 // Кнопки формы вынесены в футер модального окна родителя, поэтому действие
 // сохранения и его состояния отдаём наружу через defineExpose.
 const saveDisabled = computed(
-  () => !alias.value || isDuplicate.value || removeStatus.value === 'pending'
+  () =>
+    !alias.value ||
+    isDuplicate.value ||
+    removeStatus.value === 'pending' ||
+    removeImageStatus.value === 'pending'
 )
 
 defineExpose({
@@ -174,6 +226,32 @@ watch(loadStatus, (value) => {
         </n-form-item>
         <n-form-item label="Meta: description">
           <n-input v-model:value="shortDescr" type="textarea" placeholder="Введите description" />
+        </n-form-item>
+        <n-form-item label="Изображение">
+          <n-space align="center">
+            <template v-if="imgExist">
+              <n-image width="100" height="60" object-fit="contain" :src="imageUrl" />
+              <n-button
+                tertiary
+                type="error"
+                size="small"
+                :loading="removeImageStatus === 'pending'"
+                @click="removeImageHandler"
+                >Удалить</n-button
+              >
+            </template>
+
+            <n-upload
+              v-else
+              :file-list="fileImageRef"
+              :default-upload="false"
+              :max="1"
+              accept="image/*"
+              @change="imageChangeHandler"
+            >
+              <n-button>Выбрать изображение</n-button>
+            </n-upload>
+          </n-space>
         </n-form-item>
         <n-form-item label="Описание">
           <AppEditor v-model="descr">

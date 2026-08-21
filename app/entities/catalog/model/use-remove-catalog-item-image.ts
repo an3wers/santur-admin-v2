@@ -9,7 +9,7 @@ export const useRemoveCatalogItemImage = () => {
   async function removeImage(item: Omit<CatalogItemModel, 'imgExist' | 'imgUrl'>) {
     try {
       status.value = 'pending'
-      await api.removeImageCatalogItem(item)
+      await api.removeImageCatalogItem({ id: item.id })
       status.value = 'success'
     } catch (error) {
       console.log(error)

@@ -24,6 +24,13 @@ export const usePresetFilterForm = () => {
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
   const removeStatus = ref<ProcessStatus>('idle')
+  const removeImageStatus = ref<ProcessStatus>('idle')
+
+  // Изображение: imageUrl — уже сохранённое на сервере, imageFile — выбранный
+  // файл, который уйдёт вместе с формой при сохранении.
+  const imageUrl = ref('')
+  const imageFile = ref<File | null>(null)
+  const imgExist = computed(() => Boolean(imageUrl.value))
 
   const includeCategoryInTitle = ref(true)
 
@@ -156,9 +163,12 @@ export const usePresetFilterForm = () => {
     alias.value = ''
     isTitleManuallyEdited.value = false
     isAliasManuallyEdited.value = false
+    imageUrl.value = ''
+    imageFile.value = null
     loadStatus.value = 'idle'
     saveStatus.value = 'idle'
     removeStatus.value = 'idle'
+    removeImageStatus.value = 'idle'
   }
 
   async function open(params: OpenPresetFormParams) {
@@ -202,6 +212,7 @@ export const usePresetFilterForm = () => {
           shortDescr.value = preset.shortDescr
           descr.value = preset.descr
           location.value = preset.location ?? 'top'
+          imageUrl.value = preset.image?.path ?? ''
           preset.presets.forEach((pf) => {
             nextSelections[pf.name] = pf.selected.split(';').filter(Boolean)
           })
@@ -235,6 +246,7 @@ export const usePresetFilterForm = () => {
         location: location.value,
         descr: descr.value,
         shortDescr: shortDescr.value,
+        image: imageFile.value ?? undefined,
         presets: charFilters.value
           .filter((cf) => selections.value[cf.name]?.length)
           .map((cf) => ({
@@ -253,6 +265,25 @@ export const usePresetFilterForm = () => {
     } catch (error) {
       console.error(error)
       saveStatus.value = 'error'
+    }
+  }
+
+  // Удаление уже сохранённого изображения. Для ещё не сохранённой страницы
+  // изображения на сервере нет — достаточно сбросить выбранный файл.
+  async function removeImage() {
+    if (editingId.value == null || removeImageStatus.value === 'pending') {
+      return
+    }
+
+    try {
+      removeImageStatus.value = 'pending'
+      await api.removeImagePresetItem({ id: editingId.value })
+      imageUrl.value = ''
+      imageFile.value = null
+      removeImageStatus.value = 'success'
+    } catch (error) {
+      console.error(error)
+      removeImageStatus.value = 'error'
     }
   }
 
@@ -281,6 +312,11 @@ export const usePresetFilterForm = () => {
     loadStatus,
     saveStatus,
     removeStatus,
+    removeImageStatus,
+    imageUrl,
+    imageFile,
+    imgExist,
+    removeImage,
     title,
     alias,
     onTitleInput,
