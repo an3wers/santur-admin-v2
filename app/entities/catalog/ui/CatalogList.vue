@@ -38,7 +38,8 @@ const emit = defineEmits<{
 const locationMap = new Map<string, string>([
   ['top', 'Над товарами'],
   ['bottom', 'Под товарами'],
-  ['top-bottom', 'Над и под товарами']
+  ['top-bottom', 'Над и под товарами'],
+  ['hidden', 'Не показывать']
 ])
 
 function moveEdit(itemId: number) {
