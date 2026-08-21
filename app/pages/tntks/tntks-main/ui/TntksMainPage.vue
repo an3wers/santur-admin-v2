@@ -3,6 +3,7 @@ import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem, NIcon } from '
 import {
   CatalogList,
   PresetFilterForm,
+  PresetFilterBulkForm,
   getCatalogQueryKey,
   getPresetsQueryKey,
   getVidsQueryKey,
@@ -188,6 +189,36 @@ async function onPresetRemoved() {
   await refreshPresets()
 }
 
+// modal bulk add preset filters
+const showBulkPresetModal = ref(false)
+const bulkPresetModalParams = ref<{ catalogItemId: number; categoryName: string } | null>(null)
+
+const bulkFormRef = useTemplateRef<InstanceType<typeof PresetFilterBulkForm>>('bulkFormRef')
+
+const bulkSaveDisabled = computed(() => {
+  const form = bulkFormRef.value
+  if (!form) {
+    return true
+  }
+  return form.loadStatus !== 'success' || form.saveDisabled
+})
+const bulkSaveLoading = computed(() => bulkFormRef.value?.saveStatus === 'pending')
+const bulkPendingCount = computed(() => bulkFormRef.value?.pendingCount ?? 0)
+
+function saveBulkPresets() {
+  bulkFormRef.value?.save()
+}
+
+function openBulkPreset(payload: { catalogItemId: number; categoryName: string }) {
+  bulkPresetModalParams.value = payload
+  showBulkPresetModal.value = true
+}
+
+async function onBulkPresetsSaved() {
+  showBulkPresetModal.value = false
+  await refreshPresets()
+}
+
 // templates
 const { downloadTemplate, status: downloadStatus, downloadFile } = useDownloadTemplate()
 
@@ -222,6 +253,7 @@ const calcHeight = computed(() => height.value - 40)
         <CatalogList
           :items="groupedCatalogItems"
           @add-preset="openAddPreset"
+          @add-presets-bulk="openBulkPreset"
           @edit-preset="openEditPreset"
         />
         <n-space vertical>
@@ -274,6 +306,42 @@ const calcHeight = computed(() => height.value - 40)
       :bordered="false"
     >
       <UploadCatalogItemData @on-cancel="showUploadFileModal = false" />
+    </n-modal>
+
+    <n-modal
+      preset="card"
+      v-model:show="showBulkPresetModal"
+      title="Добавить множество подфильтровых страниц"
+      :style="{ width: '960px', height: `${calcHeight}px` }"
+      content-scrollable
+      :segmented="{ content: true, footer: true }"
+      size="medium"
+      :bordered="false"
+    >
+      <PresetFilterBulkForm
+        v-if="showBulkPresetModal && bulkPresetModalParams"
+        ref="bulkFormRef"
+        :catalog-item-id="bulkPresetModalParams.catalogItemId"
+        :category-name="bulkPresetModalParams.categoryName"
+        @on-saved="onBulkPresetsSaved"
+        @on-refresh="refreshPresets"
+        @on-cancel="showBulkPresetModal = false"
+      />
+      <template #footer>
+        <n-space justify="end">
+          <n-button attr-type="button" secondary type="primary" @click="showBulkPresetModal = false"
+            >Отменить</n-button
+          >
+          <n-button
+            attr-type="button"
+            type="primary"
+            :disabled="bulkSaveDisabled"
+            :loading="bulkSaveLoading"
+            @click="saveBulkPresets"
+            >Создать<template v-if="bulkPendingCount"> ({{ bulkPendingCount }})</template></n-button
+          >
+        </n-space>
+      </template>
     </n-modal>
 
     <n-modal

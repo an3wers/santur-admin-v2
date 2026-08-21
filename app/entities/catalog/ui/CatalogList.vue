@@ -28,6 +28,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'addPreset', payload: { catalogItemId: number; categoryName: string }): void
+  (e: 'addPresetsBulk', payload: { catalogItemId: number; categoryName: string }): void
   (
     e: 'editPreset',
     payload: { catalogItemId: number; categoryName: string; presetId: number }
@@ -170,9 +171,10 @@ function copyCategoryId(id: number) {
                             circle
                             size="small"
                             @click.stop="
-                              () => {
-                                // TODO: implement
-                              }
+                              emit('addPresetsBulk', {
+                                catalogItemId: child.id,
+                                categoryName: child.name
+                              })
                             "
                           >
                             <n-icon size="20px">
@@ -306,6 +308,26 @@ function copyCategoryId(id: number) {
                   {{ child.name }}
                 </div>
                 <div class="row-button btn-group">
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button
+                        quaternary
+                        circle
+                        size="small"
+                        @click.stop="
+                          emit('addPresetsBulk', {
+                            catalogItemId: child.id,
+                            categoryName: child.name
+                          })
+                        "
+                      >
+                        <n-icon size="20px">
+                          <LayoutGridAdd />
+                        </n-icon>
+                      </n-button>
+                    </template>
+                    <span> Добавить множество подфильтровых страниц </span>
+                  </n-popover>
                   <n-popover placement="bottom" trigger="hover">
                     <template #trigger>
                       <n-button
