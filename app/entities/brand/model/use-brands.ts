@@ -44,7 +44,8 @@ export const useBrands = async (queryKey = getBrandsKey(), options?: Options) =>
       watch: [brandsOptions],
       transform: options?.transform || ((data) => data),
       immediate: options && 'immediate' in options ? options.immediate : true,
-      lazy: options && 'lazy' in options ? options.lazy : false
+      lazy: options && 'lazy' in options ? options.lazy : false,
+      deep: true
     }
   )
 
