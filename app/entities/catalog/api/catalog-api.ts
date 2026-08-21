@@ -61,6 +61,7 @@ export const useCatalogApi = () => {
   }
 
   async function savePresetFilterForCatalogItem(data: SavePresetFilterItem) {
+    // TODO: Replace to form data and add image field for attach file
     const res = await fetchWithToken<unknown>('admin/catalog/SavePresetFilterForCatalogItem', {
       method: 'POST',
       body: data
@@ -72,7 +73,7 @@ export const useCatalogApi = () => {
   // DeletePresetFilter
   async function deletePresetFilter(presetId: number) {
     const res = await fetchWithToken<unknown>('admin/catalog/DeletePresetFilter', {
-      method: 'DELETE',
+      method: 'POST',
       query: {
         id: presetId
       }
