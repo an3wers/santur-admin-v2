@@ -183,8 +183,9 @@ export const usePresetFilterForm = () => {
       if (params.presetId != null) {
         const preset = data.presets.find((p) => p.id === params.presetId)
         if (preset) {
-          shortDescr.value = preset.shortDescr
-          descr.value = preset.descr
+          // Бэк может не вернуть незаполненные тексты
+          shortDescr.value = preset.shortDescr ?? ''
+          descr.value = preset.descr ?? ''
           location.value = preset.location ?? 'top'
           imageUrl.value = preset.image?.path ?? ''
           preset.presets.forEach((pf) => {
@@ -212,14 +213,15 @@ export const usePresetFilterForm = () => {
     try {
       saveStatus.value = 'pending'
 
+      // Незаполненные необязательные поля не отправляем, id = 0 — создание новой страницы
       const payload: SavePresetFilterItem = {
-        id: editingId.value ?? undefined,
+        id: editingId.value ?? 0,
         catalogItemId: catalogItemId.value,
         title: title.value,
         alias: alias.value,
         location: location.value,
-        descr: descr.value,
-        shortDescr: shortDescr.value,
+        descr: descr.value.trim() || undefined,
+        shortDescr: shortDescr.value.trim() || undefined,
         image: imageFile.value ?? undefined,
         presets: buildPresetsPayload(charFilters.value, selections.value)
       }

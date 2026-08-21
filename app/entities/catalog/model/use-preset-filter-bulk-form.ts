@@ -200,12 +200,13 @@ export const usePresetFilterBulkForm = () => {
     for (const row of targetRows) {
       try {
         await api.savePresetFilterForCatalogItem({
+          // Массово создаём только новые страницы, поэтому id всегда 0.
+          // Тексты и изображение задаются позже в форме отдельной страницы.
+          id: 0,
           catalogItemId: catalogItemId.value,
           title: row.title,
           alias: row.alias,
           location: location.value,
-          descr: '',
-          shortDescr: '',
           presets: buildPresetsPayload(charFilters.value, row.groups)
         })
         results.value[row.key] = { status: 'success' }

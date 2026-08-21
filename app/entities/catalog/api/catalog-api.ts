@@ -61,19 +61,27 @@ export const useCatalogApi = () => {
   }
 
   async function savePresetFilterForCatalogItem(data: SavePresetFilterItem) {
-    const { image, presets, id, ...rest } = data
+    const { image, presets, id, descr, shortDescr, ...rest } = data
 
     const formData = new FormData()
 
-    if (id != null) {
-      formData.append('id', String(id))
-    }
+    // id обязателен: 0 — создание новой подфильтровой страницы
+    formData.append('id', String(id))
 
     Object.entries(rest).forEach(([key, value]) => {
       formData.append(key, String(value))
     })
 
     formData.append('presets', JSON.stringify(presets))
+
+    // Незаполненные необязательные поля не отправляем
+    if (descr) {
+      formData.append('descr', descr)
+    }
+
+    if (shortDescr) {
+      formData.append('shortDescr', shortDescr)
+    }
 
     if (image) {
       formData.append('image', image)

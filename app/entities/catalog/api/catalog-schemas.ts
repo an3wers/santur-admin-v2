@@ -86,11 +86,12 @@ export interface GetPresetFiltersByCatalogItemRes {
 }
 
 export interface SavePresetFilterItem {
-  id?: number
+  // Для новой подфильтровой страницы бэк ждёт id = 0
+  id: number
   catalogItemId: number
   title: string
-  descr: string
-  shortDescr: string
+  descr?: string
+  shortDescr?: string
   presets: { name: string; selected: string; minSelect: string; maxSelect: string }[]
   alias: string
   location: 'top' | 'bottom' | 'top-bottom' | 'hidden'
