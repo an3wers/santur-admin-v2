@@ -14,11 +14,13 @@ import {
   NSpin,
   useMessage,
   NPopover,
-  NTag
+  NTag,
+  NSelect
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd, Trash } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
+import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 
@@ -33,7 +35,10 @@ const emit = defineEmits<{
     e: 'editPreset',
     payload: { catalogItemId: number; categoryName: string; presetId: number }
   ): void
+  (e: 'presetRemoved'): void
 }>()
+
+type CatalogChildItem = Omit<CatalogItem, 'child'>
 
 const locationMap = new Map<string, string>([
   ['top', 'Над товарами'],
@@ -41,6 +46,43 @@ const locationMap = new Map<string, string>([
   ['top-bottom', 'Над и под товарами'],
   ['hidden', 'Не показывать']
 ])
+
+// Фильтры третьего уровня каталога (виды и подфильтровые страницы).
+// Состояние общее для всех категорий: выбранный вариант применяется ко всем спискам.
+type ContentTypeFilter = 'all' | 'presets' | 'vids'
+
+const contentTypeOptions = [
+  { label: 'Виды и фильтры', value: 'all' },
+  { label: 'Только фильтры', value: 'presets' },
+  { label: 'Только виды', value: 'vids' }
+]
+
+const locationOptions = [
+  { label: 'Все расположения', value: '' },
+  ...[...locationMap].map(([value, label]) => ({ label, value }))
+]
+
+const contentTypeFilter = ref<ContentTypeFilter>('all')
+const locationFilter = ref('')
+
+function visibleVids(child: CatalogChildItem) {
+  if (contentTypeFilter.value === 'presets') {
+    return []
+  }
+  return child.categoryVids ?? []
+}
+
+function visiblePresets(child: CatalogChildItem) {
+  if (contentTypeFilter.value === 'vids') {
+    return []
+  }
+
+  const presets = child.presets ?? []
+
+  return locationFilter.value
+    ? presets.filter((preset) => preset.location === locationFilter.value)
+    : presets
+}
 
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
@@ -86,6 +128,36 @@ function changeShowDownloadModal(show: boolean) {
 const copyToClipboard = useCopyToClipboard()
 function copyCategoryId(id: number) {
   copyToClipboard(id.toString())
+}
+
+// Удаление подфильтровой страницы прямо из списка — логика общая с формой редактирования
+const {
+  removeStatus,
+  confirmRemove,
+  remove: removePresetFilter,
+  reset: resetRemoveStatus
+} = useRemovePresetFilter()
+const removingPresetId = ref<number | null>(null)
+
+async function removePresetHandler(presetId: number) {
+  if (removeStatus.value === 'pending' || !confirmRemove()) {
+    return
+  }
+
+  removingPresetId.value = presetId
+  await removePresetFilter(presetId)
+
+  if (removeStatus.value === 'success') {
+    message.success('Подфильтровая страница удалена')
+    emit('presetRemoved')
+  }
+
+  if (removeStatus.value === 'error') {
+    message.error('Произошла ошибка при удалении')
+  }
+
+  removingPresetId.value = null
+  resetRemoveStatus()
 }
 </script>
 
@@ -219,8 +291,23 @@ function copyCategoryId(id: number) {
                     </div>
                   </template>
                   <div class="preset-container">
+                    <div class="filter-bar">
+                      <n-select
+                        v-model:value="contentTypeFilter"
+                        size="small"
+                        class="filter-bar__select"
+                        :options="contentTypeOptions"
+                      />
+                      <n-select
+                        v-model:value="locationFilter"
+                        size="small"
+                        class="filter-bar__select"
+                        :options="locationOptions"
+                        :disabled="contentTypeFilter === 'vids'"
+                      />
+                    </div>
                     <n-list>
-                      <n-list-item v-for="vid in child.categoryVids" :key="`vid-${vid.id}`">
+                      <n-list-item v-for="vid in visibleVids(child)" :key="`vid-${vid.id}`">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -252,7 +339,7 @@ function copyCategoryId(id: number) {
                           </div>
                         </div>
                       </n-list-item>
-                      <n-list-item v-for="preset in child.presets" :key="preset.id">
+                      <n-list-item v-for="preset in visiblePresets(child)" :key="preset.id">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -268,7 +355,7 @@ function copyCategoryId(id: number) {
                               {{ preset.title }}
                             </n-text>
                           </div>
-                          <div class="row-button">
+                          <div class="row-button btn-group">
                             <n-popover placement="bottom" trigger="hover">
                               <template #trigger>
                                 <n-button
@@ -290,8 +377,31 @@ function copyCategoryId(id: number) {
                               </template>
                               <span> Редактировать </span>
                             </n-popover>
+                            <n-popover placement="bottom" trigger="hover">
+                              <template #trigger>
+                                <n-button
+                                  quaternary
+                                  circle
+                                  size="small"
+                                  type="error"
+                                  :loading="removingPresetId === preset.id"
+                                  :disabled="removeStatus === 'pending'"
+                                  @click.stop="removePresetHandler(preset.id)"
+                                >
+                                  <n-icon size="20px">
+                                    <Trash />
+                                  </n-icon>
+                                </n-button>
+                              </template>
+                              <span> Удалить </span>
+                            </n-popover>
                           </div>
                         </div>
+                      </n-list-item>
+                      <n-list-item
+                        v-if="!visibleVids(child).length && !visiblePresets(child).length"
+                      >
+                        <n-text :depth="3">Ничего не найдено</n-text>
                       </n-list-item>
                     </n-list>
                   </div>
@@ -410,5 +520,17 @@ function copyCategoryId(id: number) {
 .btn-group {
   display: flex;
   gap: 0.5rem;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  justify-content: start;
+}
+
+.filter-bar__select {
+  width: 180px;
 }
 </style>

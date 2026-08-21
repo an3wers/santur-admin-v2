@@ -1,5 +1,6 @@
 import { generateAlias } from '~/shared/libs/generate-alias'
 import { useCatalogApi } from '../api/catalog-api'
+import { useRemovePresetFilter } from './use-remove-preset-filter'
 import type { CharFilter, PresetItem, SavePresetFilterItem } from '../api/catalog-schemas'
 import {
   buildPresetAlias,
@@ -32,8 +33,14 @@ export const usePresetFilterForm = () => {
 
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
-  const removeStatus = ref<ProcessStatus>('idle')
   const removeImageStatus = ref<ProcessStatus>('idle')
+
+  const {
+    removeStatus,
+    confirmRemove,
+    remove: removePresetFilter,
+    reset: resetRemoveStatus
+  } = useRemovePresetFilter()
 
   // Изображение: imageUrl — уже сохранённое на сервере, imageFile — выбранный
   // файл, который уйдёт вместе с формой при сохранении.
@@ -157,8 +164,8 @@ export const usePresetFilterForm = () => {
     imageFile.value = null
     loadStatus.value = 'idle'
     saveStatus.value = 'idle'
-    removeStatus.value = 'idle'
     removeImageStatus.value = 'idle'
+    resetRemoveStatus()
   }
 
   async function open(params: OpenPresetFormParams) {
@@ -254,18 +261,11 @@ export const usePresetFilterForm = () => {
   }
 
   async function remove() {
-    if (editingId.value == null || removeStatus.value === 'pending') {
+    if (editingId.value == null) {
       return
     }
 
-    try {
-      removeStatus.value = 'pending'
-      await api.deletePresetFilter(editingId.value)
-      removeStatus.value = 'success'
-    } catch (error) {
-      console.error(error)
-      removeStatus.value = 'error'
-    }
+    return removePresetFilter(editingId.value)
   }
 
   return {
@@ -295,6 +295,7 @@ export const usePresetFilterForm = () => {
     open,
     save,
     remove,
+    confirmRemove,
     reset,
     isTitleManuallyEdited,
     isAliasManuallyEdited

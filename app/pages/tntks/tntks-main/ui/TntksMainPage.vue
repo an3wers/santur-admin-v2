@@ -255,6 +255,7 @@ const calcHeight = computed(() => height.value - 40)
           @add-preset="openAddPreset"
           @add-presets-bulk="openBulkPreset"
           @edit-preset="openEditPreset"
+          @preset-removed="refreshPresets"
         />
         <n-space vertical>
           <n-card>

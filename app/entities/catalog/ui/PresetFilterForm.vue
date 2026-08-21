@@ -60,6 +60,7 @@ const {
   open,
   save,
   remove,
+  confirmRemove,
   isTitleManuallyEdited,
   isAliasManuallyEdited
 } = usePresetFilterForm()
@@ -134,7 +135,7 @@ async function removeImageHandler() {
 }
 
 function removeHandler() {
-  if (!confirm('Вы действительно хотите удалить подфильтровую страницу?')) {
+  if (!confirmRemove()) {
     return
   }
   return remove()
