@@ -49,6 +49,7 @@ watch(_search, (value) => emitValueWitchDebounce(value))
   <n-input
     type="text"
     v-model:value="_search"
+    class="input-search"
     :size="size"
     :disabled="disabled"
     :placeholder="placeholder"
@@ -62,4 +63,9 @@ watch(_search, (value) => emitValueWitchDebounce(value))
   </n-input>
 </template>
 
-<style scoped></style>
+<style scoped>
+.input-search {
+  width: 100%;
+  max-width: 360px;
+}
+</style>

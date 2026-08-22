@@ -23,8 +23,9 @@ import { useDownloadTemplate } from '../model/use-download-template'
 import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
+import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
 
-defineProps<{
+const props = defineProps<{
   items: CatalogItem[]
 }>()
 
@@ -47,6 +48,88 @@ const locationMap = new Map<string, string>([
   ['hidden', 'Не показывать']
 ])
 
+// Поиск по всему дереву каталога. Для найденной сущности показываем её полную
+// структуру: товарное направление -> категория -> виды и подфильтровые страницы.
+// Значение приходит из InputSearch уже с debounce, поэтому обход дерева
+// выполняется один раз на паузу в вводе, а не на каждое нажатие клавиши.
+const searchQuery = ref('')
+const normalizedQuery = computed(() => searchQuery.value.trim().toLowerCase())
+const isSearching = computed(() => Boolean(normalizedQuery.value))
+
+function isMatched(...values: (string | null | undefined)[]) {
+  return values.some((value) => value?.toLowerCase().includes(normalizedQuery.value))
+}
+
+const matchedItems = computed(() => {
+  if (!isSearching.value) {
+    return props.items
+  }
+
+  return props.items.reduce<CatalogItem[]>((acc, item) => {
+    // Совпало товарное направление — отдаём его целиком
+    if (isMatched(item.name, item.alias)) {
+      acc.push(item)
+      return acc
+    }
+
+    const child = item.child.reduce<CatalogChildItem[]>((childAcc, childItem) => {
+      // Совпала категория — показываем все её виды и подфильтровые страницы
+      if (isMatched(childItem.name, childItem.alias)) {
+        childAcc.push(childItem)
+        return childAcc
+      }
+
+      // Иначе оставляем только совпавшие виды и подфильтровые страницы
+      const categoryVids = (childItem.categoryVids ?? []).filter((vid) =>
+        isMatched(vid.name, vid.alias)
+      )
+      const presets = (childItem.presets ?? []).filter((preset) =>
+        isMatched(preset.title, preset.alias)
+      )
+
+      if (categoryVids.length || presets.length) {
+        childAcc.push({ ...childItem, categoryVids, presets })
+      }
+
+      return childAcc
+    }, [])
+
+    if (child.length) {
+      acc.push({ ...item, child })
+    }
+
+    return acc
+  }, [])
+})
+
+// Раскрытые уровни: при поиске разворачиваем всё найденное, при сбросе — схлопываем
+const expandedItemNames = ref<string[]>([])
+const expandedChildNames = ref<Record<number, string[]>>({})
+
+function getChildExpanded(childId: number) {
+  return expandedChildNames.value[childId] ?? []
+}
+
+function setChildExpanded(childId: number, names: Array<string | number>) {
+  expandedChildNames.value[childId] = names.map(String)
+}
+
+watch(normalizedQuery, () => {
+  if (!isSearching.value) {
+    expandedItemNames.value = []
+    expandedChildNames.value = {}
+    return
+  }
+
+  expandedItemNames.value = matchedItems.value.map((item) => item.name)
+  expandedChildNames.value = matchedItems.value.reduce<Record<number, string[]>>((acc, item) => {
+    item.child.forEach((child) => {
+      acc[child.id] = [child.name]
+    })
+    return acc
+  }, {})
+})
+
 // Фильтры третьего уровня каталога (виды и подфильтровые страницы).
 // Состояние общее для всех категорий: выбранный вариант применяется ко всем спискам.
 type ContentTypeFilter = 'all' | 'presets' | 'vids'
@@ -65,14 +148,14 @@ const locationOptions = [
 const contentTypeFilter = ref<ContentTypeFilter>('all')
 const locationFilter = ref('')
 
-function visibleVids(child: CatalogChildItem) {
+function getVisibleVids(child: CatalogChildItem) {
   if (contentTypeFilter.value === 'presets') {
     return []
   }
   return child.categoryVids ?? []
 }
 
-function visiblePresets(child: CatalogChildItem) {
+function getVisiblePresets(child: CatalogChildItem) {
   if (contentTypeFilter.value === 'vids') {
     return []
   }
@@ -83,6 +166,20 @@ function visiblePresets(child: CatalogChildItem) {
     ? presets.filter((preset) => preset.location === locationFilter.value)
     : presets
 }
+
+// Итоговое дерево для рендера: результат поиска с уже применёнными фильтрами
+// третьего уровня. Считаем один раз на изменение данных/поиска/фильтров,
+// чтобы шаблон не пересчитывал списки на каждый рендер.
+const displayedItems = computed(() =>
+  matchedItems.value.map((item) => ({
+    ...item,
+    child: item.child.map((child) => ({
+      ...child,
+      visibleVids: getVisibleVids(child),
+      visiblePresets: getVisiblePresets(child)
+    }))
+  }))
+)
 
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
@@ -163,8 +260,12 @@ async function removePresetHandler(presetId: number) {
 
 <template>
   <n-card>
-    <n-collapse :trigger-areas="['main', 'arrow']">
-      <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
+    <div class="search-bar">
+      <InputSearch v-model="searchQuery" :delay="500" placeholder="Поиск по каталогу" />
+    </div>
+    <n-text v-if="isSearching && !displayedItems.length" :depth="3">Ничего не найдено</n-text>
+    <n-collapse v-model:expanded-names="expandedItemNames" :trigger-areas="['main', 'arrow']">
+      <n-collapse-item v-for="item in displayedItems" :name="item.name" :key="item.id">
         <template #header
           ><div>
             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -217,6 +318,8 @@ async function removePresetHandler(presetId: number) {
               <n-collapse
                 v-if="child.presets?.length || child.categoryVids?.length"
                 :trigger-areas="['main', 'arrow']"
+                :expanded-names="getChildExpanded(child.id)"
+                @update:expanded-names="(names) => setChildExpanded(child.id, names)"
               >
                 <n-collapse-item :name="child.name">
                   <template #header>
@@ -307,7 +410,7 @@ async function removePresetHandler(presetId: number) {
                       />
                     </div>
                     <n-list>
-                      <n-list-item v-for="vid in visibleVids(child)" :key="`vid-${vid.id}`">
+                      <n-list-item v-for="vid in child.visibleVids" :key="`vid-${vid.id}`">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -339,7 +442,7 @@ async function removePresetHandler(presetId: number) {
                           </div>
                         </div>
                       </n-list-item>
-                      <n-list-item v-for="preset in visiblePresets(child)" :key="preset.id">
+                      <n-list-item v-for="preset in child.visiblePresets" :key="preset.id">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -398,9 +501,7 @@ async function removePresetHandler(presetId: number) {
                           </div>
                         </div>
                       </n-list-item>
-                      <n-list-item
-                        v-if="!visibleVids(child).length && !visiblePresets(child).length"
-                      >
+                      <n-list-item v-if="!child.visibleVids.length && !child.visiblePresets.length">
                         <n-text :depth="3">Ничего не найдено</n-text>
                       </n-list-item>
                     </n-list>
@@ -520,6 +621,10 @@ async function removePresetHandler(presetId: number) {
 .btn-group {
   display: flex;
   gap: 0.5rem;
+}
+
+.search-bar {
+  padding-bottom: 1rem;
 }
 
 .filter-bar {
