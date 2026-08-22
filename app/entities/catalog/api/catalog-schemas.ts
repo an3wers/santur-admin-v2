@@ -41,7 +41,7 @@ export interface PresetItem {
   shortDescr: string
   presets: PresetFilter[]
   alias: string
-  location: 'top' | 'bottom' | 'top-bottom'
+  location: 'top' | 'bottom' | 'top-bottom' | 'hidden'
   image: {
     uid: string
     path: string

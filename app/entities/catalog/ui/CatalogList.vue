@@ -450,7 +450,12 @@ async function removePresetHandler(presetId: number) {
                                 preset.id
                               }}</n-text>
                               <n-tag type="info" size="tiny"> фильтр </n-tag>
-                              <n-tag v-if="preset.location" type="default" size="tiny">
+                              <n-tag
+                                v-if="preset.location"
+                                :type="preset.location !== 'hidden' ? 'default' : 'warning'"
+                                :bordered="preset.location !== 'hidden'"
+                                size="tiny"
+                              >
                                 {{ locationMap.get(preset.location) ?? preset.location }}
                               </n-tag>
                             </div>
