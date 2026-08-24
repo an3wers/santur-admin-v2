@@ -43,9 +43,17 @@ const message = useMessage()
 
 const { status: saveStatus, saveCatalogItem } = useSaveCatalogItem()
 
-function saveHandler() {
+async function saveHandler() {
   const { imgExist, imgUrl, ...data } = model.value
-  saveCatalogItem({ ...data, files: files.value })
+
+  const result = await saveCatalogItem({ ...data, files: files.value })
+
+  if (result.ok) {
+    message.success('Категория успешно сохранена')
+    return
+  }
+
+  message.error(result.error.message || 'Произошла ошибка при сохранении')
 }
 
 async function cancelHandler() {
@@ -81,27 +89,17 @@ const { removeImage, status: removeImageStatus } = useRemoveCatalogItemImage()
 async function removeImageHandler() {
   const { imgExist, imgUrl, ...data } = model.value
 
-  await removeImage(data)
+  const result = await removeImage(data)
 
-  if (removeImageStatus.value === 'success') {
+  if (result.ok) {
     model.value.imgExist = false
     model.value.imgUrl = ''
     message.success('Изображение удалено')
+    return
   }
 
-  if (removeImageStatus.value === 'error') {
-    message.error('Произошла ошибка при удалении изображения')
-  }
+  message.error(result.error.message || 'Произошла ошибка при удалении изображения')
 }
-
-watchEffect(() => {
-  if (saveStatus.value === 'success') {
-    message.success('Категория успешно сохранена')
-  }
-  if (saveStatus.value === 'error') {
-    message.error('Произошла ошибка при сохранении')
-  }
-})
 </script>
 
 <template>

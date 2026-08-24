@@ -1,34 +1,33 @@
 import type { CatalogItemModel } from './catalog-types'
 import { useCatalogApi } from '../api/catalog-api'
+import { useRequest } from '~/shared/api/use-request'
 
 export const useSaveCatalogItem = () => {
-  const status = ref<ProcessStatus>('idle')
-
   const api = useCatalogApi()
+
+  const saveRequest = useRequest()
 
   async function saveCatalogItem(
     item: Omit<CatalogItemModel, 'imgExist' | 'imgUrl'> & { files?: File[] }
   ) {
-    try {
-      const formData = new FormData()
+    const formData = new FormData()
 
-      const { files, ...data } = item
-      Object.keys(data).forEach((key) => {
-        formData.append(key, String(data[key as keyof typeof data]))
-      })
+    const { files, ...data } = item
 
-      if (files?.length && files[0] != null) {
-        formData.append('img', files[0])
-      }
+    Object.keys(data).forEach((key) => {
+      formData.append(key, String(data[key as keyof typeof data]))
+    })
 
-      status.value = 'pending'
-      await api.saveCatalogItem(formData)
-      status.value = 'success'
-    } catch (error) {
-      console.log(error)
-      status.value = 'error'
+    if (files?.length && files[0] != null) {
+      formData.append('img', files[0])
     }
+
+    return saveRequest.handleRequest(() => api.saveCatalogItem(formData))
   }
 
-  return { saveCatalogItem, status }
+  return {
+    saveCatalogItem,
+    status: saveRequest.status,
+    error: saveRequest.error
+  }
 }
