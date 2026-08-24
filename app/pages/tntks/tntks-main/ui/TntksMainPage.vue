@@ -246,10 +246,21 @@ const calcHeight = computed(() => height.value - 40)
           </n-h1>
         </template>
         <template #actions>
-          <n-button type="primary" @click="showUploadFileModal = true">Загрузить описание</n-button>
-        </template>
+
+        <n-button secondary type="primary" @click="downloadCatalog" icon-placement="left">
+          <template #icon>
+            <n-icon size="24px">
+              <FileDownload />
+            </n-icon>
+          </template>
+           Шаблон каталога
+        </n-button>
+
+          <n-button secondary type="primary" @click="showUploadFileModal = true">Загрузить описание</n-button>
+
+          </template>
       </page-title>
-      <div class="layout">
+      <!-- <div class="layout">
         <CatalogList
           :items="groupedCatalogItems"
           @add-preset="openAddPreset"
@@ -269,16 +280,6 @@ const calcHeight = computed(() => height.value - 40)
             </n-button>
           </n-card>
           <n-card title="Фильтр">
-            <template #header-extra>
-              <!-- <n-button
-              secondary
-              type="info"
-              size="small"
-              :disabled="!isFiltered"
-              @click="clearAllFilters"
-              >Сбросить</n-button
-            > -->
-            </template>
             <div class="filters-layout">
               <n-form-item label="Title">
                 <n-select v-model:value="titleFilter" :options="filtersOptions" />
@@ -295,7 +296,7 @@ const calcHeight = computed(() => height.value - 40)
             </div>
           </n-card>
         </n-space>
-      </div>
+      </div> -->
     </n-space>
 
     <n-modal
