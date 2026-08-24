@@ -36,7 +36,8 @@ const {
     })
   },
   lazy: true,
-  immediate: categoryId != null
+  immediate: categoryId != null,
+  deep: true
 })
 
 const { data: priceTypesData, status: priceTypesStatus } = useAsyncData(

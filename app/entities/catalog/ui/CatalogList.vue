@@ -14,31 +14,172 @@ import {
   NSpin,
   useMessage,
   NPopover,
-  NTag
+  NTag,
+  NSelect
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, SquarePlus } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd, Trash } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
+import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
+import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
 
-defineProps<{
+const props = defineProps<{
   items: CatalogItem[]
 }>()
 
 const emit = defineEmits<{
   (e: 'addPreset', payload: { catalogItemId: number; categoryName: string }): void
+  (e: 'addPresetsBulk', payload: { catalogItemId: number; categoryName: string }): void
   (
     e: 'editPreset',
     payload: { catalogItemId: number; categoryName: string; presetId: number }
   ): void
+  (e: 'presetRemoved'): void
 }>()
+
+type CatalogChildItem = Omit<CatalogItem, 'child'>
 
 const locationMap = new Map<string, string>([
   ['top', 'Над товарами'],
   ['bottom', 'Под товарами'],
-  ['top-bottom', 'Над и под товарами']
+  ['top-bottom', 'Над и под товарами'],
+  ['hidden', 'Не показывать']
 ])
+
+// Поиск по всему дереву каталога. Для найденной сущности показываем её полную
+// структуру: товарное направление -> категория -> виды и подфильтровые страницы.
+// Значение приходит из InputSearch уже с debounce, поэтому обход дерева
+// выполняется один раз на паузу в вводе, а не на каждое нажатие клавиши.
+const searchQuery = ref('')
+const normalizedQuery = computed(() => searchQuery.value.trim().toLowerCase())
+const isSearching = computed(() => Boolean(normalizedQuery.value))
+
+function isMatched(...values: (string | null | undefined)[]) {
+  return values.some((value) => value?.toLowerCase().includes(normalizedQuery.value))
+}
+
+const matchedItems = computed(() => {
+  if (!isSearching.value) {
+    return props.items
+  }
+
+  return props.items.reduce<CatalogItem[]>((acc, item) => {
+    // Совпало товарное направление — отдаём его целиком
+    if (isMatched(item.name, item.alias)) {
+      acc.push(item)
+      return acc
+    }
+
+    const child = item.child.reduce<CatalogChildItem[]>((childAcc, childItem) => {
+      // Совпала категория — показываем все её виды и подфильтровые страницы
+      if (isMatched(childItem.name, childItem.alias)) {
+        childAcc.push(childItem)
+        return childAcc
+      }
+
+      // Иначе оставляем только совпавшие виды и подфильтровые страницы
+      const categoryVids = (childItem.categoryVids ?? []).filter((vid) =>
+        isMatched(vid.name, vid.alias)
+      )
+      const presets = (childItem.presets ?? []).filter((preset) =>
+        isMatched(preset.title, preset.alias)
+      )
+
+      if (categoryVids.length || presets.length) {
+        childAcc.push({ ...childItem, categoryVids, presets })
+      }
+
+      return childAcc
+    }, [])
+
+    if (child.length) {
+      acc.push({ ...item, child })
+    }
+
+    return acc
+  }, [])
+})
+
+// Раскрытые уровни: при поиске разворачиваем всё найденное, при сбросе — схлопываем
+const expandedItemNames = ref<string[]>([])
+const expandedChildNames = ref<Record<number, string[]>>({})
+
+function getChildExpanded(childId: number) {
+  return expandedChildNames.value[childId] ?? []
+}
+
+function setChildExpanded(childId: number, names: Array<string | number>) {
+  expandedChildNames.value[childId] = names.map(String)
+}
+
+watch(normalizedQuery, () => {
+  if (!isSearching.value) {
+    expandedItemNames.value = []
+    expandedChildNames.value = {}
+    return
+  }
+
+  expandedItemNames.value = matchedItems.value.map((item) => item.name)
+  expandedChildNames.value = matchedItems.value.reduce<Record<number, string[]>>((acc, item) => {
+    item.child.forEach((child) => {
+      acc[child.id] = [child.name]
+    })
+    return acc
+  }, {})
+})
+
+// Фильтры третьего уровня каталога (виды и подфильтровые страницы).
+// Состояние общее для всех категорий: выбранный вариант применяется ко всем спискам.
+type ContentTypeFilter = 'all' | 'presets' | 'vids'
+
+const contentTypeOptions = [
+  { label: 'Виды и фильтры', value: 'all' },
+  { label: 'Только фильтры', value: 'presets' },
+  { label: 'Только виды', value: 'vids' }
+]
+
+const locationOptions = [
+  { label: 'Все расположения', value: '' },
+  ...[...locationMap].map(([value, label]) => ({ label, value }))
+]
+
+const contentTypeFilter = ref<ContentTypeFilter>('all')
+const locationFilter = ref('')
+
+function getVisibleVids(child: CatalogChildItem) {
+  if (contentTypeFilter.value === 'presets') {
+    return []
+  }
+  return child.categoryVids ?? []
+}
+
+function getVisiblePresets(child: CatalogChildItem) {
+  if (contentTypeFilter.value === 'vids') {
+    return []
+  }
+
+  const presets = child.presets ?? []
+
+  return locationFilter.value
+    ? presets.filter((preset) => preset.location === locationFilter.value)
+    : presets
+}
+
+// Итоговое дерево для рендера: результат поиска с уже применёнными фильтрами
+// третьего уровня. Считаем один раз на изменение данных/поиска/фильтров,
+// чтобы шаблон не пересчитывал списки на каждый рендер.
+const displayedItems = computed(() =>
+  matchedItems.value.map((item) => ({
+    ...item,
+    child: item.child.map((child) => ({
+      ...child,
+      visibleVids: getVisibleVids(child),
+      visiblePresets: getVisiblePresets(child)
+    }))
+  }))
+)
 
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
@@ -85,12 +226,46 @@ const copyToClipboard = useCopyToClipboard()
 function copyCategoryId(id: number) {
   copyToClipboard(id.toString())
 }
+
+// Удаление подфильтровой страницы прямо из списка — логика общая с формой редактирования
+const {
+  removeStatus,
+  confirmRemove,
+  remove: removePresetFilter,
+  reset: resetRemoveStatus
+} = useRemovePresetFilter()
+const removingPresetId = ref<number | null>(null)
+
+async function removePresetHandler(presetId: number) {
+  if (removeStatus.value === 'pending' || !confirmRemove()) {
+    return
+  }
+
+  removingPresetId.value = presetId
+  await removePresetFilter(presetId)
+
+  if (removeStatus.value === 'success') {
+    message.success('Подфильтровая страница удалена')
+    emit('presetRemoved')
+  }
+
+  if (removeStatus.value === 'error') {
+    message.error('Произошла ошибка при удалении')
+  }
+
+  removingPresetId.value = null
+  resetRemoveStatus()
+}
 </script>
 
 <template>
   <n-card>
-    <n-collapse :trigger-areas="['main', 'arrow']">
-      <n-collapse-item v-for="item in items" :name="item.name" :key="item.id">
+    <div class="search-bar">
+      <InputSearch v-model="searchQuery" :delay="500" placeholder="Поиск по каталогу" />
+    </div>
+    <n-text v-if="isSearching && !displayedItems.length" :depth="3">Ничего не найдено</n-text>
+    <n-collapse v-model:expanded-names="expandedItemNames" :trigger-areas="['main', 'arrow']">
+      <n-collapse-item v-for="item in displayedItems" :name="item.name" :key="item.id">
         <template #header
           ><div>
             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -143,6 +318,8 @@ function copyCategoryId(id: number) {
               <n-collapse
                 v-if="child.presets?.length || child.categoryVids?.length"
                 :trigger-areas="['main', 'arrow']"
+                :expanded-names="getChildExpanded(child.id)"
+                @update:expanded-names="(names) => setChildExpanded(child.id, names)"
               >
                 <n-collapse-item :name="child.name">
                   <template #header>
@@ -163,6 +340,27 @@ function copyCategoryId(id: number) {
                   </template>
                   <template #header-extra>
                     <div class="btn-group">
+                      <n-popover placement="bottom" trigger="hover">
+                        <template #trigger>
+                          <n-button
+                            quaternary
+                            circle
+                            size="small"
+                            @click.stop="
+                              emit('addPresetsBulk', {
+                                catalogItemId: child.id,
+                                categoryName: child.name
+                              })
+                            "
+                          >
+                            <n-icon size="20px">
+                              <LayoutGridAdd />
+                            </n-icon>
+                          </n-button>
+                        </template>
+                        <span> Добавить множество подфильтровых страниц </span>
+                      </n-popover>
+
                       <n-popover placement="bottom" trigger="hover">
                         <template #trigger>
                           <n-button
@@ -196,8 +394,23 @@ function copyCategoryId(id: number) {
                     </div>
                   </template>
                   <div class="preset-container">
+                    <div class="filter-bar">
+                      <n-select
+                        v-model:value="contentTypeFilter"
+                        size="small"
+                        class="filter-bar__select"
+                        :options="contentTypeOptions"
+                      />
+                      <n-select
+                        v-model:value="locationFilter"
+                        size="small"
+                        class="filter-bar__select"
+                        :options="locationOptions"
+                        :disabled="contentTypeFilter === 'vids'"
+                      />
+                    </div>
                     <n-list>
-                      <n-list-item v-for="vid in child.categoryVids" :key="`vid-${vid.id}`">
+                      <n-list-item v-for="vid in child.visibleVids" :key="`vid-${vid.id}`">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -229,7 +442,7 @@ function copyCategoryId(id: number) {
                           </div>
                         </div>
                       </n-list-item>
-                      <n-list-item v-for="preset in child.presets" :key="preset.id">
+                      <n-list-item v-for="preset in child.visiblePresets" :key="preset.id">
                         <div class="row">
                           <div class="row-name">
                             <div style="display: flex; gap: 0.25rem; align-items: center">
@@ -237,7 +450,12 @@ function copyCategoryId(id: number) {
                                 preset.id
                               }}</n-text>
                               <n-tag type="info" size="tiny"> фильтр </n-tag>
-                              <n-tag v-if="preset.location" type="default" size="tiny">
+                              <n-tag
+                                v-if="preset.location"
+                                :type="preset.location !== 'hidden' ? 'default' : 'warning'"
+                                :bordered="preset.location !== 'hidden'"
+                                size="tiny"
+                              >
                                 {{ locationMap.get(preset.location) ?? preset.location }}
                               </n-tag>
                             </div>
@@ -245,7 +463,7 @@ function copyCategoryId(id: number) {
                               {{ preset.title }}
                             </n-text>
                           </div>
-                          <div class="row-button">
+                          <div class="row-button btn-group">
                             <n-popover placement="bottom" trigger="hover">
                               <template #trigger>
                                 <n-button
@@ -267,8 +485,29 @@ function copyCategoryId(id: number) {
                               </template>
                               <span> Редактировать </span>
                             </n-popover>
+                            <n-popover placement="bottom" trigger="hover">
+                              <template #trigger>
+                                <n-button
+                                  quaternary
+                                  circle
+                                  size="small"
+                                  type="error"
+                                  :loading="removingPresetId === preset.id"
+                                  :disabled="removeStatus === 'pending'"
+                                  @click.stop="removePresetHandler(preset.id)"
+                                >
+                                  <n-icon size="20px">
+                                    <Trash />
+                                  </n-icon>
+                                </n-button>
+                              </template>
+                              <span> Удалить </span>
+                            </n-popover>
                           </div>
                         </div>
+                      </n-list-item>
+                      <n-list-item v-if="!child.visibleVids.length && !child.visiblePresets.length">
+                        <n-text :depth="3">Ничего не найдено</n-text>
                       </n-list-item>
                     </n-list>
                   </div>
@@ -286,6 +525,26 @@ function copyCategoryId(id: number) {
                   {{ child.name }}
                 </div>
                 <div class="row-button btn-group">
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button
+                        quaternary
+                        circle
+                        size="small"
+                        @click.stop="
+                          emit('addPresetsBulk', {
+                            catalogItemId: child.id,
+                            categoryName: child.name
+                          })
+                        "
+                      >
+                        <n-icon size="20px">
+                          <LayoutGridAdd />
+                        </n-icon>
+                      </n-button>
+                    </template>
+                    <span> Добавить множество подфильтровых страниц </span>
+                  </n-popover>
                   <n-popover placement="bottom" trigger="hover">
                     <template #trigger>
                       <n-button
@@ -367,5 +626,21 @@ function copyCategoryId(id: number) {
 .btn-group {
   display: flex;
   gap: 0.5rem;
+}
+
+.search-bar {
+  padding-bottom: 1rem;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  justify-content: start;
+}
+
+.filter-bar__select {
+  width: 180px;
 }
 </style>

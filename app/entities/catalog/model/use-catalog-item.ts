@@ -55,7 +55,7 @@ export const useCatalogItem = () => {
     catalogItem.descr = data.descr
     catalogItem.shortDescr = data.shortDescr
     catalogItem.imgExist = data.imgExist
-    catalogItem.imgUrl = data.image?.url ?? ''
+    catalogItem.imgUrl = data.image?.path ?? ''
   }
 
   function reset() {

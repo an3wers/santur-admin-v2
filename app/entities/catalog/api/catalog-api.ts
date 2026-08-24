@@ -61,9 +61,35 @@ export const useCatalogApi = () => {
   }
 
   async function savePresetFilterForCatalogItem(data: SavePresetFilterItem) {
+    const { image, presets, id, descr, shortDescr, ...rest } = data
+
+    const formData = new FormData()
+
+    // id обязателен: 0 — создание новой подфильтровой страницы
+    formData.append('id', String(id))
+
+    Object.entries(rest).forEach(([key, value]) => {
+      formData.append(key, String(value))
+    })
+
+    formData.append('presets', JSON.stringify(presets))
+
+    // Незаполненные необязательные поля не отправляем
+    if (descr) {
+      formData.append('descr', descr)
+    }
+
+    if (shortDescr) {
+      formData.append('shortDescr', shortDescr)
+    }
+
+    if (image) {
+      formData.append('image', image)
+    }
+
     const res = await fetchWithToken<unknown>('admin/catalog/SavePresetFilterForCatalogItem', {
       method: 'POST',
-      body: data
+      body: formData
     })
     return checkError(res).data
   }
@@ -72,7 +98,7 @@ export const useCatalogApi = () => {
   // DeletePresetFilter
   async function deletePresetFilter(presetId: number) {
     const res = await fetchWithToken<unknown>('admin/catalog/DeletePresetFilter', {
-      method: 'DELETE',
+      method: 'POST',
       query: {
         id: presetId
       }
@@ -87,22 +113,22 @@ export const useCatalogApi = () => {
     return checkError(res).data
   }
 
-  async function removeImageCatalogItem(data: {
-    id: number
-    parent_id: number
-    parent_name: string
-    vid: string
-    name: string
-    num: number
-    seotitle: string
-    keywords: string
-    alias: string
-    descr: string
-    shortDescr: string
-  }) {
+  async function removeImageCatalogItem(data: { id: number }) {
     const res = await fetchWithToken<unknown>('AdminGoods/RemoveTntkImage', {
       method: 'POST',
-      body: data
+      query: {
+        id: data.id
+      }
+    })
+    return checkError(res).data
+  }
+
+  async function removeImagePresetItem(data: { id: number }) {
+    const res = await fetchWithToken<unknown>('admin/catalog/RemovePresetFilterImage', {
+      method: 'POST',
+      query: {
+        id: data.id
+      }
     })
     return checkError(res).data
   }
@@ -118,6 +144,7 @@ export const useCatalogApi = () => {
     savePresetFilterForCatalogItem,
     getCatalogVids,
     removeImageCatalogItem,
-    deletePresetFilter
+    deletePresetFilter,
+    removeImagePresetItem
   }
 }

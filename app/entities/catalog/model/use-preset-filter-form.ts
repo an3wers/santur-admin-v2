@@ -1,6 +1,16 @@
 import { generateAlias } from '~/shared/libs/generate-alias'
 import { useCatalogApi } from '../api/catalog-api'
+import { useRemovePresetFilter } from './use-remove-preset-filter'
 import type { CharFilter, PresetItem, SavePresetFilterItem } from '../api/catalog-schemas'
+import {
+  buildPresetAlias,
+  buildPresetTitle,
+  buildPresetsPayload,
+  canonicalizeSelections,
+  collectChecked,
+  orderCharFilters,
+  presetToGroups
+} from '../libs/preset-filter-utils'
 
 interface OpenPresetFormParams {
   catalogItemId: number
@@ -23,11 +33,24 @@ export const usePresetFilterForm = () => {
 
   const loadStatus = ref<ProcessStatus>('idle')
   const saveStatus = ref<ProcessStatus>('idle')
-  const removeStatus = ref<ProcessStatus>('idle')
+  const removeImageStatus = ref<ProcessStatus>('idle')
+
+  const {
+    removeStatus,
+    confirmRemove,
+    remove: removePresetFilter,
+    reset: resetRemoveStatus
+  } = useRemovePresetFilter()
+
+  // Изображение: imageUrl — уже сохранённое на сервере, imageFile — выбранный
+  // файл, который уйдёт вместе с формой при сохранении.
+  const imageUrl = ref('')
+  const imageFile = ref<File | null>(null)
+  const imgExist = computed(() => Boolean(imageUrl.value))
 
   const includeCategoryInTitle = ref(true)
 
-  const location = ref<'top' | 'bottom' | 'top-bottom'>('top')
+  const location = ref<'top' | 'bottom' | 'top-bottom' | 'hidden'>('top')
 
   const locations = [
     {
@@ -41,6 +64,10 @@ export const usePresetFilterForm = () => {
     {
       label: 'Над и под товарами',
       value: 'top-bottom'
+    },
+    {
+      label: 'Не показывать',
+      value: 'hidden'
     }
   ]
 
@@ -53,14 +80,13 @@ export const usePresetFilterForm = () => {
   const isAliasManuallyEdited = ref(false)
 
   function buildTitle() {
-    const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
-    const prefix = includeCategoryInTitle.value ? categoryName.value : ''
-    return [prefix, ...checked].filter(Boolean).join(' ')
+    const checked = collectChecked(charFilters.value, selections.value)
+    return buildPresetTitle(categoryName.value, checked, includeCategoryInTitle.value)
   }
 
   function buildAlias() {
-    const checked = charFilters.value.flatMap((cf) => selections.value[cf.name] ?? [])
-    return generateAlias([categoryName.value, ...checked].filter(Boolean).join(' '))
+    const checked = collectChecked(charFilters.value, selections.value)
+    return buildPresetAlias(categoryName.value, checked)
   }
 
   // Пока пользователь не редактировал поле вручную — держим его в актуальном
@@ -102,33 +128,15 @@ export const usePresetFilterForm = () => {
     alias.value = formatAliasInput(value)
   }
 
-  // Каноничное представление набора отмеченных фильтров (для сравнения на дубликат)
-  function canonicalize(groups: Record<string, string[]>): string {
-    return Object.entries(groups)
-      .map(([name, values]) => [name, [...values].sort()] as const)
-      .filter(([, values]) => values.length > 0)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([name, values]) => `${name}=${values.join(',')}`)
-      .join(';')
-  }
-
-  function presetToGroups(preset: PresetItem): Record<string, string[]> {
-    const groups: Record<string, string[]> = {}
-    preset.presets.forEach((pf) => {
-      groups[pf.name] = pf.selected.split(';').filter(Boolean)
-    })
-    return groups
-  }
-
   // Подфильтровая страница в этой категории с тем же набором фильтров (исключая редактируемую)
   const duplicatePreset = computed(() => {
-    const current = canonicalize(selections.value)
+    const current = canonicalizeSelections(selections.value)
     if (!current) {
       return null
     }
     return (
       existingPresets.value.find(
-        (p) => p.id !== editingId.value && canonicalize(presetToGroups(p)) === current
+        (p) => p.id !== editingId.value && canonicalizeSelections(presetToGroups(p)) === current
       ) ?? null
     )
   })
@@ -152,9 +160,12 @@ export const usePresetFilterForm = () => {
     alias.value = ''
     isTitleManuallyEdited.value = false
     isAliasManuallyEdited.value = false
+    imageUrl.value = ''
+    imageFile.value = null
     loadStatus.value = 'idle'
     saveStatus.value = 'idle'
-    removeStatus.value = 'idle'
+    removeImageStatus.value = 'idle'
+    resetRemoveStatus()
   }
 
   async function open(params: OpenPresetFormParams) {
@@ -167,23 +178,7 @@ export const usePresetFilterForm = () => {
       loadStatus.value = 'pending'
       const data = await api.getPresetFiltersByCatalogItem(params.catalogItemId)
 
-      const [brands, names, ...others] = data.charFilters
-
-      let filters: CharFilter[] = []
-
-      if (names) {
-        filters = filters.concat(names)
-      }
-
-      if (others && others.length) {
-        filters = filters.concat(others)
-      }
-
-      if (brands) {
-        filters = filters.concat(brands)
-      }
-
-      charFilters.value = filters
+      charFilters.value = orderCharFilters(data.charFilters)
 
       existingPresets.value = data.presets
       const nextSelections: Record<string, string[]> = {}
@@ -195,9 +190,11 @@ export const usePresetFilterForm = () => {
       if (params.presetId != null) {
         const preset = data.presets.find((p) => p.id === params.presetId)
         if (preset) {
-          shortDescr.value = preset.shortDescr
-          descr.value = preset.descr
+          // Бэк может не вернуть незаполненные тексты
+          shortDescr.value = preset.shortDescr ?? ''
+          descr.value = preset.descr ?? ''
           location.value = preset.location ?? 'top'
+          imageUrl.value = preset.image?.path ?? ''
           preset.presets.forEach((pf) => {
             nextSelections[pf.name] = pf.selected.split(';').filter(Boolean)
           })
@@ -223,25 +220,17 @@ export const usePresetFilterForm = () => {
     try {
       saveStatus.value = 'pending'
 
+      // Незаполненные необязательные поля не отправляем, id = 0 — создание новой страницы
       const payload: SavePresetFilterItem = {
-        id: editingId.value ?? undefined,
+        id: editingId.value ?? 0,
         catalogItemId: catalogItemId.value,
         title: title.value,
         alias: alias.value,
         location: location.value,
-        descr: descr.value,
-        shortDescr: shortDescr.value,
-        presets: charFilters.value
-          .filter((cf) => selections.value[cf.name]?.length)
-          .map((cf) => ({
-            name: cf.name,
-            selected:
-              selections.value && selections.value[cf.name]
-                ? selections.value[cf.name]!.join(';')
-                : '',
-            minSelect: '',
-            maxSelect: ''
-          }))
+        descr: descr.value.trim() || undefined,
+        shortDescr: shortDescr.value.trim() || undefined,
+        image: imageFile.value ?? undefined,
+        presets: buildPresetsPayload(charFilters.value, selections.value)
       }
 
       await api.savePresetFilterForCatalogItem(payload)
@@ -252,19 +241,31 @@ export const usePresetFilterForm = () => {
     }
   }
 
-  async function remove() {
-    if (editingId.value == null || removeStatus.value === 'pending') {
+  // Удаление уже сохранённого изображения. Для ещё не сохранённой страницы
+  // изображения на сервере нет — достаточно сбросить выбранный файл.
+  async function removeImage() {
+    if (editingId.value == null || removeImageStatus.value === 'pending') {
       return
     }
 
     try {
-      removeStatus.value = 'pending'
-      await api.deletePresetFilter(editingId.value)
-      removeStatus.value = 'success'
+      removeImageStatus.value = 'pending'
+      await api.removeImagePresetItem({ id: editingId.value })
+      imageUrl.value = ''
+      imageFile.value = null
+      removeImageStatus.value = 'success'
     } catch (error) {
       console.error(error)
-      removeStatus.value = 'error'
+      removeImageStatus.value = 'error'
     }
+  }
+
+  async function remove() {
+    if (editingId.value == null) {
+      return
+    }
+
+    return removePresetFilter(editingId.value)
   }
 
   return {
@@ -277,6 +278,11 @@ export const usePresetFilterForm = () => {
     loadStatus,
     saveStatus,
     removeStatus,
+    removeImageStatus,
+    imageUrl,
+    imageFile,
+    imgExist,
+    removeImage,
     title,
     alias,
     onTitleInput,
@@ -289,6 +295,7 @@ export const usePresetFilterForm = () => {
     open,
     save,
     remove,
+    confirmRemove,
     reset,
     isTitleManuallyEdited,
     isAliasManuallyEdited

@@ -12,9 +12,11 @@ export interface GetCatalogItemDto {
   shortDescr: string
   imgExist: boolean
   image: {
-    id: number
-    mediaType: string
-    url: string
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
   } | null
   gimg: string | null
   vids: string[]
@@ -39,9 +41,16 @@ export interface PresetItem {
   shortDescr: string
   presets: PresetFilter[]
   alias: string
-  location: 'top' | 'bottom' | 'top-bottom'
-
-  // size: string // small | medium | large
+  location: 'top' | 'bottom' | 'top-bottom' | 'hidden'
+  image: {
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
+  } | null
+  variantVisible: string
+  // variant: string // small | medium | large
 }
 
 export interface GetPresetsFilters {
@@ -77,14 +86,16 @@ export interface GetPresetFiltersByCatalogItemRes {
 }
 
 export interface SavePresetFilterItem {
-  id?: number
+  // Для новой подфильтровой страницы бэк ждёт id = 0
+  id: number
   catalogItemId: number
   title: string
-  descr: string
-  shortDescr: string
+  descr?: string
+  shortDescr?: string
   presets: { name: string; selected: string; minSelect: string; maxSelect: string }[]
   alias: string
-  location: 'top' | 'bottom' | 'top-bottom'
+  location: 'top' | 'bottom' | 'top-bottom' | 'hidden'
+  image?: File
 }
 
 export interface GetCatalogVidsItemRes {
@@ -101,9 +112,11 @@ export interface GetCatalogVidsItemRes {
   shortDescr: string
   imgExist: boolean
   image: {
-    id: number
-    mediaType: string
-    url: string
+    uid: string
+    path: string
+    name: string
+    fileType: string
+    docType: string
   } | null
   gimg: string
   vids: string[]

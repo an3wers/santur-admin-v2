@@ -131,7 +131,8 @@ export const useCatalogSetup = (subject: MaybeRefOrGetter<SubjectItem>) => {
 
         return { data: groupCatalogItems(mapped), fetchedAt: new Date() }
       },
-      immediate: false
+      immediate: false,
+      deep: true
     }
   )
 
