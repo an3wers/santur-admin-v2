@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import type { CatalogItem } from '../model/catalog-types'
+import type { CatalogItem, CatalogNode } from '../model/catalog-types'
 import {
-  NCollapse,
-  NCollapseItem,
   NCard,
-  NList,
-  NListItem,
   NButton,
   NIcon,
   NText,
@@ -14,16 +10,16 @@ import {
   NSpin,
   useMessage,
   NPopover,
-  NTag,
-  NSelect
+  NTag
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd, Trash } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
-import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
+import { getLocationLabel } from '../libs/preset-location'
+import CatalogNodeCard from './CatalogNodeCard.vue'
 
 const props = defineProps<{
   items: CatalogItem[]
@@ -39,153 +35,132 @@ const emit = defineEmits<{
   (e: 'presetRemoved'): void
 }>()
 
-type CatalogChildItem = Omit<CatalogItem, 'child'>
+// Структура каталога разложена по колонкам: товарное направление -> категория ->
+// виды и подфильтровые страницы -> карточка выбранного элемента.
+const selectedTnId = ref<number | null>(null)
+const selectedTkId = ref<number | null>(null)
+const selectedNodeKey = ref<string | null>(null)
 
-const locationMap = new Map<string, string>([
-  ['top', 'Над товарами'],
-  ['bottom', 'Под товарами'],
-  ['top-bottom', 'Над и под товарами'],
-  ['hidden', 'Не показывать']
-])
-
-// Поиск по всему дереву каталога. Для найденной сущности показываем её полную
-// структуру: товарное направление -> категория -> виды и подфильтровые страницы.
-// Значение приходит из InputSearch уже с debounce, поэтому обход дерева
-// выполняется один раз на паузу в вводе, а не на каждое нажатие клавиши.
-const searchQuery = ref('')
-const normalizedQuery = computed(() => searchQuery.value.trim().toLowerCase())
-const isSearching = computed(() => Boolean(normalizedQuery.value))
-
-function isMatched(...values: (string | null | undefined)[]) {
-  return values.some((value) => value?.toLowerCase().includes(normalizedQuery.value))
-}
-
-const matchedItems = computed(() => {
-  if (!isSearching.value) {
-    return props.items
-  }
-
-  return props.items.reduce<CatalogItem[]>((acc, item) => {
-    // Совпало товарное направление — отдаём его целиком
-    if (isMatched(item.name, item.alias)) {
-      acc.push(item)
-      return acc
-    }
-
-    const child = item.child.reduce<CatalogChildItem[]>((childAcc, childItem) => {
-      // Совпала категория — показываем все её виды и подфильтровые страницы
-      if (isMatched(childItem.name, childItem.alias)) {
-        childAcc.push(childItem)
-        return childAcc
-      }
-
-      // Иначе оставляем только совпавшие виды и подфильтровые страницы
-      const categoryVids = (childItem.categoryVids ?? []).filter((vid) =>
-        isMatched(vid.name, vid.alias)
-      )
-      const presets = (childItem.presets ?? []).filter((preset) =>
-        isMatched(preset.title, preset.alias)
-      )
-
-      if (categoryVids.length || presets.length) {
-        childAcc.push({ ...childItem, categoryVids, presets })
-      }
-
-      return childAcc
-    }, [])
-
-    if (child.length) {
-      acc.push({ ...item, child })
-    }
-
-    return acc
-  }, [])
-})
-
-// Раскрытые уровни: при поиске разворачиваем всё найденное, при сбросе — схлопываем
-const expandedItemNames = ref<string[]>([])
-const expandedChildNames = ref<Record<number, string[]>>({})
-
-function getChildExpanded(childId: number) {
-  return expandedChildNames.value[childId] ?? []
-}
-
-function setChildExpanded(childId: number, names: Array<string | number>) {
-  expandedChildNames.value[childId] = names.map(String)
-}
-
-watch(normalizedQuery, () => {
-  if (!isSearching.value) {
-    expandedItemNames.value = []
-    expandedChildNames.value = {}
-    return
-  }
-
-  expandedItemNames.value = matchedItems.value.map((item) => item.name)
-  expandedChildNames.value = matchedItems.value.reduce<Record<number, string[]>>((acc, item) => {
-    item.child.forEach((child) => {
-      acc[child.id] = [child.name]
-    })
-    return acc
-  }, {})
-})
-
-// Фильтры третьего уровня каталога (виды и подфильтровые страницы).
-// Состояние общее для всех категорий: выбранный вариант применяется ко всем спискам.
-type ContentTypeFilter = 'all' | 'presets' | 'vids'
-
-const contentTypeOptions = [
-  { label: 'Виды и фильтры', value: 'all' },
-  { label: 'Только фильтры', value: 'presets' },
-  { label: 'Только виды', value: 'vids' }
-]
-
-const locationOptions = [
-  { label: 'Все расположения', value: '' },
-  ...[...locationMap].map(([value, label]) => ({ label, value }))
-]
-
-const contentTypeFilter = ref<ContentTypeFilter>('all')
-const locationFilter = ref('')
-
-function getVisibleVids(child: CatalogChildItem) {
-  if (contentTypeFilter.value === 'presets') {
-    return []
-  }
-  return child.categoryVids ?? []
-}
-
-function getVisiblePresets(child: CatalogChildItem) {
-  if (contentTypeFilter.value === 'vids') {
-    return []
-  }
-
-  const presets = child.presets ?? []
-
-  return locationFilter.value
-    ? presets.filter((preset) => preset.location === locationFilter.value)
-    : presets
-}
-
-// Итоговое дерево для рендера: результат поиска с уже применёнными фильтрами
-// третьего уровня. Считаем один раз на изменение данных/поиска/фильтров,
-// чтобы шаблон не пересчитывал списки на каждый рендер.
-const displayedItems = computed(() =>
-  matchedItems.value.map((item) => ({
-    ...item,
-    child: item.child.map((child) => ({
-      ...child,
-      visibleVids: getVisibleVids(child),
-      visiblePresets: getVisiblePresets(child)
-    }))
-  }))
+const selectedTn = computed(
+  () => props.items.find((item) => item.id === selectedTnId.value) ?? null
 )
+
+const categories = computed(() => selectedTn.value?.child ?? [])
+
+const selectedTk = computed(
+  () => categories.value.find((child) => child.id === selectedTkId.value) ?? null
+)
+
+// Плоский список третьего уровня: сначала виды, затем подфильтровые страницы
+const nodes = computed<CatalogNode[]>(() => {
+  const child = selectedTk.value
+
+  if (!child) {
+    return []
+  }
+
+  const vids = (child.categoryVids ?? []).map<CatalogNode>((vid) => ({
+    kind: 'vid',
+    key: `vid-${vid.id}`,
+    id: vid.id,
+    name: vid.name,
+    alias: vid.alias,
+    raw: vid
+  }))
+
+  const presets = (child.presets ?? []).map<CatalogNode>((preset) => ({
+    kind: 'preset',
+    key: `preset-${preset.id}`,
+    id: preset.id,
+    name: preset.title,
+    alias: preset.alias,
+    location: preset.location,
+    filters: preset.presets ?? [],
+    raw: preset
+  }))
+
+  return [...vids, ...presets]
+})
+
+const selectedNode = computed(
+  () => nodes.value.find((node) => node.key === selectedNodeKey.value) ?? null
+)
+
+// Первое направление выбираем сразу, чтобы страница не открывалась пустой.
+// Если выбранное направление пропало после обновления данных — переключаемся на первое.
+watch(
+  () => props.items,
+  (items) => {
+    if (!items.some((item) => item.id === selectedTnId.value)) {
+      selectedTnId.value = items[0]?.id ?? null
+    }
+  },
+  { immediate: true }
+)
+
+// Выбор вложенного уровня сбрасываем, если он больше не принадлежит выбранному родителю
+watch(categories, (list) => {
+  if (!list.some((child) => child.id === selectedTkId.value)) {
+    selectedTkId.value = null
+  }
+})
+
+watch(nodes, (list) => {
+  if (!list.some((node) => node.key === selectedNodeKey.value)) {
+    selectedNodeKey.value = null
+  }
+})
+
+function getCategoryMeta(child: CatalogItem['child'][number]) {
+  return `Видов: ${child.categoryVids?.length ?? 0} · Фильтров: ${child.presets?.length ?? 0}`
+}
 
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
 }
 
-// function downloadFile(tnName: string, option: 'all' | 'full' | 'empty') {}
+function addPresetHandler() {
+  if (!selectedTk.value) {
+    return
+  }
+
+  emit('addPreset', { catalogItemId: selectedTk.value.id, categoryName: selectedTk.value.name })
+}
+
+function addPresetsBulkHandler() {
+  if (!selectedTk.value) {
+    return
+  }
+
+  emit('addPresetsBulk', {
+    catalogItemId: selectedTk.value.id,
+    categoryName: selectedTk.value.name
+  })
+}
+
+function editNodeHandler() {
+  const node = selectedNode.value
+
+  if (!node) {
+    return
+  }
+
+  if (node.kind === 'vid') {
+    moveEdit(node.id)
+    return
+  }
+
+  if (!selectedTk.value) {
+    return
+  }
+
+  emit('editPreset', {
+    catalogItemId: selectedTk.value.id,
+    categoryName: selectedTk.value.name,
+    presetId: node.id
+  })
+}
+
 const downloadMenu: DropdownMixedOption[] = [
   {
     label: 'Все категории',
@@ -222,30 +197,34 @@ function changeShowDownloadModal(show: boolean) {
     reset()
   }
 }
+
 const copyToClipboard = useCopyToClipboard()
 function copyCategoryId(id: number) {
   copyToClipboard(id.toString())
 }
 
-// Удаление подфильтровой страницы прямо из списка — логика общая с формой редактирования
+// Удаление подфильтровой страницы прямо из карточки — логика общая с формой редактирования
 const {
   removeStatus,
   confirmRemove,
   remove: removePresetFilter,
   reset: resetRemoveStatus
 } = useRemovePresetFilter()
-const removingPresetId = ref<number | null>(null)
 
-async function removePresetHandler(presetId: number) {
-  if (removeStatus.value === 'pending' || !confirmRemove()) {
+const isRemoving = computed(() => removeStatus.value === 'pending')
+
+async function removeNodeHandler() {
+  const node = selectedNode.value
+
+  if (node?.kind !== 'preset' || isRemoving.value || !confirmRemove()) {
     return
   }
 
-  removingPresetId.value = presetId
-  await removePresetFilter(presetId)
+  await removePresetFilter(node.id)
 
   if (removeStatus.value === 'success') {
     message.success('Подфильтровая страница удалена')
+    selectedNodeKey.value = null
     emit('presetRemoved')
   }
 
@@ -253,332 +232,191 @@ async function removePresetHandler(presetId: number) {
     message.error('Произошла ошибка при удалении')
   }
 
-  removingPresetId.value = null
   resetRemoveStatus()
 }
 </script>
 
 <template>
-  <n-card>
-    <div class="search-bar">
-      <InputSearch v-model="searchQuery" :delay="500" placeholder="Поиск по каталогу" />
-    </div>
-    <n-text v-if="isSearching && !displayedItems.length" :depth="3">Ничего не найдено</n-text>
-    <n-collapse v-model:expanded-names="expandedItemNames" :trigger-areas="['main', 'arrow']">
-      <n-collapse-item v-for="item in displayedItems" :name="item.name" :key="item.id">
-        <template #header
-          ><div>
-            <div style="display: flex; gap: 0.25rem; align-items: center">
-              <n-text tag="p" :depth="3" style="font-size: 12px">{{ item.id }}</n-text>
-              <n-button text size="small" @click.stop="copyCategoryId(item.id)"
-                ><NIcon><Copy /></NIcon
-              ></n-button>
+  <n-card :content-style="{ padding: 0 }">
+    <div class="columns">
+      <!-- Уровень 1: товарные направления -->
+      <div class="column">
+        <div class="column__head">
+          <span>Товарные направления</span>
+          <span class="column__count">{{ items.length }}</span>
+        </div>
+        <div class="column__body">
+          <div
+            v-for="item in items"
+            :key="item.id"
+            class="row"
+            :class="{ 'row--selected': item.id === selectedTnId }"
+            @click="selectedTnId = item.id"
+          >
+            <div class="row__main">
+              <div class="row__meta">
+                <n-text :depth="3" class="row__id">{{ item.id }}</n-text>
+                <n-button text size="tiny" @click.stop="copyCategoryId(item.id)">
+                  <n-icon><Copy /></n-icon>
+                </n-button>
+              </div>
+              <p class="row__name">{{ item.name }}</p>
+              <n-text :depth="3" tag="p" class="row__sub"
+                >Категорий: {{ item.child.length }}</n-text
+              >
             </div>
-            <n-text tag="p">{{ item.name }}</n-text>
-            <n-text tag="p" :depth="3" style="font-size: 12px"
-              >Категорий: {{ item.child.length }}</n-text
-            >
-          </div></template
-        >
-        <template #header-extra>
-          <div class="btn-group">
-            <n-dropdown
-              trigger="click"
-              :options="downloadMenu"
-              @select="(key) => handleDropdown(key, item)"
-            >
+            <div class="row__actions">
+              <n-dropdown
+                trigger="click"
+                :options="downloadMenu"
+                @select="(key) => handleDropdown(key, item)"
+              >
+                <n-popover placement="bottom" trigger="hover">
+                  <template #trigger>
+                    <n-button quaternary circle size="small" @click.stop>
+                      <n-icon size="18px"><FileDownload /></n-icon>
+                    </n-button>
+                  </template>
+                  <span>Скачать шаблон для заполнения</span>
+                </n-popover>
+              </n-dropdown>
               <n-popover placement="bottom" trigger="hover">
                 <template #trigger>
-                  <n-button quaternary circle size="small">
-                    <n-icon size="20px">
-                      <FileDownload />
-                    </n-icon>
+                  <n-button quaternary circle size="small" @click.stop="moveEdit(item.id)">
+                    <n-icon size="18px"><Edit /></n-icon>
                   </n-button>
                 </template>
-                <span> Скачать шаблон для заполнения </span>
+                <span>Редактировать</span>
               </n-popover>
-            </n-dropdown>
-
-            <n-popover placement="bottom" trigger="hover">
-              <template #trigger>
-                <n-button quaternary circle size="small" @click="moveEdit(item.id)">
-                  <n-icon size="20px">
-                    <Edit />
-                  </n-icon>
-                </n-button>
-              </template>
-              <span> Редактировать </span>
-            </n-popover>
+            </div>
           </div>
-        </template>
-        <div class="child-container">
-          <n-list>
-            <n-list-item v-for="child in item.child" :key="child.id">
-              <!-- Категория с видами / подфильтровыми страницами — третий раскрывающийся уровень -->
-              <n-collapse
-                v-if="child.presets?.length || child.categoryVids?.length"
-                :trigger-areas="['main', 'arrow']"
-                :expanded-names="getChildExpanded(child.id)"
-                @update:expanded-names="(names) => setChildExpanded(child.id, names)"
-              >
-                <n-collapse-item :name="child.name">
-                  <template #header>
-                    <div class="row-name">
-                      <div style="display: flex; gap: 0.25rem; align-items: center">
-                        <n-text tag="p" :depth="3" style="font-size: 12px">{{ child.id }}</n-text>
-                        <n-button text size="small" @click.stop="copyCategoryId(child.id)"
-                          ><NIcon><Copy /></NIcon
-                        ></n-button>
-                      </div>
-
-                      <n-text tag="p">{{ child.name }}</n-text>
-                      <n-text tag="p" :depth="3" style="font-size: 12px"
-                        >Виды: {{ child.vids.length ?? 0 }} | Фильтры:
-                        {{ child.presets?.length ?? 0 }}</n-text
-                      >
-                    </div>
-                  </template>
-                  <template #header-extra>
-                    <div class="btn-group">
-                      <n-popover placement="bottom" trigger="hover">
-                        <template #trigger>
-                          <n-button
-                            quaternary
-                            circle
-                            size="small"
-                            @click.stop="
-                              emit('addPresetsBulk', {
-                                catalogItemId: child.id,
-                                categoryName: child.name
-                              })
-                            "
-                          >
-                            <n-icon size="20px">
-                              <LayoutGridAdd />
-                            </n-icon>
-                          </n-button>
-                        </template>
-                        <span> Добавить множество подфильтровых страниц </span>
-                      </n-popover>
-
-                      <n-popover placement="bottom" trigger="hover">
-                        <template #trigger>
-                          <n-button
-                            quaternary
-                            circle
-                            size="small"
-                            @click.stop="
-                              emit('addPreset', {
-                                catalogItemId: child.id,
-                                categoryName: child.name
-                              })
-                            "
-                          >
-                            <n-icon size="20px">
-                              <SquarePlus />
-                            </n-icon>
-                          </n-button>
-                        </template>
-                        <span> Добавить подфильтровую страницу </span>
-                      </n-popover>
-                      <n-popover placement="bottom" trigger="hover">
-                        <template #trigger>
-                          <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
-                            <n-icon size="20px">
-                              <Edit />
-                            </n-icon>
-                          </n-button>
-                        </template>
-                        <span> Редактировать </span>
-                      </n-popover>
-                    </div>
-                  </template>
-                  <div class="preset-container">
-                    <div class="filter-bar">
-                      <n-select
-                        v-model:value="contentTypeFilter"
-                        size="small"
-                        class="filter-bar__select"
-                        :options="contentTypeOptions"
-                      />
-                      <n-select
-                        v-model:value="locationFilter"
-                        size="small"
-                        class="filter-bar__select"
-                        :options="locationOptions"
-                        :disabled="contentTypeFilter === 'vids'"
-                      />
-                    </div>
-                    <n-list>
-                      <n-list-item v-for="vid in child.visibleVids" :key="`vid-${vid.id}`">
-                        <div class="row">
-                          <div class="row-name">
-                            <div style="display: flex; gap: 0.25rem; align-items: center">
-                              <n-text tag="p" :depth="3" style="font-size: 12px">{{
-                                vid.id
-                              }}</n-text>
-                              <n-tag type="success" size="tiny"> вид </n-tag>
-                            </div>
-                            <n-text tag="p" :title="vid.alias">
-                              {{ vid.name }}
-                            </n-text>
-                          </div>
-                          <div class="row-button">
-                            <n-popover placement="bottom" trigger="hover">
-                              <template #trigger>
-                                <n-button
-                                  quaternary
-                                  circle
-                                  size="small"
-                                  @click.stop="moveEdit(vid.id)"
-                                >
-                                  <n-icon size="20px">
-                                    <Edit />
-                                  </n-icon>
-                                </n-button>
-                              </template>
-                              <span> Редактировать </span>
-                            </n-popover>
-                          </div>
-                        </div>
-                      </n-list-item>
-                      <n-list-item v-for="preset in child.visiblePresets" :key="preset.id">
-                        <div class="row">
-                          <div class="row-name">
-                            <div style="display: flex; gap: 0.25rem; align-items: center">
-                              <n-text tag="p" :depth="3" style="font-size: 12px">{{
-                                preset.id
-                              }}</n-text>
-                              <n-tag type="info" size="tiny"> фильтр </n-tag>
-                              <n-tag
-                                v-if="preset.location"
-                                :type="preset.location !== 'hidden' ? 'default' : 'warning'"
-                                :bordered="preset.location !== 'hidden'"
-                                size="tiny"
-                              >
-                                {{ locationMap.get(preset.location) ?? preset.location }}
-                              </n-tag>
-                            </div>
-                            <n-text tag="p" :title="preset.alias">
-                              {{ preset.title }}
-                            </n-text>
-                          </div>
-                          <div class="row-button btn-group">
-                            <n-popover placement="bottom" trigger="hover">
-                              <template #trigger>
-                                <n-button
-                                  quaternary
-                                  circle
-                                  size="small"
-                                  @click.stop="
-                                    emit('editPreset', {
-                                      catalogItemId: child.id,
-                                      categoryName: child.name,
-                                      presetId: preset.id
-                                    })
-                                  "
-                                >
-                                  <n-icon size="20px">
-                                    <Edit />
-                                  </n-icon>
-                                </n-button>
-                              </template>
-                              <span> Редактировать </span>
-                            </n-popover>
-                            <n-popover placement="bottom" trigger="hover">
-                              <template #trigger>
-                                <n-button
-                                  quaternary
-                                  circle
-                                  size="small"
-                                  type="error"
-                                  :loading="removingPresetId === preset.id"
-                                  :disabled="removeStatus === 'pending'"
-                                  @click.stop="removePresetHandler(preset.id)"
-                                >
-                                  <n-icon size="20px">
-                                    <Trash />
-                                  </n-icon>
-                                </n-button>
-                              </template>
-                              <span> Удалить </span>
-                            </n-popover>
-                          </div>
-                        </div>
-                      </n-list-item>
-                      <n-list-item v-if="!child.visibleVids.length && !child.visiblePresets.length">
-                        <n-text :depth="3">Ничего не найдено</n-text>
-                      </n-list-item>
-                    </n-list>
-                  </div>
-                </n-collapse-item>
-              </n-collapse>
-              <!-- Категория без подфильтров — обычная строка -->
-              <div v-else class="row">
-                <div class="row-name">
-                  <div style="display: flex; gap: 0.25rem; align-items: center">
-                    <n-text tag="p" :depth="3" style="font-size: 12px">{{ child.id }}</n-text>
-                    <n-button text size="small" @click.stop="copyCategoryId(child.id)"
-                      ><NIcon><Copy /></NIcon
-                    ></n-button>
-                  </div>
-                  {{ child.name }}
-                </div>
-                <div class="row-button btn-group">
-                  <n-popover placement="bottom" trigger="hover">
-                    <template #trigger>
-                      <n-button
-                        quaternary
-                        circle
-                        size="small"
-                        @click.stop="
-                          emit('addPresetsBulk', {
-                            catalogItemId: child.id,
-                            categoryName: child.name
-                          })
-                        "
-                      >
-                        <n-icon size="20px">
-                          <LayoutGridAdd />
-                        </n-icon>
-                      </n-button>
-                    </template>
-                    <span> Добавить множество подфильтровых страниц </span>
-                  </n-popover>
-                  <n-popover placement="bottom" trigger="hover">
-                    <template #trigger>
-                      <n-button
-                        quaternary
-                        circle
-                        size="small"
-                        @click.stop="
-                          emit('addPreset', { catalogItemId: child.id, categoryName: child.name })
-                        "
-                      >
-                        <n-icon size="20px">
-                          <SquarePlus />
-                        </n-icon>
-                      </n-button>
-                    </template>
-                    <span> Добавить подфильтровую страницу </span>
-                  </n-popover>
-                  <n-popover placement="bottom" trigger="hover">
-                    <template #trigger>
-                      <n-button quaternary circle size="small" @click="moveEdit(child.id)">
-                        <n-icon size="20px">
-                          <Edit />
-                        </n-icon>
-                      </n-button>
-                    </template>
-                    <span> Редактировать </span>
-                  </n-popover>
-                </div>
-              </div>
-            </n-list-item>
-          </n-list>
         </div>
-      </n-collapse-item>
-    </n-collapse>
+      </div>
+
+      <!-- Уровень 2: товарные категории -->
+      <div class="column">
+        <div class="column__head">
+          <span>Категории</span>
+          <span class="column__count">{{ categories.length }}</span>
+        </div>
+        <div class="column__body">
+          <div v-if="!selectedTn" class="column__empty">Выберите товарное направление</div>
+          <div v-else-if="!categories.length" class="column__empty">Нет категорий</div>
+          <div
+            v-for="child in categories"
+            :key="child.id"
+            class="row"
+            :class="{ 'row--selected': child.id === selectedTkId }"
+            @click="selectedTkId = child.id"
+          >
+            <div class="row__main">
+              <div class="row__meta">
+                <n-text :depth="3" class="row__id">{{ child.id }}</n-text>
+                <n-button text size="tiny" @click.stop="copyCategoryId(child.id)">
+                  <n-icon><Copy /></n-icon>
+                </n-button>
+              </div>
+              <p class="row__name">{{ child.name }}</p>
+              <n-text :depth="3" tag="p" class="row__sub">{{ getCategoryMeta(child) }}</n-text>
+            </div>
+            <div class="row__actions">
+              <n-popover placement="bottom" trigger="hover">
+                <template #trigger>
+                  <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
+                    <n-icon size="18px"><Edit /></n-icon>
+                  </n-button>
+                </template>
+                <span>Редактировать</span>
+              </n-popover>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Уровень 3: виды и подфильтровые страницы -->
+      <div class="column">
+        <div class="column__head">
+          <span>Виды и подфильтровые страницы</span>
+          <span class="column__count">{{ nodes.length }}</span>
+        </div>
+        <div class="column__body">
+          <div v-if="!selectedTk" class="column__empty">Выберите категорию</div>
+          <div v-else-if="!nodes.length" class="column__empty">
+            Нет видов и подфильтровых страниц
+          </div>
+          <div
+            v-for="node in nodes"
+            :key="node.key"
+            class="row row--node"
+            :class="{ 'row--selected': node.key === selectedNodeKey }"
+            @click="selectedNodeKey = node.key"
+          >
+            <div class="row__main">
+              <div class="row__meta">
+                <n-tag :type="node.kind === 'vid' ? 'success' : 'info'" size="tiny">
+                  {{ node.kind === 'vid' ? 'вид' : 'фильтр' }}
+                </n-tag>
+                <n-text :depth="3" class="row__id">{{ node.id }}</n-text>
+                <n-tag
+                  v-if="node.kind === 'preset'"
+                  :type="node.location === 'hidden' ? 'warning' : 'default'"
+                  :bordered="node.location !== 'hidden'"
+                  size="tiny"
+                >
+                  {{ getLocationLabel(node.location) }}
+                </n-tag>
+              </div>
+              <p class="row__name" :title="node.alias">{{ node.name }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="column__footer">
+          <n-button
+            block
+            dashed
+            size="small"
+            type="primary"
+            :disabled="!selectedTk"
+            @click="addPresetHandler"
+          >
+            <template #icon>
+              <n-icon><SquarePlus /></n-icon>
+            </template>
+            Подфильтровая страница
+          </n-button>
+          <n-button
+            block
+            quaternary
+            size="small"
+            :disabled="!selectedTk"
+            @click="addPresetsBulkHandler"
+          >
+            <template #icon>
+              <n-icon><LayoutGridAdd /></n-icon>
+            </template>
+            Добавить множество
+          </n-button>
+        </div>
+      </div>
+
+      <!-- Карточка выбранного элемента -->
+      <div class="column column--last">
+        <div class="column__head">
+          <span>Карточка элемента</span>
+        </div>
+        <div class="column__card">
+          <CatalogNodeCard
+            :node="selectedNode"
+            :tn-name="selectedTn?.name"
+            :tk-name="selectedTk?.name"
+            :removing="isRemoving"
+            @edit="editNodeHandler"
+            @remove="removeNodeHandler"
+          />
+        </div>
+      </div>
+    </div>
+
     <n-modal
       v-model:show="showDownloadModal"
       preset="dialog"
@@ -600,47 +438,131 @@ async function removePresetHandler(presetId: number) {
 </template>
 
 <style scoped>
-:deep(.n-collapse .n-collapse-item .n-collapse-item) {
-  margin-left: 0;
+.columns {
+  display: grid;
+  grid-template-columns: 260px 300px 360px minmax(320px, 1fr);
+  height: calc(100dvh - 220px);
+  min-height: 520px;
 }
 
-.child-container {
-  margin-left: 3rem;
-}
-.preset-container {
-  margin-left: 3rem;
-}
-.row {
+.column {
+  border-right: 1px solid var(--gray-200);
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.row-name {
-  flex-grow: 1;
+.column--last {
+  border-right: none;
 }
 
-.row-name {
+.column__head {
+  align-items: center;
+  background-color: var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
+  color: var(--gray-500);
+  display: flex;
   flex-shrink: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  gap: 0.5rem;
+  justify-content: space-between;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  text-transform: uppercase;
 }
 
-.btn-group {
+.column__count {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.column__body {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.column__card {
+  flex-grow: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.column__footer {
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+
+.column__empty {
+  color: var(--gray-500);
+  font-size: var(--font-size-sm);
+  padding: 1rem;
+}
+
+.row {
+  border-bottom: 1px solid var(--gray-100);
+  border-left: 3px solid transparent;
+  cursor: pointer;
   display: flex;
   gap: 0.5rem;
+  padding: 0.625rem 0.75rem 0.625rem 0.8125rem;
 }
 
-.search-bar {
-  padding-bottom: 1rem;
+.row:hover {
+  background-color: var(--gray-100);
 }
 
-.filter-bar {
+.row--selected,
+.row--selected:hover {
+  background-color: var(--blue-200);
+  border-left-color: var(--primary-color);
+}
+
+.row__main {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.row__meta {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding-bottom: 0.5rem;
-  justify-content: start;
+  gap: 0.25rem;
+  margin-bottom: 0.125rem;
 }
 
-.filter-bar__select {
-  width: 180px;
+.row__id {
+  font-size: var(--font-size-xs);
+}
+
+.row__name {
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.row__sub {
+  font-size: var(--font-size-xs);
+  margin: 0.125rem 0 0 0;
+}
+
+.row__actions {
+  align-items: flex-start;
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.row:hover .row__actions,
+.row--selected .row__actions {
+  opacity: 1;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NH1, NSpace, NButton, NModal, NCard, NSelect, NFormItem, NIcon } from 'naive-ui'
+import { NH1, NSpace, NButton, NModal, NIcon } from 'naive-ui'
 import {
   CatalogList,
   PresetFilterForm,
@@ -39,94 +39,9 @@ if (status.value === 'error') {
   throw createError({ statusCode: 400, statusMessage: 'Ошибка при загрузке каталога', fatal: true })
 }
 
-const titleFilter = ref('')
-const aliasFilter = ref('')
-const shortDescrFilter = ref('')
-const DescrFilter = ref('')
-
-const filtersOptions = [
-  { label: 'Все', value: '' },
-  { label: 'заполнен', value: 'заполнен' },
-  { label: 'незаполнен', value: 'незаполнен' }
-]
-
-const filteredByTitle = computed(() => {
-  if (!data.value) {
-    return []
-  }
-
-  if (titleFilter.value === '') {
-    return data.value
-  }
-  if (titleFilter.value === 'заполнен') {
-    return data.value?.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.seotitle !== '')
-    )
-  }
-
-  if (titleFilter.value === 'незаполнен') {
-    return data.value?.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.seotitle === '')
-    )
-  }
-
-  return data.value
-})
-
-const filteredByAlias = computed(() => {
-  if (aliasFilter.value === '') {
-    return filteredByTitle.value
-  }
-  if (aliasFilter.value === 'заполнен') {
-    return filteredByTitle.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.alias !== '')
-    )
-  }
-  if (aliasFilter.value === 'незаполнен') {
-    return filteredByTitle.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.alias === '')
-    )
-  }
-  return filteredByTitle.value
-})
-
-const filteredByShortDescr = computed(() => {
-  if (shortDescrFilter.value === '') {
-    return filteredByAlias.value
-  }
-  if (shortDescrFilter.value === 'заполнен') {
-    return filteredByAlias.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.shortDescr !== '')
-    )
-  }
-  if (shortDescrFilter.value === 'незаполнен') {
-    return filteredByAlias.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.shortDescr === '')
-    )
-  }
-  return filteredByAlias.value
-})
-
-const filteredByDescr = computed(() => {
-  if (DescrFilter.value === '') {
-    return filteredByShortDescr.value
-  }
-  if (DescrFilter.value === 'заполнен') {
-    return filteredByShortDescr.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.descr !== '')
-    )
-  }
-  if (DescrFilter.value === 'незаполнен') {
-    return filteredByShortDescr.value.filter(
-      (item) => item.vid === 'tn' || (item.vid === 'tk' && item.descr === '')
-    )
-  }
-  return filteredByShortDescr.value
-})
-
 // group float struct with attach presets and vids
 const groupedCatalogItems = computed(() => {
-  const grouped = groupCatalogItems<GetCatalogItemDto>(filteredByDescr.value)
+  const grouped = groupCatalogItems<GetCatalogItemDto>(data.value ?? [])
   const withPresets = attachPresetsToCatalog(grouped, presetsData.value ?? [])
   return attachVidsToCatalog(withPresets, vidsData.value ?? [])
 })
@@ -237,7 +152,7 @@ const { height } = useWindowSize()
 const calcHeight = computed(() => height.value - 40)
 </script>
 <template>
-  <div class="container">
+  <div class="page-container">
     <n-space vertical size="large">
       <page-title back-label="Главная" has-back :back-path="`/`">
         <template #title>
@@ -246,57 +161,27 @@ const calcHeight = computed(() => height.value - 40)
           </n-h1>
         </template>
         <template #actions>
+          <n-button secondary type="primary" @click="downloadCatalog" icon-placement="left">
+            <template #icon>
+              <n-icon size="24px">
+                <FileDownload />
+              </n-icon>
+            </template>
+            Шаблон каталога
+          </n-button>
 
-        <n-button secondary type="primary" @click="downloadCatalog" icon-placement="left">
-          <template #icon>
-            <n-icon size="24px">
-              <FileDownload />
-            </n-icon>
-          </template>
-           Шаблон каталога
-        </n-button>
-
-          <n-button secondary type="primary" @click="showUploadFileModal = true">Загрузить описание</n-button>
-
-          </template>
+          <n-button secondary type="primary" @click="showUploadFileModal = true"
+            >Загрузить описание</n-button
+          >
+        </template>
       </page-title>
-      <!-- <div class="layout">
-        <CatalogList
-          :items="groupedCatalogItems"
-          @add-preset="openAddPreset"
-          @add-presets-bulk="openBulkPreset"
-          @edit-preset="openEditPreset"
-          @preset-removed="refreshPresets"
-        />
-        <n-space vertical>
-          <n-card>
-            <n-button quaternary block @click="downloadCatalog" icon-placement="left">
-              <template #icon>
-                <n-icon size="24px">
-                  <FileDownload />
-                </n-icon>
-              </template>
-              Скачать шаблон каталога
-            </n-button>
-          </n-card>
-          <n-card title="Фильтр">
-            <div class="filters-layout">
-              <n-form-item label="Title">
-                <n-select v-model:value="titleFilter" :options="filtersOptions" />
-              </n-form-item>
-              <n-form-item label="Alias">
-                <n-select v-model:value="aliasFilter" :options="filtersOptions" />
-              </n-form-item>
-              <n-form-item label="Description">
-                <n-select v-model:value="shortDescrFilter" :options="filtersOptions" />
-              </n-form-item>
-              <n-form-item label="Текстовое описание">
-                <n-select v-model:value="DescrFilter" :options="filtersOptions" />
-              </n-form-item>
-            </div>
-          </n-card>
-        </n-space>
-      </div> -->
+      <CatalogList
+        :items="groupedCatalogItems"
+        @add-preset="openAddPreset"
+        @add-presets-bulk="openBulkPreset"
+        @edit-preset="openEditPreset"
+        @preset-removed="refreshPresets"
+      />
     </n-space>
 
     <n-modal
@@ -403,9 +288,10 @@ const calcHeight = computed(() => height.value - 40)
 </template>
 
 <style scoped>
-.layout {
-  display: grid;
-  grid-template-columns: 1fr minmax(240px, 320px);
-  gap: 1rem;
+/* Колоночная структура каталога использует всю доступную ширину, а не .container */
+.page-container {
+  height: 100%;
+  padding: 1rem;
+  width: 100%;
 }
 </style>

@@ -1,4 +1,4 @@
-import type { PresetItem } from '../api/catalog-schemas'
+import type { PresetFilter, PresetItem } from '../api/catalog-schemas'
 
 export interface CatalogItem {
   id: number
@@ -70,3 +70,28 @@ export interface CatalogVidsItem {
   isMC: boolean | null
   isForOwner: boolean | null
 }
+
+/**
+ * Элемент третьего уровня каталога: вид товара или подфильтровая страница.
+ * id вида и id подфильтровой страницы могут совпадать, поэтому для ключей
+ * и состояния выбора используем `key` вида `${kind}-${id}`.
+ */
+export type CatalogNode =
+  | {
+      kind: 'vid'
+      key: string
+      id: number
+      name: string
+      alias: string
+      raw: CatalogVidsItem
+    }
+  | {
+      kind: 'preset'
+      key: string
+      id: number
+      name: string
+      alias: string
+      location: PresetItem['location']
+      filters: PresetFilter[]
+      raw: PresetItem
+    }
