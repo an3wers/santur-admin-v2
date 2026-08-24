@@ -408,7 +408,7 @@ async function removeNodeHandler() {
 .columns {
   display: grid;
   grid-template-columns: 260px 300px 360px minmax(320px, 1fr);
-  height: calc(100dvh - 200px);
+  height: calc(100dvh - 220px);
   min-height: 520px;
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NH1, NSpace, NButton, NModal, NIcon } from 'naive-ui'
+import { NH1, NSpace, NButton, NModal, NIcon, NCard } from 'naive-ui'
 import {
   CatalogList,
   PresetFilterForm,
@@ -18,10 +18,13 @@ import { useNavStore } from '~/shared/navigation'
 import { FileDownload } from '@vicons/tabler'
 import type { GetCatalogItemDto } from '~/entities/catalog/api/catalog-schemas'
 import { useWindowSize } from '@vueuse/core'
+import InputSearch from '~/shared/ui/input-search/InputSearch.vue'
 
 const navStore = useNavStore()
 
 const api = useCatalogApi()
+
+const searchQuery = ref('')
 
 const { data, status } = await useAsyncData(getCatalogQueryKey(), api.getCatalog)
 
@@ -175,6 +178,11 @@ const calcHeight = computed(() => height.value - 40)
           >
         </template>
       </page-title>
+      <n-card size="small">
+        <n-space>
+          <InputSearch v-model="searchQuery" :delay="500" placeholder="Поиск по каталогу" />
+        </n-space>
+      </n-card>
       <CatalogList
         :items="groupedCatalogItems"
         @add-preset="openAddPreset"
