@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CatalogItem, CatalogNode } from '../model/catalog-types'
+import type { CatalogItem } from '../model/catalog-types'
 import {
   NCard,
   NButton,
@@ -10,7 +10,8 @@ import {
   NSpin,
   useMessage,
   NPopover,
-  NTag
+  NTag,
+  NButtonGroup
 } from 'naive-ui'
 import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
@@ -19,6 +20,7 @@ import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
 import type { DownloadTemplateOption } from '../api/catalog-schemas'
 import { useCopyToClipboard } from '~/shared/libs/copy-to-clipboard'
 import { getLocationLabel } from '../libs/preset-location'
+import { useCatalogTreeStore } from '../model/use-catalog-tree-store'
 import CatalogNodeCard from './CatalogNodeCard.vue'
 
 const props = defineProps<{
@@ -37,79 +39,22 @@ const emit = defineEmits<{
 
 // Структура каталога разложена по колонкам: товарное направление -> категория ->
 // виды и подфильтровые страницы -> карточка выбранного элемента.
-const selectedTnId = ref<number | null>(null)
-const selectedTkId = ref<number | null>(null)
-const selectedNodeKey = ref<string | null>(null)
+// Выбранная ветка хранится в сторе, поэтому переживает переход на отдельные
+// страницы редактирования (направления, категории, вида) и возврат к структуре.
+const catalogTree = useCatalogTreeStore()
+const {
+  selectedTnId,
+  selectedTkId,
+  selectedNodeKey,
+  selectedTn,
+  categories,
+  selectedTk,
+  nodes,
+  selectedNode
+} = storeToRefs(catalogTree)
 
-const selectedTn = computed(
-  () => props.items.find((item) => item.id === selectedTnId.value) ?? null
-)
-
-const categories = computed(() => selectedTn.value?.child ?? [])
-
-const selectedTk = computed(
-  () => categories.value.find((child) => child.id === selectedTkId.value) ?? null
-)
-
-// Плоский список третьего уровня: сначала виды, затем подфильтровые страницы
-const nodes = computed<CatalogNode[]>(() => {
-  const child = selectedTk.value
-
-  if (!child) {
-    return []
-  }
-
-  const vids = (child.categoryVids ?? []).map<CatalogNode>((vid) => ({
-    kind: 'vid',
-    key: `vid-${vid.id}`,
-    id: vid.id,
-    name: vid.name,
-    alias: vid.alias,
-    raw: vid
-  }))
-
-  const presets = (child.presets ?? []).map<CatalogNode>((preset) => ({
-    kind: 'preset',
-    key: `preset-${preset.id}`,
-    id: preset.id,
-    name: preset.title,
-    alias: preset.alias,
-    location: preset.location,
-    filters: preset.presets ?? [],
-    raw: preset
-  }))
-
-  return [...vids, ...presets]
-})
-
-const selectedNode = computed(
-  () => nodes.value.find((node) => node.key === selectedNodeKey.value) ?? null
-)
-
-// Первое направление выбираем сразу, чтобы страница не открывалась пустой.
-// Если выбранное направление пропало после обновления данных — переключаемся на первое.
-watch(
-  () => props.items,
-  (items) => {
-    if (!items.some((item) => item.id === selectedTnId.value)) {
-      selectedTnId.value = items[0]?.id ?? null
-    }
-  },
-  { immediate: true }
-)
-
-// Выбор вложенного уровня сбрасываем, если он больше не принадлежит выбранному родителю
-watch(categories, (list) => {
-  if (!list.some((child) => child.id === selectedTkId.value)) {
-    selectedTkId.value = null
-  }
-})
-
-watch(nodes, (list) => {
-  if (!list.some((node) => node.key === selectedNodeKey.value)) {
-    selectedNodeKey.value = null
-  }
-})
+// Стор сам сбрасывает выбор, если сохранённая ветка исчезла после обновления данных
+watch(() => props.items, catalogTree.setItems, { immediate: true })
 
 function getCategoryMeta(child: CatalogItem['child'][number]) {
   return `Видов: ${child.categoryVids?.length ?? 0} · Фильтров: ${child.presets?.length ?? 0}`
@@ -117,6 +62,18 @@ function getCategoryMeta(child: CatalogItem['child'][number]) {
 
 function moveEdit(itemId: number) {
   return navigateTo(`/tntks/${itemId}`)
+}
+
+// Перед уходом на страницу редактирования фиксируем ветку, чтобы после возврата
+// структура открылась на том же элементе
+function editTnHandler(item: CatalogItem) {
+  catalogTree.selectTn(item.id)
+  return moveEdit(item.id)
+}
+
+function editTkHandler(child: CatalogItem['child'][number]) {
+  catalogTree.selectTk(child.id)
+  return moveEdit(child.id)
 }
 
 function addPresetHandler() {
@@ -224,7 +181,7 @@ async function removeNodeHandler() {
 
   if (removeStatus.value === 'success') {
     message.success('Подфильтровая страница удалена')
-    selectedNodeKey.value = null
+    catalogTree.clearNodeSelection()
     emit('presetRemoved')
   }
 
@@ -251,43 +208,47 @@ async function removeNodeHandler() {
             :key="item.id"
             class="row"
             :class="{ 'row--selected': item.id === selectedTnId }"
-            @click="selectedTnId = item.id"
+            @click="catalogTree.selectTn(item.id)"
           >
-            <div class="row__main">
-              <div class="row__meta">
-                <n-text :depth="3" class="row__id">{{ item.id }}</n-text>
-                <n-button text size="tiny" @click.stop="copyCategoryId(item.id)">
-                  <n-icon><Copy /></n-icon>
-                </n-button>
-              </div>
-              <p class="row__name">{{ item.name }}</p>
-              <n-text :depth="3" tag="p" class="row__sub"
-                >Категорий: {{ item.child.length }}</n-text
-              >
-            </div>
-            <div class="row__actions">
-              <n-dropdown
-                trigger="click"
-                :options="downloadMenu"
-                @select="(key) => handleDropdown(key, item)"
-              >
-                <n-popover placement="bottom" trigger="hover">
-                  <template #trigger>
-                    <n-button quaternary circle size="small" @click.stop>
-                      <n-icon size="18px"><FileDownload /></n-icon>
-                    </n-button>
-                  </template>
-                  <span>Скачать шаблон для заполнения</span>
-                </n-popover>
-              </n-dropdown>
-              <n-popover placement="bottom" trigger="hover">
-                <template #trigger>
-                  <n-button quaternary circle size="small" @click.stop="moveEdit(item.id)">
-                    <n-icon size="18px"><Edit /></n-icon>
+            <div class="row-col">
+              <div class="row__meta_actions">
+                <div class="row__meta">
+                  <n-text :depth="3" class="row__id">{{ item.id }}</n-text>
+                  <n-button text size="small" @click.stop="copyCategoryId(item.id)">
+                    <n-icon><Copy /></n-icon>
                   </n-button>
-                </template>
-                <span>Редактировать</span>
-              </n-popover>
+                </div>
+                <div class="row__actions">
+                  <n-dropdown
+                    trigger="click"
+                    :options="downloadMenu"
+                    @select="(key) => handleDropdown(key, item)"
+                  >
+                    <n-popover placement="bottom" trigger="hover">
+                      <template #trigger>
+                        <n-button quaternary circle size="small" @click.stop>
+                          <n-icon size="18px"><FileDownload /></n-icon>
+                        </n-button>
+                      </template>
+                      <span>Скачать шаблон для заполнения</span>
+                    </n-popover>
+                  </n-dropdown>
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button quaternary circle size="small" @click.stop="editTnHandler(item)">
+                        <n-icon size="18px"><Edit /></n-icon>
+                      </n-button>
+                    </template>
+                    <span>Редактировать</span>
+                  </n-popover>
+                </div>
+              </div>
+              <div class="row__main">
+                <p class="row__name">{{ item.name }}</p>
+                <n-text :depth="3" tag="p" class="row__sub"
+                  >Категорий: {{ item.child.length }}</n-text
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -307,27 +268,31 @@ async function removeNodeHandler() {
             :key="child.id"
             class="row"
             :class="{ 'row--selected': child.id === selectedTkId }"
-            @click="selectedTkId = child.id"
+            @click="catalogTree.selectTk(child.id)"
           >
-            <div class="row__main">
-              <div class="row__meta">
-                <n-text :depth="3" class="row__id">{{ child.id }}</n-text>
-                <n-button text size="tiny" @click.stop="copyCategoryId(child.id)">
-                  <n-icon><Copy /></n-icon>
-                </n-button>
-              </div>
-              <p class="row__name">{{ child.name }}</p>
-              <n-text :depth="3" tag="p" class="row__sub">{{ getCategoryMeta(child) }}</n-text>
-            </div>
-            <div class="row__actions">
-              <n-popover placement="bottom" trigger="hover">
-                <template #trigger>
-                  <n-button quaternary circle size="small" @click.stop="moveEdit(child.id)">
-                    <n-icon size="18px"><Edit /></n-icon>
+            <div class="row-col">
+              <div class="row__meta_actions">
+                <div class="row__meta">
+                  <n-text :depth="3" class="row__id">{{ child.id }}</n-text>
+                  <n-button text size="tiny" @click.stop="copyCategoryId(child.id)">
+                    <n-icon><Copy /></n-icon>
                   </n-button>
-                </template>
-                <span>Редактировать</span>
-              </n-popover>
+                </div>
+                <div class="row__actions">
+                  <n-popover placement="bottom" trigger="hover">
+                    <template #trigger>
+                      <n-button quaternary circle size="small" @click.stop="editTkHandler(child)">
+                        <n-icon size="18px"><Edit /></n-icon>
+                      </n-button>
+                    </template>
+                    <span>Редактировать</span>
+                  </n-popover>
+                </div>
+              </div>
+              <div class="row__main">
+                <p class="row__name">{{ child.name }}</p>
+                <n-text :depth="3" tag="p" class="row__sub">{{ getCategoryMeta(child) }}</n-text>
+              </div>
             </div>
           </div>
         </div>
@@ -336,7 +301,7 @@ async function removeNodeHandler() {
       <!-- Уровень 3: виды и подфильтровые страницы -->
       <div class="column">
         <div class="column__head">
-          <span>Виды и подфильтровые страницы</span>
+          <span>Виды и фильтры</span>
           <span class="column__count">{{ nodes.length }}</span>
         </div>
         <div class="column__body">
@@ -349,7 +314,7 @@ async function removeNodeHandler() {
             :key="node.key"
             class="row row--node"
             :class="{ 'row--selected': node.key === selectedNodeKey }"
-            @click="selectedNodeKey = node.key"
+            @click="catalogTree.selectNode(node.key)"
           >
             <div class="row__main">
               <div class="row__meta">
@@ -357,6 +322,9 @@ async function removeNodeHandler() {
                   {{ node.kind === 'vid' ? 'вид' : 'фильтр' }}
                 </n-tag>
                 <n-text :depth="3" class="row__id">{{ node.id }}</n-text>
+              </div>
+              <p class="row__name" :title="node.alias">{{ node.name }}</p>
+              <div>
                 <n-tag
                   v-if="node.kind === 'preset'"
                   :type="node.location === 'hidden' ? 'warning' : 'default'"
@@ -366,36 +334,35 @@ async function removeNodeHandler() {
                   {{ getLocationLabel(node.location) }}
                 </n-tag>
               </div>
-              <p class="row__name" :title="node.alias">{{ node.name }}</p>
             </div>
           </div>
         </div>
         <div class="column__footer">
-          <n-button
-            block
-            dashed
-            size="small"
-            type="primary"
-            :disabled="!selectedTk"
-            @click="addPresetHandler"
-          >
-            <template #icon>
-              <n-icon><SquarePlus /></n-icon>
-            </template>
-            Подфильтровая страница
-          </n-button>
-          <n-button
-            block
-            quaternary
-            size="small"
-            :disabled="!selectedTk"
-            @click="addPresetsBulkHandler"
-          >
-            <template #icon>
-              <n-icon><LayoutGridAdd /></n-icon>
-            </template>
-            Добавить множество
-          </n-button>
+          <n-button-group>
+            <n-button size="small" type="primary" :disabled="!selectedTk" @click="addPresetHandler">
+              <template #icon>
+                <n-icon><SquarePlus /></n-icon>
+              </template>
+              Подфильтровая страница
+            </n-button>
+
+            <n-popover placement="bottom" trigger="hover">
+              <template #trigger>
+                <n-button
+                  secondary
+                  size="small"
+                  type="primary"
+                  :disabled="!selectedTk"
+                  @click="addPresetsBulkHandler"
+                >
+                  <template #icon>
+                    <n-icon><LayoutGridAdd /></n-icon>
+                  </template>
+                </n-button>
+              </template>
+              <span>Добавить множество подфильтровых страниц</span>
+            </n-popover>
+          </n-button-group>
         </div>
       </div>
 
@@ -441,7 +408,7 @@ async function removeNodeHandler() {
 .columns {
   display: grid;
   grid-template-columns: 260px 300px 360px minmax(320px, 1fr);
-  height: calc(100dvh - 220px);
+  height: calc(100dvh - 200px);
   min-height: 520px;
 }
 
@@ -496,6 +463,7 @@ async function removeNodeHandler() {
   flex-shrink: 0;
   gap: 0.375rem;
   padding: 0.75rem 1rem;
+  min-height: 54px;
 }
 
 .column__empty {
@@ -523,9 +491,28 @@ async function removeNodeHandler() {
   border-left-color: var(--primary-color);
 }
 
+.row-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: stretch;
+  width: 100%;
+}
+
 .row__main {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
   min-width: 0;
+  gap: 0.25rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.row__meta_actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .row__meta {

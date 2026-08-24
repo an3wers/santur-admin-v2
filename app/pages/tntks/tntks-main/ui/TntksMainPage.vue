@@ -161,7 +161,7 @@ const calcHeight = computed(() => height.value - 40)
           </n-h1>
         </template>
         <template #actions>
-          <n-button secondary type="primary" @click="downloadCatalog" icon-placement="left">
+          <n-button secondary type="default" @click="downloadCatalog" icon-placement="left">
             <template #icon>
               <n-icon size="24px">
                 <FileDownload />
@@ -170,7 +170,7 @@ const calcHeight = computed(() => height.value - 40)
             Шаблон каталога
           </n-button>
 
-          <n-button secondary type="primary" @click="showUploadFileModal = true"
+          <n-button secondary type="default" @click="showUploadFileModal = true"
             >Загрузить описание</n-button
           >
         </template>

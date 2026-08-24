@@ -93,28 +93,27 @@ const breadcrumb = computed(() => [props.tnName, props.tkName].filter(Boolean).j
     </div>
 
     <div class="card__actions">
-      <n-space justify="end">
-        <n-button
-          v-if="node.kind === 'preset'"
-          secondary
-          type="error"
-          size="small"
-          :loading="removing"
-          :disabled="removing"
-          @click="$emit('remove')"
-        >
-          <template #icon>
-            <n-icon><Trash /></n-icon>
-          </template>
-          Удалить
-        </n-button>
-        <n-button type="primary" size="small" @click="$emit('edit')">
-          <template #icon>
-            <n-icon><Edit /></n-icon>
-          </template>
-          Редактировать
-        </n-button>
-      </n-space>
+      <!-- <n-space justify="end"></n-space> -->
+      <n-button
+        v-if="node.kind === 'preset'"
+        secondary
+        type="error"
+        size="small"
+        :loading="removing"
+        :disabled="removing"
+        @click="$emit('remove')"
+      >
+        <template #icon>
+          <n-icon><Trash /></n-icon>
+        </template>
+        Удалить
+      </n-button>
+      <n-button type="primary" size="small" @click="$emit('edit')">
+        <template #icon>
+          <n-icon><Edit /></n-icon>
+        </template>
+        Редактировать
+      </n-button>
     </div>
   </div>
 </template>
@@ -230,8 +229,12 @@ const breadcrumb = computed(() => [props.tnName, props.tkName].filter(Boolean).j
 }
 
 .card__actions {
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
   border-top: 1px solid var(--gray-200);
   flex-shrink: 0;
   padding: 0.75rem 1.25rem;
+  min-height: 54px;
 }
 </style>
