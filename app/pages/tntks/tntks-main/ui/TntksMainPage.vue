@@ -11,6 +11,7 @@ import {
   groupCatalogItems,
   attachPresetsToCatalog,
   attachVidsToCatalog,
+  filterCatalogItems,
   UploadCatalogItemData
 } from '~/entities/catalog'
 import { useDownloadTemplate } from '~/entities/catalog/model/use-download-template'
@@ -48,6 +49,12 @@ const groupedCatalogItems = computed(() => {
   const withPresets = attachPresetsToCatalog(grouped, presetsData.value ?? [])
   return attachVidsToCatalog(withPresets, vidsData.value ?? [])
 })
+
+// Поиск по структуре каталога полностью клиентский: ручек под него нет,
+// фильтруем уже загруженное дерево по подстроке
+const filteredCatalogItems = computed(() =>
+  filterCatalogItems(groupedCatalogItems.value, searchQuery.value)
+)
 
 const showUploadFileModal = ref(false)
 
@@ -184,7 +191,7 @@ const calcHeight = computed(() => height.value - 40)
         </n-space>
       </n-card>
       <CatalogList
-        :items="groupedCatalogItems"
+        :items="filteredCatalogItems"
         @add-preset="openAddPreset"
         @add-presets-bulk="openBulkPreset"
         @edit-preset="openEditPreset"

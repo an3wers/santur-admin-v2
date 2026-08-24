@@ -203,6 +203,7 @@ async function removeNodeHandler() {
           <span class="column__count">{{ items.length }}</span>
         </div>
         <div class="column__body">
+          <div v-if="!items.length" class="column__empty">Ничего не найдено</div>
           <div
             v-for="item in items"
             :key="item.id"
