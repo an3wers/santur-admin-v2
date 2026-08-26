@@ -31,8 +31,9 @@ defineProps<{
   isModified: boolean
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'onCreateAlias', value: string): void
+  (e: 'onAfterSave'): void
 }>()
 
 const formRef = ref<FormInst | null>(null)
@@ -50,6 +51,7 @@ async function saveHandler() {
 
   if (result.ok) {
     message.success('Категория успешно сохранена')
+    emits('onAfterSave')
     return
   }
 

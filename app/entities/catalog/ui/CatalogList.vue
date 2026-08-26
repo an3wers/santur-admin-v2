@@ -13,7 +13,7 @@ import {
   NTag,
   NButtonGroup
 } from 'naive-ui'
-import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd } from '@vicons/tabler'
+import { Copy, Edit, FileDownload, SquarePlus, LayoutGridAdd, Photo } from '@vicons/tabler'
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
 import { useDownloadTemplate } from '../model/use-download-template'
 import { useRemovePresetFilter } from '../model/use-remove-preset-filter'
@@ -246,9 +246,14 @@ async function removeNodeHandler() {
               </div>
               <div class="row__main">
                 <p class="row__name">{{ item.name }}</p>
-                <n-text :depth="3" tag="p" class="row__sub"
-                  >Категорий: {{ item.child.length }}</n-text
-                >
+
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <n-text :depth="3" tag="p" class="row__sub"
+                    >Категорий: {{ item.child.length }}</n-text
+                  >
+
+                  <n-icon v-if="item.imgExist" size="16px" color="#1976d2"><Photo /></n-icon>
+                </div>
               </div>
             </div>
           </div>
@@ -275,7 +280,7 @@ async function removeNodeHandler() {
               <div class="row__meta_actions">
                 <div class="row__meta">
                   <n-text :depth="3" class="row__id">{{ child.id }}</n-text>
-                  <n-button text size="tiny" @click.stop="copyCategoryId(child.id)">
+                  <n-button text size="small" @click.stop="copyCategoryId(child.id)">
                     <n-icon><Copy /></n-icon>
                   </n-button>
                 </div>
@@ -292,7 +297,12 @@ async function removeNodeHandler() {
               </div>
               <div class="row__main">
                 <p class="row__name">{{ child.name }}</p>
-                <n-text :depth="3" tag="p" class="row__sub">{{ getCategoryMeta(child) }}</n-text>
+
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <n-text :depth="3" tag="p" class="row__sub">{{ getCategoryMeta(child) }}</n-text>
+
+                  <n-icon v-if="child.imgExist" size="16px" color="#1976d2"><Photo /></n-icon>
+                </div>
               </div>
             </div>
           </div>
@@ -335,6 +345,7 @@ async function removeNodeHandler() {
                   {{ getLocationLabel(node.location) }}
                 </n-tag>
               </div>
+              <n-icon v-if="node.raw.image" size="16px" color="#1976d2"><Photo /></n-icon>
             </div>
           </div>
         </div>
