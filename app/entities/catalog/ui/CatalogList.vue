@@ -474,7 +474,7 @@ async function removeNodeHandler() {
 }
 
 .row {
-  border-bottom: 1px solid var(--gray-100);
+  border-bottom: 1px solid var(--gray-200);
   border-left: 3px solid transparent;
   cursor: pointer;
   display: flex;
