@@ -5,13 +5,13 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
-      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+      "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "f321507f77702a54af1db66549ec1685fc625390d06c57d7949cdcda8eb1b5c7"
+      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
     },
     "naive-ui": {
       "source": "sepush/naive-ui-skills",
@@ -23,7 +23,7 @@
       "source": "antfu/skills",
       "sourceType": "github",
       "skillPath": "skills/nuxt/SKILL.md",
-      "computedHash": "9e8237ec92083db9a6f4c77d5e5bf4b1d9873d670671235bc75455ee1ca39c74"
+      "computedHash": "96dbdbfc06bf7045aeb9a463b972d5c0b5679d6dadf196d8ef6b98dc6defed2d"
     },
     "nuxt-test-utils-skilld": {
       "source": "nuxt/scripts",
@@ -41,7 +41,7 @@
       "source": "victoriametrics/skills",
       "sourceType": "github",
       "skillPath": "plugins/query/skills/victorialogs-query/SKILL.md",
-      "computedHash": "eda343d87db7d46ab13e0c5d5236b8bd76d5daebb6add00694152845aea4fb6f"
+      "computedHash": "df71aa585b4cf15b3cad79b51c0c858c2ed516268521da749f3b5b5d181e96c4"
     },
     "vitest": {
       "source": "antfu/skills",
