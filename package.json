@@ -13,13 +13,14 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"./**/*.{html,vue,ts,js}\"",
     "prepare": "husky",
-    "typecheck": "npx nuxi typecheck"
+    "typecheck": "npx nuxi typecheck",
+    "ncu:i": "npx npm-check-updates -i"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.17.0",
-    "@nuxt/test-utils": "^4.1.0",
-    "@pinia/nuxt": "^1.0.1",
-    "@speed-highlight/core": "^1.2.24",
+    "@nuxt/test-utils": "^4.3.2",
+    "@pinia/nuxt": "^1.0.2",
+    "@speed-highlight/core": "^2.1.0",
     "@tiptap/core": "^3.29.2",
     "@tiptap/extension-image": "^3.29.2",
     "@tiptap/extension-table": "^3.29.2",
@@ -32,31 +33,31 @@
     "@vicons/tabler": "^0.13.0",
     "@vueuse/nuxt": "^14.4.0",
     "chart.js": "^4.5.1",
-    "eslint": "^10.8.1",
-    "naive-ui": "^2.44.1",
+    "eslint": "^10.10.0",
+    "naive-ui": "^2.45.3",
     "nanoid": "^6.0.1",
     "nuxt": "^4.5.2",
     "nuxtjs-naive-ui": "^1.0.2",
-    "pinia": "^4.0.2",
-    "sass": "^1.102.0",
-    "tiptap-extension-resize-image": "^1.4.6",
+    "pinia": "^4.0.3",
+    "sass": "^1.104.1",
+    "tiptap-extension-resize-image": "^1.4.7",
     "vue": "latest",
     "vue-chartjs": "^5.3.4",
     "vue-router": "latest",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/eslint-config-prettier": "^6.11.3",
-    "@types/node": "^26.2.0",
-    "@vitest/coverage-v8": "^4.1.10",
-    "@vue/test-utils": "^2.4.11",
+    "@types/node": "^26.5.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "@vue/test-utils": "^2.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10",
-    "vue-tsc": "^3.3.9"
+    "vitest": "^5.0.0",
+    "vue-tsc": "^3.3.11"
   }
 }

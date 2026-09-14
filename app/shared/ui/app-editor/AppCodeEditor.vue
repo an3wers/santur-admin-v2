@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { highlightText, type ShjLanguage } from '@speed-highlight/core'
+import { highlightHTML, type ShjLanguage } from '@speed-highlight/core'
 import '@speed-highlight/core/themes/github-light.css'
 import { indentCode, outdentCode, type CodeEdit } from './code-indent'
 
@@ -34,7 +34,9 @@ let highlightRequest = 0
 
 const updateHighlight = async (code: string) => {
   const request = ++highlightRequest
-  const result = await highlightText(code, props.language, false)
+  // v2: highlightText переименован в highlightHTML, третий аргумент — объект опций.
+  // block: false отключает обёртку с нумерацией строк — её рисует свой слой gutter
+  const result = await highlightHTML(code, props.language, { block: false })
 
   if (request !== highlightRequest) {
     return
