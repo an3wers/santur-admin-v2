@@ -12,20 +12,20 @@ import {
   NIcon,
   NSpace,
   NImage,
-  NUpload,
-  type UploadFileInfo,
+  NText,
   useMessage
 } from 'naive-ui'
 import { Refresh } from '@vicons/tabler'
 import type { CatalogItemModel } from '../model/catalog-types'
-import { MediaList, type OptionsType } from '@/entities/media'
+import { MediaList } from '@/entities/media'
 import { useSaveCatalogItem } from '../model/use-save-catalog-item'
 import { useRemoveCatalogItemImage } from '../model/use-remove-catalog-item-image'
+import type {
+  ImageSquareEditorResult,
+  SquareTransform
+} from '~/shared/ui/image-square-editor/types'
 
 const model = defineModel<CatalogItemModel>('state', { required: true })
-
-const files = ref<File[]>([])
-const fileImageRef = ref<UploadFileInfo[]>([])
 
 defineProps<{
   isModified: boolean
@@ -47,9 +47,12 @@ const { status: saveStatus, saveCatalogItem } = useSaveCatalogItem()
 async function saveHandler() {
   const { imgExist, imgUrl, ...data } = model.value
 
-  const result = await saveCatalogItem({ ...data, files: files.value })
+  const files = imageDraft.value ? [imageDraft.value.file] : []
+
+  const result = await saveCatalogItem({ ...data, files })
 
   if (result.ok) {
+    resetImageDraft()
     message.success('Категория успешно сохранена')
     emits('onAfterSave')
     return
@@ -66,25 +69,38 @@ async function cancelHandler() {
   IMAGE
 */
 
-const MAX_SIZE_FILE = 20_000_000
+const IMAGE_SIZE = 500
 
-function imageChangeHandler({ file }: OptionsType) {
-  if (file.status === 'removed') {
-    fileImageRef.value = []
-    files.value = []
-    return
-  }
-
-  if (file.file && file.file.size > MAX_SIZE_FILE) {
-    message.error('Максимальный размер изображения 20 мб')
-    fileImageRef.value = []
-    files.value = []
-    return
-  }
-
-  fileImageRef.value = [{ ...file, status: 'finished' }]
-  files.value = file.file ? [file.file] : []
+type ImageDraft = {
+  file: File
+  sourceFile: File
+  transform: SquareTransform
+  previewUrl: string
 }
+
+const imageEditorShow = ref(false)
+const imageEditorInitial = shallowRef<{ file: File; transform: SquareTransform } | null>(null)
+const imageDraft = shallowRef<ImageDraft | null>(null)
+
+function openImageEditor(fromDraft = false) {
+  imageEditorInitial.value =
+    fromDraft && imageDraft.value
+      ? { file: imageDraft.value.sourceFile, transform: imageDraft.value.transform }
+      : null
+  imageEditorShow.value = true
+}
+
+function resetImageDraft() {
+  if (imageDraft.value) URL.revokeObjectURL(imageDraft.value.previewUrl)
+  imageDraft.value = null
+}
+
+function applyImageHandler({ file, sourceFile, transform }: ImageSquareEditorResult) {
+  resetImageDraft()
+  imageDraft.value = { file, sourceFile, transform, previewUrl: URL.createObjectURL(file) }
+}
+
+onBeforeUnmount(resetImageDraft)
 
 const { removeImage, status: removeImageStatus } = useRemoveCatalogItemImage()
 
@@ -125,8 +141,22 @@ async function removeImageHandler() {
         </n-form-item>
         <n-form-item label="Изображение">
           <n-space align="center">
-            <template v-if="model.imgExist">
+            <template v-if="imageDraft">
+              <n-image width="80" height="80" object-fit="contain" :src="imageDraft.previewUrl" />
+              <n-button size="small" secondary @click="openImageEditor(true)">Изменить</n-button>
+              <n-button size="small" tertiary @click="resetImageDraft">Сбросить</n-button>
+              <n-text depth="3">
+                {{
+                  model.imgExist
+                    ? 'Заменит текущее изображение при сохранении'
+                    : 'Будет загружено при сохранении'
+                }}
+              </n-text>
+            </template>
+
+            <template v-else-if="model.imgExist">
               <n-image width="100" height="60" object-fit="contain" :src="model.imgUrl" />
+              <n-button size="small" secondary @click="openImageEditor()">Заменить</n-button>
               <n-button
                 tertiary
                 type="error"
@@ -137,17 +167,18 @@ async function removeImageHandler() {
               >
             </template>
 
-            <n-upload
-              v-else
-              :file-list="fileImageRef"
-              :default-upload="false"
-              :max="1"
-              accept="image/*"
-              @change="imageChangeHandler"
-            >
-              <n-button>Выбрать изображение</n-button>
-            </n-upload>
+            <n-button v-else @click="openImageEditor()">Выбрать изображение</n-button>
           </n-space>
+
+          <ImageSquareEditorModal
+            v-model:show="imageEditorShow"
+            title="Подготовка изображения категории"
+            :subtitle="model.name"
+            :output-size="IMAGE_SIZE"
+            :initial-file="imageEditorInitial?.file"
+            :initial-transform="imageEditorInitial?.transform"
+            @apply="applyImageHandler"
+          />
         </n-form-item>
         <n-form-item label="Описание">
           <AppEditor v-model="model.descr">
